@@ -6,8 +6,7 @@
     "removeEmptyLines": false,
     "topFilesLength": 10,
     "showLineNumbers": true,
-    "copyToClipboard": false,
-    "instructionFilePath": "repomix-instruction.md"
+    "copyToClipboard": false
   },
   "include": [
     "package.json",

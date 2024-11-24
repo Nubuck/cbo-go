@@ -1,0 +1,86 @@
+{
+  "status": "INVALID",
+  "fields": {
+    "loanAmount": "R90 640,57",
+    "initiationFee": "R1 207,50",
+    "serviceFee": "R69,00",
+    "instalment": "R3 393,49",
+    "interestRate": "29.25%",
+    "insurancePremium": "R321,46",
+    "collectionBank": "."
+  },
+  "confidence": {
+    "overall": 0,
+    "fields": {
+      "loanAmount": {
+        "value": "R90 640,57",
+        "confidence": 1,
+        "bounds": {
+          "x": 160.985,
+          "y": 525.169,
+          "width": 38.254999999999995,
+          "height": 7
+        },
+        "page": 0
+      },
+      "initiationFee": {
+        "value": "R1 207,50",
+        "confidence": 1,
+        "bounds": { "x": 160.988, "y": 690.483, "width": 32.928, "height": 7 },
+        "page": 0
+      },
+      "serviceFee": {
+        "value": "R69,00",
+        "confidence": 1,
+        "bounds": { "x": 160.988, "y": 723.747, "width": 24.479, "height": 7 },
+        "page": 0
+      },
+      "instalment": {
+        "value": "R3 393,49",
+        "confidence": 1,
+        "bounds": {
+          "x": 449.07000000000005,
+          "y": 591.443,
+          "width": 32.13000000000003,
+          "height": 7
+        },
+        "page": 0
+      },
+      "interestRate": {
+        "value": "29.25%",
+        "confidence": 1,
+        "bounds": {
+          "x": 449.07,
+          "y": 723.75,
+          "width": 24.387999999999998,
+          "height": 7
+        },
+        "page": 0
+      },
+      "insurancePremium": {
+        "value": "R321,46",
+        "confidence": 1,
+        "bounds": {
+          "x": 449.07000000000005,
+          "y": 34.99299999999994,
+          "width": 25.228,
+          "height": 7
+        },
+        "page": 1
+      },
+      "collectionBank": {
+        "value": ".",
+        "confidence": 1,
+        "bounds": {
+          "x": 262.00200000000007,
+          "y": 69.66399999999987,
+          "width": 1.827,
+          "height": 7
+        },
+        "page": 1
+      }
+    }
+  },
+  "validation": {},
+  "issues": []
+}

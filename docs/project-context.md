@@ -1,123 +1,105 @@
 # Hybrid Document Validation System - Project Context
 
-## Current Implementation
-We have established a two-phase approach to document validation:
+## Strategic Evolution
+We've made a significant pivot in our validation approach, moving from traditional label-based extraction to a more robust "known-value hunting" strategy with spatial verification. This shift was driven by the need to handle poor quality documents and OCR variations while maintaining high accuracy.
 
-### Phase 1 - Immediate Hybrid Solution
-Currently implementing an enhanced validation system that leverages:
-- Multiple extraction strategies (digital PDF, OCR, hybrid)
-- Pre-trained models without custom training
-- Confidence-based result selection
-- Cross-validation with case data
+### New Core Strategy
+1. Hybrid Validation Approach
+   - Primary: Known-value fuzzy search across document
+   - Secondary: Spatial verification of found values
+   - Tertiary: Label proximity validation
 
-Key Components Built:
-1. `HybridDocumentProcessor` - Core processing system
-2. `DocumentValidationCLI` - Command line interface for testing
-3. Enhanced validation strategies for PAQ documents
+2. Validation Priorities
+   - Loan amount fields (highest priority)
+   - Monthly installments
+   - Interest rates
+   - Insurance premiums
+   - Service & initiation fees (lower priority)
 
-Current Focus:
-- Testing with sample documents
-- Refining validation accuracy
-- Reducing manual review cases
+### Validation Tolerances
+- Currency: 5c (0.05) variation allowed
+- Percentages: Trailing zeros ignored (29.00 = 29)
+- Bank names: Fuzzy matching with 0.6 threshold
+- Account numbers:
+  - Digital: Exact matching
+  - OCR: Single digit tolerance
 
-### Phase 2 - Future Custom Model Development
-Planned but not yet implemented:
-- Custom model training pipeline
-- Document understanding models
-- Specialized signature detection
-- Full document decision system
+## Current Implementation State
+### Core Components
+1. `HybridValidator`
+   - Fuzzy value matching engine
+   - Configurable field type validation
+   - Spatial verification system
+   - Confidence scoring
+
+2. `DocumentValidationCLI`
+   - Integrated hybrid validation
+   - Enhanced preprocessing
+   - Section-based content organization
+   - Improved reporting
+
+3. Validation Profiles
+   - Comprehensive section definitions
+   - Field aliases and locations
+   - Type-specific validation rules
+   - Cross-validation configurations
+
+### Progress Made
+1. Successfully implemented:
+   - Value-first validation approach
+   - Flexible fuzzy matching
+   - Priority-based validation
+   - Enhanced confidence scoring
+
+2. Initial testing shows:
+   - Improved extraction accuracy
+   - Better handling of variations
+   - More meaningful confidence scores
+   - Clearer validation reporting
 
 ## Technology Stack
-Current implementation uses:
 - Node.js 20
 - pdf-to-img
-- pdf.js-extract
+- pdf.js-extract 
 - tesseract-wasm
 - @techstark/opencv-js
 - sharp
 - fast-fuzzy
 
-## Critical Components
-
-### Validation Strategies
-1. Digital PDF Extraction
-   - Direct text extraction
-   - Pattern matching
-   - Structure analysis
-
-2. OCR-based Extraction
-   - Image preprocessing
-   - Enhanced OCR
-   - Field location
-
-3. Hybrid Approach
-   - Combined analysis
-   - Confidence scoring
-   - Result merging
-
-### Validation Profiles
-Defined for PAQ documents:
-```javascript
-{
-  criticalFields: {
-    quoteRef: {
-      pattern: /Quote ref number\s*:\s*(\d{10})/i,
-      crossMatch: 'caseReference',
-      required: true
-    },
-    payoutAmount: {
-      pattern: /Payout amount\s*:?\s*R?\s*([\d,\.]+)/i,
-      valueType: 'currency',
-      required: true
-    }
-    // ... other fields
-  },
-  crossValidation: {
-    references: ['quoteRef', 'caseReference'],
-    financials: ['payoutAmount', 'creditAdvanced']
-  }
-}
-```
-
 ## Next Steps
-
 ### Immediate Priorities
-1. Test current implementation with sample documents
-2. Refine validation strategies
-3. Enhance reporting and recommendations
-4. Add batch processing capabilities
+1. Enhance field matching with expanded aliases
+2. Fine-tune fuzzy matching thresholds
+3. Test with diverse document samples
+4. Optimize spatial verification
 
-### Future Integration
-1. Pre-trained model integration
-2. Enhanced signature detection
-3. Custom model training pipeline
-4. Full document decision system
+### Future Enhancements
+1. Machine learning for pattern recognition
+2. Adaptive confidence scoring
+3. Enhanced error reporting
+4. Performance optimization
 
-## Current Challenges
-1. Fragmented text in digital PDFs
-2. Custom font rendering issues
-3. Signature/initial detection accuracy
-4. Cross-validation confidence
+## Critical Considerations
+1. Value Matching
+   - Prioritize finding known values
+   - Use fuzzy matching for flexibility
+   - Apply type-specific tolerances
 
-## Sample Documents
-Currently testing with:
-1. Digital PAQ documents
-2. Scanned PAQ documents
-3. Documents with signatures/initials
-4. Problem cases with various issues
+2. Spatial Verification
+   - Use as confirmation rather than primary strategy
+   - Allow for document variations
+   - Consider section-based validation
 
-## Key Metrics
-Tracking:
-1. Field extraction accuracy
-2. Validation confidence
-3. Processing time
-4. Manual review rate
+3. Error Handling
+   - Clear issue reporting
+   - Confidence-based decision making
+   - Detailed validation feedback
 
 ## Dependencies
 ```json
 {
   "pdf-to-img": "^4.2.0",
-  "pdf.js-extract": "^0.2.1",
+  "pdf.js-extract": "^0.2.1", 
   "tesseract-wasm": "^0.10.0",
   "@techstark/opencv-js": "^4.10.0-release.1",
   "sharp": "^0.33.5",
@@ -125,23 +107,11 @@ Tracking:
 }
 ```
 
-## Continue From Here
-To continue development:
-1. Run current implementation against sample documents
-2. Analyze results and identify improvement areas
-3. Implement additional validation strategies
-4. Begin planning Phase 2 implementation
+## Development Focus
+The primary focus should be on:
+1. Implementing the complete HybridValidator
+2. Expanding validation profiles
+3. Testing with diverse documents
+4. Fine-tuning validation rules
 
-The immediate focus should be on:
-1. Testing current hybrid validation system
-2. Refining validation accuracy
-3. Reducing manual review cases
-4. Preparing for pre-trained model integration
-
-Next chat should focus on:
-1. Results from sample document testing
-2. Specific validation improvements needed
-3. Additional extraction strategies
-4. Pre-trained model integration planning
-
-This context provides the foundation for continuing development in the next chat session.
+This new approach provides a more robust foundation for handling document variations while maintaining high validation accuracy.
