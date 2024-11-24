@@ -4,29 +4,29 @@ class HybridValidator {
   constructor() {
     this.fuzzyConfig = {
       currency: {
-        tolerance: 0.05, // 5 cents
+        tolerance: 0.05,
         ignoreFormatting: true,
         patterns: [/^R?\s*[\d,\s]+\.?\d*$/i],
       },
       percentage: {
-        tolerance: 0.001, // Allow 29 to match 29.00
+        tolerance: 0.001,
         ignoreFormatting: true,
         patterns: [/^[\d,\.]+\s*%$/],
       },
       text: {
-        threshold: 0.8, // Standard text matching threshold
+        threshold: 0.8,
         caseInsensitive: true,
         patterns: [/.+/],
       },
       reference: {
-        threshold: 0.9, // High threshold for references
+        threshold: 0.9,
         exactMatch: true,
         patterns: [/^\d{10}$/, /^[A-Z0-9]{8,12}$/],
       },
       bankName: {
-        threshold: 0.6, // More forgiving for bank names
+        threshold: 0.6,
         caseInsensitive: true,
-        minLength: 3, // Avoid single characters/punctuation
+        minLength: 3,
         patterns: [/^[A-Za-z\s]{2,20}$/],
       },
       accountNumber: {
@@ -36,7 +36,20 @@ class HybridValidator {
       },
     };
 
-    // Enhanced field type definitions with validation rules
+    // Updated field priorities with removed product validation
+    this.fieldPriorities = {
+      caseId: { weight: 1.0, required: true },
+      loanAmount: { weight: 1.0, required: true },
+      instalment: { weight: 0.8, required: true },
+      interestRate: { weight: 0.7, required: true },
+      insurancePremium: { weight: 0.6, required: true },
+      collectionAccountNo: { weight: 0.8, required: true }, // Increased priority
+      serviceFee: { weight: 0.4, required: false },
+      initiationFee: { weight: 0.4, required: false },
+      collectionBank: { weight: 0.2, required: false }, // Reduced priority
+    };
+
+    // Field types with updated priorities
     this.fieldTypes = {
       loanAmount: { type: "currency", required: true, priority: 1.0 },
       initiationFee: { type: "currency", required: true, priority: 0.8 },
@@ -44,11 +57,11 @@ class HybridValidator {
       instalment: { type: "currency", required: true, priority: 0.9 },
       interestRate: { type: "percentage", required: true, priority: 0.9 },
       insurancePremium: { type: "currency", required: true, priority: 0.8 },
-      collectionBank: { type: "bankName", required: true, priority: 0.7 },
+      collectionBank: { type: "bankName", required: false, priority: 0.2 }, // Updated
       collectionAccountNo: {
         type: "accountNumber",
         required: true,
-        priority: 0.9,
+        priority: 0.8,
       },
       caseId: { type: "reference", required: true, priority: 1.0 },
       clientIdNo: { type: "reference", required: true, priority: 0.9 },
@@ -63,14 +76,54 @@ class HybridValidator {
       bankName: ["bank", "institution", "branch"],
     };
 
-    // Define validation priority and weights
-    this.fieldPriorities = {
-      loanAmount: { weight: 1.0, required: true },
-      instalment: { weight: 0.8, required: true },
-      interestRate: { weight: 0.7, required: true },
-      insurancePremium: { weight: 0.6, required: true },
-      serviceFee: { weight: 0.4, required: false },
-      initiationFee: { weight: 0.4, required: false },
+    // Add section markers for account details
+    this.sectionMarkers = {
+      accountDetails: [
+        "AUTHORITY TO DEBIT YOUR ACCOUNT",
+        "PERSONAL LOAN - AUTHORITY",
+        "PAYMENT OF INSTALMENTS",
+      ],
+    };
+
+    // Enhanced patterns for account detection
+    this.accountPatterns = {
+      accountNumber: {
+        markers: ["Account number", "Account No", "Acc No", "Account Number"],
+        patterns: [
+          /Account\s+(?:number|no)[:\s]+(\d[\d\s-]*\d)/i,
+          /Acc\s+(?:number|no)[:\s]+(\d[\d\s-]*\d)/i,
+          /Account:\s*(\d[\d\s-]*\d)/i,
+        ],
+      },
+      bank: {
+        markers: ["Bank", "Branch", "Institution"],
+      },
+    };
+
+    this.referencePatterns = {
+      quote: {
+        markers: ["Quote ref number", "Quote reference", "Quote ref"],
+        patterns: [
+          /Quote ref\s*(?:number)?[:\s]+(\d{10})/i,
+          /Quote ref(?:erence)?\s*(?:number)?[:\s]+(\d{10})/i,
+          /Quote ref[:\s]+(\d{10})/i,
+        ],
+      },
+      case: {
+        markers: ["Case reference no", "Case ref no", "Case reference number"],
+        patterns: [
+          /Case reference no[:\s]+(\d{10})/i,
+          /Case ref\s*(?:no)?[:\s]+(\d{10})/i,
+          /Case ref(?:erence)?\s*(?:no)?[:\s]+(\d{10})/i,
+        ],
+      },
+    };
+
+    // Footer validation config
+    this.footerConfig = {
+      maxDistance: 100, // px from bottom
+      required: true,
+      minMatches: 4, // Number of pages that must have matching reference
     };
   }
 
@@ -83,8 +136,15 @@ class HybridValidator {
     };
 
     try {
-      // First pass: Find known values using fuzzy search
-      for (const [field, value] of Object.entries(caseModel)) {
+      // Skip validation of non-critical fields
+      const criticalFields = Object.entries(caseModel).filter(
+        ([field]) => this.fieldPriorities[field]?.required
+      );
+
+      for (const [field, value] of criticalFields) {
+        // Skip product field validation
+        if (field === "product") continue;
+
         const match = await this.findKnownValue(
           extractedContent,
           field,
@@ -101,14 +161,16 @@ class HybridValidator {
         }
       }
 
-      // Second pass: Verify spatial relationships
-      const spatialValidation = await this.validateSpatialRelationships(
-        results.matches,
-        extractedContent
-      );
+      // Validate spatial relationships only for valid critical fields
+      if (results.valid) {
+        const spatialValidation = await this.validateSpatialRelationships(
+          results.matches,
+          extractedContent
+        );
 
-      results.valid = results.valid && spatialValidation.valid;
-      results.confidence *= spatialValidation.confidence;
+        results.valid = results.valid && spatialValidation.valid;
+        results.confidence *= spatialValidation.confidence;
+      }
 
       return results;
     } catch (error) {
@@ -147,12 +209,20 @@ class HybridValidator {
   }
 
   async findKnownValue(content, field, expectedValue, isDigital) {
-    // Early return if no expected value
-    if (expectedValue == null) {
-      console.warn(`No expected value provided for field: ${field}`);
-      return null;
+    // Special handling for case ID fields
+    if (field === "caseId") {
+      return await this.validateCaseReferences(
+        content,
+        expectedValue,
+        isDigital
+      );
     }
 
+    if (field === "collectionAccountNo") {
+      return await this.findAccountNumber(content, expectedValue, isDigital);
+    }
+
+    // Original findKnownValue logic for other fields
     const fieldConfig = this.fieldTypes[field];
     const fieldType =
       fieldConfig?.type || this.determineFieldType(field, expectedValue);
@@ -209,6 +279,240 @@ class HybridValidator {
     }
 
     return bestMatch;
+  }
+
+  async validateCaseReferences(content, expectedValue, isDigital) {
+    try {
+      let quoteRef = null;
+      let caseRefs = [];
+      let bestMatch = null;
+      let highestConfidence = 0;
+
+      // First find quote reference on first page
+      const firstPage = content.pages[0];
+      for (const item of firstPage) {
+        if (!item.text) continue;
+
+        // Check quote ref patterns
+        for (const pattern of this.referencePatterns.quote.patterns) {
+          const match = item.text.match(pattern);
+          if (match) {
+            console.log('MATCH', match)
+
+            quoteRef = {
+              value: match[1],
+              bounds: item.bounds,
+              page: 0,
+            };
+            break;
+          }
+        }
+        if (quoteRef) break;
+      }
+
+      // Then find case references in footers
+      for (let pageIndex = 0; pageIndex < content.pages.length; pageIndex++) {
+        const page = content.pages[pageIndex];
+        const pageHeight = Math.max(
+          ...page.map((item) => item.bounds.y + item.bounds.height)
+        );
+
+        for (const item of page) {
+          if (!item.text) continue;
+
+          // Check if item is in footer area
+          const isInFooter =
+            pageHeight - (item.bounds.y + item.bounds.height) <
+            this.footerConfig.maxDistance;
+          if (!isInFooter) continue;
+
+          // Check case ref patterns
+          for (const pattern of this.referencePatterns.case.patterns) {
+            const match = item.text.match(pattern);
+            if (match) {
+              caseRefs.push({
+                value: match[1],
+                bounds: item.bounds,
+                page: pageIndex,
+              });
+              break;
+            }
+          }
+        }
+      }
+
+      // Validate references
+      if (quoteRef && caseRefs.length > 0) {
+        // Check if quote ref matches expected value
+        if (quoteRef.value === expectedValue) {
+          // Check if case refs match quote ref
+          const matchingRefs = caseRefs.filter(
+            (ref) => ref.value === quoteRef.value
+          );
+
+          if (matchingRefs.length >= this.footerConfig.minMatches) {
+            bestMatch = {
+              value: quoteRef.value,
+              confidence: 1,
+              bounds: quoteRef.bounds,
+              page: quoteRef.page,
+              validation: {
+                quoteRef: true,
+                caseRefs: matchingRefs.length,
+                totalPages: content.pages.length,
+              },
+            };
+            highestConfidence = 1;
+          }
+        }
+      }
+
+      // If we didn't find a perfect match but have references
+      if (!bestMatch && quoteRef) {
+        let confidence = 0.5; // Base confidence for finding quote ref
+
+        // Add confidence for matching case refs
+        const matchingRefs = caseRefs.filter(
+          (ref) => ref.value === quoteRef.value
+        );
+        confidence +=
+          (matchingRefs.length / this.footerConfig.minMatches) * 0.5;
+
+        if (confidence > highestConfidence) {
+          bestMatch = {
+            value: quoteRef.value,
+            confidence: confidence,
+            bounds: quoteRef.bounds,
+            page: quoteRef.page,
+            validation: {
+              quoteRef: true,
+              caseRefs: matchingRefs.length,
+              totalPages: content.pages.length,
+            },
+          };
+          highestConfidence = confidence;
+        }
+      }
+
+      return bestMatch;
+    } catch (error) {
+      console.error("Case reference validation failed:", error);
+      return null;
+    }
+  }
+
+  async findAccountNumber(content, expectedValue, isDigital) {
+    try {
+      // First, locate the account details section
+      let accountSection = null;
+      let sectionPage = -1;
+
+      // Search for section markers
+      for (let pageIndex = 0; pageIndex < content.pages.length; pageIndex++) {
+        const page = content.pages[pageIndex];
+        for (const item of page) {
+          if (!item.text) continue;
+
+          const isMarker = this.sectionMarkers.accountDetails.some((marker) =>
+            item.text.includes(marker)
+          );
+
+          if (isMarker) {
+            // Found the section, search within next ~20 items or until next major heading
+            accountSection = {
+              startIndex: page.indexOf(item),
+              items: page.slice(page.indexOf(item), page.indexOf(item) + 20),
+            };
+            sectionPage = pageIndex;
+            break;
+          }
+        }
+        if (accountSection) break;
+      }
+
+      if (!accountSection) {
+        console.warn("Account details section not found");
+        return null;
+      }
+
+      // Search for account number within the section
+      let bestMatch = null;
+      let highestConfidence = 0;
+
+      for (const item of accountSection.items) {
+        // Skip items without text
+        if (!item.text) continue;
+
+        // Check for account number patterns
+        for (const pattern of this.accountPatterns.accountNumber.patterns) {
+          const match = item.text.match(pattern);
+          if (match) {
+            const extractedNumber = match[1].replace(/[\s-]/g, "");
+            const confidence = this.compareAccountNumbers(
+              extractedNumber,
+              expectedValue,
+              isDigital
+            );
+
+            if (confidence > highestConfidence) {
+              bestMatch = {
+                value: extractedNumber,
+                confidence: confidence,
+                bounds: item.bounds,
+                page: sectionPage,
+              };
+              highestConfidence = confidence;
+            }
+          }
+        }
+
+        // Also check if the item itself is just the account number
+        if (/^\d[\d\s-]*\d$/.test(item.text)) {
+          const extractedNumber = item.text.replace(/[\s-]/g, "");
+          const confidence = this.compareAccountNumbers(
+            extractedNumber,
+            expectedValue,
+            isDigital
+          );
+
+          if (confidence > highestConfidence) {
+            bestMatch = {
+              value: extractedNumber,
+              confidence: confidence,
+              bounds: item.bounds,
+              page: sectionPage,
+            };
+            highestConfidence = confidence;
+          }
+        }
+      }
+
+      return bestMatch;
+    } catch (error) {
+      console.error("Account number search failed:", error);
+      return null;
+    }
+  }
+
+  compareAccountNumbers(found, expected, isDigital) {
+    // Remove any formatting
+    const cleanFound = String(found).replace(/[\s-]/g, "");
+    const cleanExpected = String(expected).replace(/[\s-]/g, "");
+
+    if (isDigital) {
+      // For digital documents, require exact match
+      return cleanFound === cleanExpected ? 1 : 0;
+    } else {
+      // For OCR, allow for minor differences
+      const maxErrors = Math.floor(cleanExpected.length * 0.1); // Allow up to 10% errors
+      let errors = 0;
+
+      for (let i = 0; i < cleanExpected.length; i++) {
+        if (cleanFound[i] !== cleanExpected[i]) errors++;
+      }
+
+      return errors <= maxErrors ? 1 - errors / cleanExpected.length : 0;
+    }
   }
 
   isValidCandidate(text, fieldType, config) {

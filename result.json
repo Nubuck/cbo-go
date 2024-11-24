@@ -1,41 +1,15 @@
 {
   "status": "INVALID",
   "fields": {
-    "product": ".",
-    "caseId": "10016998899",
     "loanAmount": "R90 640,57",
-    "initiationFee": "R1 207,50",
-    "serviceFee": "R69,00",
     "instalment": "R3 393,49",
     "interestRate": "29.25%",
     "insurancePremium": "R321,46",
-    "collectionBank": "Bank"
+    "collectionAccountNo": "1148337962"
   },
   "confidence": {
-    "overall": 0,
+    "overall": 1,
     "fields": {
-      "product": {
-        "value": ".",
-        "confidence": 1,
-        "bounds": {
-          "x": 262.00200000000007,
-          "y": 69.66399999999987,
-          "width": 1.827,
-          "height": 7
-        },
-        "page": 1
-      },
-      "caseId": {
-        "value": "10016998899",
-        "confidence": 1,
-        "bounds": {
-          "x": 171.61599999999999,
-          "y": 761.333,
-          "width": 51.296,
-          "height": 8
-        },
-        "page": 0
-      },
       "loanAmount": {
         "value": "R90 640,57",
         "confidence": 1,
@@ -45,18 +19,6 @@
           "width": 38.254999999999995,
           "height": 7
         },
-        "page": 0
-      },
-      "initiationFee": {
-        "value": "R1 207,50",
-        "confidence": 1,
-        "bounds": { "x": 160.988, "y": 690.483, "width": 32.928, "height": 7 },
-        "page": 0
-      },
-      "serviceFee": {
-        "value": "R69,00",
-        "confidence": 1,
-        "bounds": { "x": 160.988, "y": 723.747, "width": 24.479, "height": 7 },
         "page": 0
       },
       "instalment": {
@@ -92,14 +54,19 @@
         },
         "page": 1
       },
-      "collectionBank": {
-        "value": "Bank",
+      "collectionAccountNo": {
+        "value": "1148337962",
         "confidence": 1,
-        "bounds": { "x": 17.918, "y": 643.895, "width": 17.171, "height": 7 },
+        "bounds": {
+          "x": 162.187,
+          "y": 644.828,
+          "width": 96.8590000000001,
+          "height": 7
+        },
         "page": 1
       }
     }
   },
   "validation": {},
-  "issues": []
+  "issues": ["Missing required field: caseId"]
 }
