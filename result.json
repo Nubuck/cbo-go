@@ -1,17 +1,41 @@
 {
   "status": "INVALID",
   "fields": {
+    "product": ".",
+    "caseId": "10016998899",
     "loanAmount": "R90 640,57",
     "initiationFee": "R1 207,50",
     "serviceFee": "R69,00",
     "instalment": "R3 393,49",
     "interestRate": "29.25%",
     "insurancePremium": "R321,46",
-    "collectionBank": "."
+    "collectionBank": "Bank"
   },
   "confidence": {
     "overall": 0,
     "fields": {
+      "product": {
+        "value": ".",
+        "confidence": 1,
+        "bounds": {
+          "x": 262.00200000000007,
+          "y": 69.66399999999987,
+          "width": 1.827,
+          "height": 7
+        },
+        "page": 1
+      },
+      "caseId": {
+        "value": "10016998899",
+        "confidence": 1,
+        "bounds": {
+          "x": 171.61599999999999,
+          "y": 761.333,
+          "width": 51.296,
+          "height": 8
+        },
+        "page": 0
+      },
       "loanAmount": {
         "value": "R90 640,57",
         "confidence": 1,
@@ -69,14 +93,9 @@
         "page": 1
       },
       "collectionBank": {
-        "value": ".",
+        "value": "Bank",
         "confidence": 1,
-        "bounds": {
-          "x": 262.00200000000007,
-          "y": 69.66399999999987,
-          "width": 1.827,
-          "height": 7
-        },
+        "bounds": { "x": 17.918, "y": 643.895, "width": 17.171, "height": 7 },
         "page": 1
       }
     }

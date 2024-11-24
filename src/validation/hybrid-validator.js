@@ -6,33 +6,52 @@ class HybridValidator {
       currency: {
         tolerance: 0.05, // 5 cents
         ignoreFormatting: true,
+        patterns: [/^R?\s*[\d,\s]+\.?\d*$/i],
       },
       percentage: {
         tolerance: 0.001, // Allow 29 to match 29.00
         ignoreFormatting: true,
+        patterns: [/^[\d,\.]+\s*%$/],
+      },
+      text: {
+        threshold: 0.8, // Standard text matching threshold
+        caseInsensitive: true,
+        patterns: [/.+/],
+      },
+      reference: {
+        threshold: 0.9, // High threshold for references
+        exactMatch: true,
+        patterns: [/^\d{10}$/, /^[A-Z0-9]{8,12}$/],
       },
       bankName: {
-        threshold: 0.6, // Very forgiving fuzzy match
+        threshold: 0.6, // More forgiving for bank names
         caseInsensitive: true,
+        minLength: 3, // Avoid single characters/punctuation
+        patterns: [/^[A-Za-z\s]{2,20}$/],
       },
       accountNumber: {
-        digital: { tolerance: 0 }, // Must match exactly for digital
-        ocr: { tolerance: 1 }, // Allow 1 digit difference for OCR
+        digital: { tolerance: 0 },
+        ocr: { tolerance: 1 },
+        patterns: [/^\d{6,12}$/, /^[\d\s-]{8,14}$/],
       },
     };
 
-    // Field type definitions
+    // Enhanced field type definitions with validation rules
     this.fieldTypes = {
-      loanAmount: "currency",
-      initiationFee: "currency",
-      serviceFee: "currency",
-      instalment: "currency",
-      interestRate: "percentage",
-      insurancePremium: "currency",
-      collectionBank: "bankName",
-      collectionAccountNo: "accountNumber",
-      caseId: "reference",
-      clientIdNo: "reference",
+      loanAmount: { type: "currency", required: true, priority: 1.0 },
+      initiationFee: { type: "currency", required: true, priority: 0.8 },
+      serviceFee: { type: "currency", required: true, priority: 0.8 },
+      instalment: { type: "currency", required: true, priority: 0.9 },
+      interestRate: { type: "percentage", required: true, priority: 0.9 },
+      insurancePremium: { type: "currency", required: true, priority: 0.8 },
+      collectionBank: { type: "bankName", required: true, priority: 0.7 },
+      collectionAccountNo: {
+        type: "accountNumber",
+        required: true,
+        priority: 0.9,
+      },
+      caseId: { type: "reference", required: true, priority: 1.0 },
+      clientIdNo: { type: "reference", required: true, priority: 0.9 },
     };
 
     // Define value indicators for hunting
@@ -128,7 +147,15 @@ class HybridValidator {
   }
 
   async findKnownValue(content, field, expectedValue, isDigital) {
-    const fieldType = this.determineFieldType(field, expectedValue);
+    // Early return if no expected value
+    if (expectedValue == null) {
+      console.warn(`No expected value provided for field: ${field}`);
+      return null;
+    }
+
+    const fieldConfig = this.fieldTypes[field];
+    const fieldType =
+      fieldConfig?.type || this.determineFieldType(field, expectedValue);
     const config = this.fuzzyConfig[fieldType];
 
     if (!config) {
@@ -139,23 +166,35 @@ class HybridValidator {
     let bestMatch = null;
     let highestScore = 0;
 
-    // Search through all content
     for (const page of content.pages) {
       for (const item of page) {
         try {
+          // Skip items with no text
+          if (!item?.text) continue;
+
+          // Skip invalid content based on field type rules
+          if (!this.isValidCandidate(item.text, fieldType, config)) {
+            continue;
+          }
+
           const matchScore = this.compareValues(
             item.text,
-            expectedValue,
+            String(expectedValue), // Ensure string conversion
             fieldType,
             isDigital
           );
 
+          // Use field-specific threshold if available
+          const threshold = isDigital
+            ? config.threshold || 0.8
+            : config.threshold || 0.6;
+
           if (
             matchScore.score > highestScore &&
-            matchScore.score >= (isDigital ? 0.8 : 0.6)
+            matchScore.score >= threshold
           ) {
             bestMatch = {
-              value: item.text,
+              value: this.normalizeValue(item.text, fieldType),
               confidence: matchScore.score,
               bounds: item.bounds,
               page: content.pages.indexOf(page),
@@ -163,7 +202,7 @@ class HybridValidator {
             highestScore = matchScore.score;
           }
         } catch (error) {
-          console.warn(`Error comparing values: ${error}`);
+          console.warn(`Error comparing values for ${field}:`, error);
           continue;
         }
       }
@@ -172,91 +211,160 @@ class HybridValidator {
     return bestMatch;
   }
 
+  isValidCandidate(text, fieldType, config) {
+    // Basic validation
+    if (!text || text.length < (config.minLength || 1)) {
+      return false;
+    }
+
+    // Pattern matching
+    if (config.patterns) {
+      return config.patterns.some((pattern) => pattern.test(text));
+    }
+
+    return true;
+  }
+
+  normalizeValue(value, fieldType) {
+    switch (fieldType) {
+      case "currency":
+        return value.replace(/\s+/g, " ").trim();
+      case "percentage":
+        return value.replace(/\s+/g, "").trim();
+      case "reference":
+        return value.replace(/\s+/g, "");
+      case "bankName":
+        return value.trim();
+      case "accountNumber":
+        return value.replace(/[\s-]/g, "");
+      default:
+        return value.trim();
+    }
+  }
+
   compareValues(found, expected, fieldType, isDigital) {
+    // Ensure both values exist and convert to strings
+    if (found == null || expected == null) {
+      return { score: 0, reason: "missing_value" };
+    }
+
+    found = String(found);
+    expected = String(expected);
+
     const config = this.fuzzyConfig[fieldType];
-    let score = 0;
 
     try {
       switch (fieldType) {
-        case "currency":
-        case "percentage": {
-          const foundNum = this.parseNumber(found, fieldType);
-          const expectedNum = this.parseNumber(expected, fieldType);
+        case "currency": {
+          const foundNum = this.parseNumber(found);
+          const expectedNum = this.parseNumber(expected);
 
           if (isNaN(foundNum) || isNaN(expectedNum)) {
             return { score: 0, reason: "invalid_number" };
           }
 
           const percentDiff = Math.abs((foundNum - expectedNum) / expectedNum);
-          const tolerance = isDigital ? config.tolerance : config.tolerance * 2;
+          return {
+            score:
+              percentDiff <= config.tolerance
+                ? 1 - percentDiff / config.tolerance
+                : 0,
+            reason: "match",
+          };
+        }
 
-          score = percentDiff <= tolerance ? 1 - percentDiff / tolerance : 0;
+        case "percentage": {
+          const foundNum = this.parsePercentage(found);
+          const expectedNum = this.parsePercentage(expected);
 
-          break;
+          if (isNaN(foundNum) || isNaN(expectedNum)) {
+            return { score: 0, reason: "invalid_number" };
+          }
+
+          const diff = Math.abs(foundNum - expectedNum);
+          return {
+            score: diff <= config.tolerance ? 1 : 0,
+            reason: "match",
+          };
+        }
+
+        case "reference": {
+          if (!found || !expected) {
+            return { score: 0, reason: "empty_value" };
+          }
+
+          const normalizedFound = found.replace(/\s+/g, "");
+          const normalizedExpected = expected.replace(/\s+/g, "");
+
+          if (config.exactMatch) {
+            return {
+              score: normalizedFound === normalizedExpected ? 1 : 0,
+              reason: "exact_match",
+            };
+          }
+
+          return {
+            score: fuzzy(normalizedFound, normalizedExpected),
+            reason: "fuzzy_match",
+          };
         }
 
         case "bankName": {
-          // Use fast-fuzzy for bank name comparison
-          const normalizedFound = config.caseInsensitive
-            ? found.toLowerCase()
-            : found;
-          const normalizedExpected = config.caseInsensitive
-            ? expected.toLowerCase()
-            : expected;
-
-          score = fuzzy(normalizedFound, normalizedExpected);
-          break;
-        }
-
-        case "accountNumber": {
-          const tolerance = isDigital
-            ? config.digital.tolerance
-            : config.ocr.tolerance;
-
-          const normalizedFound = found.replace(/[\s-]/g, "");
-          const normalizedExpected = expected.replace(/[\s-]/g, "");
-
-          if (tolerance === 0) {
-            score = normalizedFound === normalizedExpected ? 1 : 0;
-          } else {
-            // Allow for OCR digit errors
-            const differences = this.countDigitDifferences(
-              normalizedFound,
-              normalizedExpected
-            );
-            score =
-              differences <= tolerance ? 1 - differences / (tolerance + 1) : 0;
+          if (!found || !expected) {
+            return { score: 0, reason: "empty_value" };
           }
-          break;
+
+          // Avoid matching single characters or punctuation
+          if (found.length < (config.minLength || 3)) {
+            return { score: 0, reason: "too_short" };
+          }
+
+          const score = fuzzy(
+            config.caseInsensitive ? found.toLowerCase() : found,
+            config.caseInsensitive ? expected.toLowerCase() : expected
+          );
+
+          return { score, reason: "fuzzy_match" };
         }
 
+        case "text":
         default: {
-          // Use basic fuzzy match for other types
-          score = fuzzy(String(found), String(expected));
+          if (!found || !expected) {
+            return { score: 0, reason: "empty_value" };
+          }
+
+          const score = fuzzy(
+            config.caseInsensitive ? found.toLowerCase() : found,
+            config.caseInsensitive ? expected.toLowerCase() : expected
+          );
+
+          return { score, reason: "fuzzy_match" };
         }
       }
-
-      return {
-        score,
-        reason: score > 0 ? "match" : "no_match",
-      };
     } catch (error) {
       console.error(`Comparison failed for ${fieldType}:`, error);
       return { score: 0, reason: "error" };
     }
   }
 
-  parseNumber(value, type) {
-    // Remove currency symbols, spaces and normalize separators
+  parseNumber(value) {
+    if (value == null) return NaN;
+
+    // Handle both period and comma decimal separators
     let processed = String(value)
       .replace(/[R$]/g, "")
       .replace(/\s/g, "")
-      .replace(/,/g, ".");
+      .replace(/(\d+),(\d{2})$/, "$1.$2") // Convert trailing comma to period
+      .replace(/[,]/g, ""); // Remove other commas
 
-    // Remove percentage sign for percentage values
-    if (type === "percentage") {
-      processed = processed.replace(/%/g, "");
-    }
+    return parseFloat(processed);
+  }
+
+  parsePercentage(value) {
+    if (value == null) return NaN;
+
+    // Remove percentage sign and spaces
+    const processed = String(value).replace(/[%\s]/g, "").replace(/,/g, ".");
 
     return parseFloat(processed);
   }
@@ -313,7 +421,7 @@ class HybridValidator {
     if (relativeY <= 0.66) return "middle";
     return "bottom";
   }
-  
+
   compareCurrency(found, expected, isDigital) {
     const config = this.fuzzyConfig.currency;
 
