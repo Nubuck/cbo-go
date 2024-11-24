@@ -1,0 +1,33 @@
+{
+  "output": {
+    "filePath": "repomix.xml",
+    "style": "xml",
+    "removeComments": false,
+    "removeEmptyLines": false,
+    "topFilesLength": 10,
+    "showLineNumbers": true,
+    "copyToClipboard": false,
+    "instructionFilePath": "repomix-instruction.md"
+  },
+  "include": [
+    "package.json",
+    "src/**/*.{ts,js}",
+    "!src/**/*.test.{ts,js}"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "coverage/**",
+      "dist/**",
+      ".env*",
+      "*.db",
+      "*.sqlite"
+    ]
+  },
+  "security": {
+    "enableSecurityCheck": true
+  }
+}
