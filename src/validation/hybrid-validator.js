@@ -1,4 +1,5 @@
 import { fuzzy } from "fast-fuzzy";
+import Fuse from "fuse.js";
 
 class HybridValidator {
   constructor() {
@@ -125,6 +126,59 @@ class HybridValidator {
       required: true,
       minMatches: 4, // Number of pages that must have matching reference
     };
+
+    // Search configurations
+    this.searchConfigs = {
+      strict: {
+        includeScore: true,
+        threshold: 0.3,
+        useExtendedSearch: true,
+        keys: ["text"],
+      },
+      wide: {
+        includeScore: true,
+        threshold: 0.4,
+        keys: ["text"],
+      },
+    };
+
+    // Known values to hunt for with OCR variations
+    this.knownValues = {
+      caseId: {
+        quoteRef: {
+          labels: [
+            `'"Quote ref number"`,
+            `'"Quote reference"`,
+            "Quats ref numper",
+            "Quote ref",
+            "=Quote =ref",
+          ],
+          position: "right",
+          section: "header",
+        },
+        caseRef: {
+          labels: [
+            `'"Case reference no"`,
+            `=case =no`,
+            "Casa reference",
+            "Case ref",
+          ],
+          position: "right",
+          required: true,
+          multiPage: true,
+        },
+      },
+      accountNo: {
+        label: [
+          `'"Account number"`,
+          "Acc no",
+          "Account no",
+          "=Account =number",
+        ],
+        position: "right",
+        section: "AUTHORITY TO DEBIT YOUR ACCOUNT",
+      },
+    };
   }
 
   async validateDocument(extractedContent, caseModel, isDigital = true) {
@@ -209,7 +263,6 @@ class HybridValidator {
   }
 
   async findKnownValue(content, field, expectedValue, isDigital) {
-    // Special handling for case ID fields
     if (field === "caseId") {
       return await this.validateCaseReferences(
         content,
@@ -281,120 +334,207 @@ class HybridValidator {
     return bestMatch;
   }
 
+  async findValueNearLabel(
+    page,
+    labelItem,
+    expectedValue,
+    position,
+    isDigital
+  ) {
+    const bounds = labelItem.bounds;
+    const searchArea =
+      position === "right"
+        ? {
+            left: bounds.x + bounds.width,
+            right: bounds.x + bounds.width + 200,
+            top: bounds.y - 10,
+            bottom: bounds.y + bounds.height + 10,
+          }
+        : {
+            left: Math.max(0, bounds.x - 200),
+            right: bounds.x,
+            top: bounds.y - 10,
+            bottom: bounds.y + bounds.height + 10,
+          };
+
+    // Find all candidates in search area
+    const candidates = page.filter((item) => {
+      const itemBounds = item.bounds;
+      return (
+        itemBounds.x >= searchArea.left &&
+        itemBounds.x <= searchArea.right &&
+        itemBounds.y >= searchArea.top &&
+        itemBounds.y <= searchArea.bottom
+      );
+    });
+
+    // For exact values we're hunting, try direct match first
+    if (expectedValue) {
+      const exactMatches = candidates.filter(
+        (item) =>
+          this.normalizeValue(item.text) === this.normalizeValue(expectedValue)
+      );
+      if (exactMatches.length > 0) {
+        return {
+          value: expectedValue,
+          bounds: exactMatches[0].bounds,
+          confidence: 1,
+        };
+      }
+    }
+
+    // Try fuzzy matching if no exact match
+    for (const candidate of candidates) {
+      const normalizedCandidate = this.normalizeValue(candidate.text);
+      const normalizedExpected = this.normalizeValue(expectedValue);
+
+      const score = fuzzy(normalizedCandidate, normalizedExpected, {
+        useExtendedSearch: true,
+      });
+
+      if (score > (isDigital ? 0.9 : 0.7)) {
+        return {
+          value: normalizedCandidate,
+          bounds: candidate.bounds,
+          confidence: score,
+        };
+      }
+    }
+
+    return null;
+  }
+
   async validateCaseReferences(content, expectedValue, isDigital) {
     try {
-      let quoteRef = null;
-      let caseRefs = [];
-      let bestMatch = null;
-      let highestConfidence = 0;
-
       // First find quote reference on first page
       const firstPage = content.pages[0];
-      for (const item of firstPage) {
-        if (!item.text) continue;
 
-        // Check quote ref patterns
-        for (const pattern of this.referencePatterns.quote.patterns) {
-          const match = item.text.match(pattern);
-          if (match) {
-            console.log('MATCH', match)
+      // Try strict search first
+      let fusePrimary = new Fuse(firstPage, this.searchConfigs.strict);
+      let quoteRef = null;
 
+      // Search for quote reference
+      for (const pattern of this.knownValues.caseId.quoteRef.labels) {
+        if (quoteRef) break;
+
+        const results = fusePrimary.search(pattern);
+        for (const result of results) {
+          // Look for expected value near label
+          const number = await this.findValueNearLabel(
+            firstPage,
+            result.item,
+            expectedValue,
+            this.knownValues.caseId.quoteRef.position,
+            isDigital
+          );
+
+          if (number && number.value === expectedValue) {
             quoteRef = {
-              value: match[1],
-              bounds: item.bounds,
+              value: number.value,
+              bounds: number.bounds,
+              confidence: 1 - result.score,
               page: 0,
             };
             break;
           }
         }
-        if (quoteRef) break;
       }
 
-      // Then find case references in footers
-      for (let pageIndex = 0; pageIndex < content.pages.length; pageIndex++) {
-        const page = content.pages[pageIndex];
-        const pageHeight = Math.max(
-          ...page.map((item) => item.bounds.y + item.bounds.height)
-        );
+      // Try wide search if no match
+      if (!quoteRef) {
+        const fuseWide = new Fuse(firstPage, this.searchConfigs.wide);
+        for (const pattern of this.knownValues.caseId.quoteRef.labels) {
+          if (quoteRef) break;
 
-        for (const item of page) {
-          if (!item.text) continue;
+          const results = fuseWide.search(pattern);
+          for (const result of results) {
+            const number = await this.findValueNearLabel(
+              firstPage,
+              result.item,
+              expectedValue,
+              this.knownValues.caseId.quoteRef.position,
+              isDigital
+            );
 
-          // Check if item is in footer area
-          const isInFooter =
-            pageHeight - (item.bounds.y + item.bounds.height) <
-            this.footerConfig.maxDistance;
-          if (!isInFooter) continue;
-
-          // Check case ref patterns
-          for (const pattern of this.referencePatterns.case.patterns) {
-            const match = item.text.match(pattern);
-            if (match) {
-              caseRefs.push({
-                value: match[1],
-                bounds: item.bounds,
-                page: pageIndex,
-              });
+            if (number && number.value === expectedValue) {
+              quoteRef = {
+                value: number.value,
+                bounds: number.bounds,
+                confidence: 0.8 * (1 - result.score), // Lower confidence for wide match
+                page: 0,
+              };
               break;
             }
           }
         }
       }
 
-      // Validate references
-      if (quoteRef && caseRefs.length > 0) {
-        // Check if quote ref matches expected value
-        if (quoteRef.value === expectedValue) {
-          // Check if case refs match quote ref
-          const matchingRefs = caseRefs.filter(
-            (ref) => ref.value === quoteRef.value
-          );
+      // Look for case references in footers
+      const caseRefs = [];
+      for (
+        let pageIndex = 0;
+        pageIndex < content.pages.length - 1;
+        pageIndex++
+      ) {
+        const page = content.pages[pageIndex];
+        const pageHeight = Math.max(
+          ...page.map((p) => p.bounds.y + p.bounds.height)
+        );
 
-          if (matchingRefs.length >= this.footerConfig.minMatches) {
-            bestMatch = {
-              value: quoteRef.value,
-              confidence: 1,
-              bounds: quoteRef.bounds,
-              page: quoteRef.page,
-              validation: {
-                quoteRef: true,
-                caseRefs: matchingRefs.length,
-                totalPages: content.pages.length,
-              },
-            };
-            highestConfidence = 1;
+        // Create Fuse instance for current page
+        const fusePage = new Fuse(page, this.searchConfigs.strict);
+        let foundOnPage = false;
+
+        // Look for case ref markers
+        for (const pattern of this.knownValues.caseId.caseRef.labels) {
+          if (foundOnPage) break;
+
+          const results = fusePage.search(pattern);
+          for (const result of results) {
+            // Only look in footer area
+            if (result.item.bounds.y / pageHeight < 0.7) continue;
+
+            const number = await this.findValueNearLabel(
+              page,
+              result.item,
+              expectedValue,
+              this.knownValues.caseId.caseRef.position,
+              isDigital
+            );
+
+            if (number && number.value === expectedValue) {
+              caseRefs.push({
+                value: number.value,
+                bounds: number.bounds,
+                confidence: 1 - result.score,
+                page: pageIndex,
+              });
+              foundOnPage = true;
+              break;
+            }
           }
         }
       }
 
-      // If we didn't find a perfect match but have references
-      if (!bestMatch && quoteRef) {
-        let confidence = 0.5; // Base confidence for finding quote ref
-
-        // Add confidence for matching case refs
-        const matchingRefs = caseRefs.filter(
-          (ref) => ref.value === quoteRef.value
-        );
-        confidence +=
-          (matchingRefs.length / this.footerConfig.minMatches) * 0.5;
-
-        if (confidence > highestConfidence) {
-          bestMatch = {
-            value: quoteRef.value,
-            confidence: confidence,
-            bounds: quoteRef.bounds,
-            page: quoteRef.page,
-            validation: {
-              quoteRef: true,
-              caseRefs: matchingRefs.length,
-              totalPages: content.pages.length,
-            },
-          };
-          highestConfidence = confidence;
-        }
+      // Validate we found enough matching references
+      if (quoteRef && caseRefs.length >= 3) {
+        return {
+          value: quoteRef.value,
+          bounds: quoteRef.bounds,
+          confidence: Math.min(
+            quoteRef.confidence,
+            ...caseRefs.map((ref) => ref.confidence)
+          ),
+          page: quoteRef.page,
+          validation: {
+            quoteRef: true,
+            caseRefs: caseRefs.length,
+            totalPages: content.pages.length,
+          },
+        };
       }
 
-      return bestMatch;
+      return null;
     } catch (error) {
       console.error("Case reference validation failed:", error);
       return null;
@@ -529,7 +669,15 @@ class HybridValidator {
     return true;
   }
 
-  normalizeValue(value, fieldType) {
+  normalizeValue(value) {
+    if (!value) return "";
+    return String(value)
+      .replace(/\s+/g, "")
+      .replace(/[^\w\d]/g, "")
+      .toLowerCase();
+  }
+
+  normalizeValuePrevious(value, fieldType) {
     switch (fieldType) {
       case "currency":
         return value.replace(/\s+/g, " ").trim();

@@ -1,17 +1,30 @@
 {
   "status": "INVALID",
   "fields": {
-    "loanAmount": "R90 640,57",
-    "instalment": "R3 393,49",
-    "interestRate": "29.25%",
-    "insurancePremium": "R321,46",
+    "caseId": "10016998899",
+    "loanAmount": "r9064057",
+    "instalment": "r339349",
+    "interestRate": "2925",
+    "insurancePremium": "r32146",
     "collectionAccountNo": "1148337962"
   },
   "confidence": {
-    "overall": 1,
+    "overall": 0,
     "fields": {
+      "caseId": {
+        "value": "10016998899",
+        "bounds": {
+          "x": 446.367,
+          "y": 82.86900000000003,
+          "width": 51.296,
+          "height": 8
+        },
+        "confidence": 0.999999999071256,
+        "page": 0,
+        "validation": { "quoteRef": true, "caseRefs": 5, "totalPages": 6 }
+      },
       "loanAmount": {
-        "value": "R90 640,57",
+        "value": "r9064057",
         "confidence": 1,
         "bounds": {
           "x": 160.985,
@@ -22,7 +35,7 @@
         "page": 0
       },
       "instalment": {
-        "value": "R3 393,49",
+        "value": "r339349",
         "confidence": 1,
         "bounds": {
           "x": 449.07000000000005,
@@ -33,7 +46,7 @@
         "page": 0
       },
       "interestRate": {
-        "value": "29.25%",
+        "value": "2925",
         "confidence": 1,
         "bounds": {
           "x": 449.07,
@@ -44,7 +57,7 @@
         "page": 0
       },
       "insurancePremium": {
-        "value": "R321,46",
+        "value": "r32146",
         "confidence": 1,
         "bounds": {
           "x": 449.07000000000005,
@@ -68,5 +81,5 @@
     }
   },
   "validation": {},
-  "issues": ["Missing required field: caseId"]
+  "issues": []
 }

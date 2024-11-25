@@ -1,0 +1,64 @@
+I'd like to make a side quest now to produce a request Management insight report on the current state of the CBO verification solution.
+
+Using the Roboteur record store feature, I store case models in a sqlite table called static_storage_record where the case model is stored in the json field entryData. This is the table schema:
+
+CREATE TABLE `static_storage_record` (`_id` char(36), `createdAt` datetime, `updatedAt` datetime, `storageId` varchar(255), `entryData` json, primary key (`_id`))
+
+These are actual case model examples with the sensitive data replaced with xxx
+
+Valid:
+
+{"dateNumber":20241124,"status":"complete","assignedTo":null,"result":"Valid","reason":"","comments":["PAQ Quote Reference Number matches BPM Case Number","PAQ Case Reference Numbers valid on all pages","PAQ Covid page found for Client Initials","PAQ Witness Initials valid","PAQ Covid page found for Client Signature","Application Case Reference Number matches BPM Case Number","Application Case Reference Numbers valid on all pages","Application Covid page found for Client Initials","PAQ Witness Initials valid","Application Covid page found for Client Signature","Validation of New loan amt total passed","Validation of Account interest rate passed","Validation of Installment passed","Validation of Initiation fee passed","Validation of New load amt admin passed","Validation of Insurance premium passed","Validation of Disbursement bank account number passed","Validation of App collection bank account number passed"],"issues":[],"product":"pl","productType":"Personal Loan","productDescription":"Personal Loan","caseId":"xxx","processId":"xxx","taskId":"xxx","partyId":"xxx","arrangementId":"xxx","accountNumber":"xxx","applicationDate":"24-11-2024","applicationType":"New","entityName":"MONGEZI MDEPA","entityIdNumber":"xxx","entityDob":"1984-11-10T00:00:00.000Z","entityGender":"Male","entityNationality":"SOUTH AFRICA","isNedbankAccount":"Yes","mainBanked":"Yes","bankName":"Nedbank Limited","bankAccountNumber":"xxx","bankAccountType":"Cheque Account","disbursementBankName":"NEDBANK","disbursementBankAccountNumber":"xxx","disbursementBankAccountType":"Cheque","collectionBankName":"NEDBANK","collectionBankAccountNumber":"xxx","collectionBankAccountType":"Cheque","isFraudFlagged":"No","isConsolidation":"No","isPensioner":"No","employmentType":"Permanent Salaried Employee","occupation":"OPERATOR","employmentIndustry":"CONSTR/ENGINEER SUPPLIES-BLDR PLANT HIRE","employerName":"LEOMAT PLANT HIRE","monthlyIncome":17618.74,"requestedAmount":20000,"interestRate":28.75,"installment":890.63,"initiationFee":1207.5,"upfrontInitiationFee":"No","newAccNum":"xxx","newLoanAmtTotal":20000,"newLoadAmtAdmin":69,"totalInstallment":890.63,"loanTerm":"48","insurancePremium":53.01,"totalRepayment":20000,"accountInitiationFee":"1207.5","accountInterestRate":28.75,"accountInterestRateType":"Prime Linked / Variable","productAppliedName":"Personal Loan","activationTime":"2024-11-24T13:12:12Z","dueTime":"2024-11-25T11:00:00Z","consolidations":[],"action":null,"machineName":"VM9","machineId":"e4a608db-1798-4e5d-864a-d5f62bc6218a","requestPaq":"No","requestPaqOption":"","requestPaqComment":"","requestApplication":"No","requestApplicationOption":"","requestApplicationComment":"","verifyComment":"PAQ and Application Verification Successful:\nPAQ Quote Reference Number matches BPM Case Number; \nPAQ Case Reference Numbers valid on all pages; \nPAQ Client Initials Valid; \nPAQ Covid page found for Client Initials; \nPAQ Witness Initials valid; \nPAQ Covid page found for Client Signature; \nPAQ Client Signature Valid; \nApplication Case Reference Number matches BPM Case Number; \nApplication Case Reference Numbers valid on all pages; \nApplication Client Initials Valid; \nApplication Client Signature Valid; \nValidation of Requested amount passed; \nValidation of Account interest rate passed; \nValidation of Installment passed; \nValidation of Initiation fee passed; \nValidation of New load amt admin passed; \nValidation of Insurance premium passed; \nValidation of Collection bank account number passed; \nValidation of Disbursement bank account number passed; \nValidation of App collection bank account number passed; \n"}
+
+Invalid and pended:
+
+{"verifyComment":"PAQ and Application Verification Successful:\nPAQ Quote Reference Number matches BPM Case Number; \nPAQ Case Reference Numbers valid on all pages; \nPAQ Client Initials Valid; \nPAQ Witness Initials valid; \nPAQ Client Signature Valid; \nApplication Case Reference Number matches BPM Case Number; \nApplication Case Reference Numbers valid on all pages; \nApplication Client Initials Valid; \nApplication Client Signature Valid; \nValidation of Requested amount passed; \nValidation of Account interest rate passed; \nValidation of Installment passed; \nValidation of Initiation fee passed; \nValidation of New load amt admin passed; \nValidation of Insurance premium passed; \nValidation of Collection bank account number passed; \nValidation of Disbursement bank account number passed; \nValidation of App collection bank account number passed; \nPAQ Consolidation data matches BPM;","requestPaqComment":"","requestApplicationComment":"","dateNumber":20241123,"status":"complete","assignedTo":null,"result":"Valid","reason":"Application Client Signature Missing","comments":["PAQ Quote Reference Number matches BPM Case Number","PAQ Case Reference Numbers valid on all pages","PAQ Client Initials Valid","PAQ Witness Initials valid","PAQ Client Signature Valid","Application Case Reference Number matches BPM Case Number","Application Case Reference Numbers valid on all pages","PAQ Witness Initials valid","Validation of New loan amt total passed","Validation of Account interest rate passed","Validation of Installment passed","Validation of Initiation fee passed","Validation of New load amt admin passed","Validation of Insurance premium passed","Validation of Disbursement bank account number passed","Validation of App collection bank account number passed"],"issues":["Application Client Signature Missing"],"product":"pl","productType":"Personal Loan","productDescription":"Personal Loan","caseId":"xxx","processId":"xxx","taskId":"xxx","partyId":"xxx","arrangementId":"xxx","accountNumber":"xxx","applicationDate":"23-11-2024","applicationType":"New","entityName":"MALEFETSANE MOKOENA","entityIdNumber":"xxx","entityDob":"1965-08-28T00:00:00.000Z","entityGender":"Male","entityNationality":"SOUTH AFRICA","isNedbankAccount":"Yes","mainBanked":"Yes","bankName":"Nedbank Limited","bankAccountNumber":"xxx","bankAccountType":"Cheque Account","disbursementBankName":"NEDBANK","disbursementBankAccountNumber":"xxx","disbursementBankAccountType":"Cheque","collectionBankName":"NEDBANK","collectionBankAccountNumber":"xxx","collectionBankAccountType":"Cheque","isFraudFlagged":"Yes","isConsolidation":"Yes","isPensioner":"No","employmentType":"Permanent Salaried Employee","occupation":"DRIVER","employmentIndustry":"TRANSPORTATION&EQUIP-SHIPBUILDING&REPAIR","employerName":"BOTHMAS AND SONS T","monthlyIncome":6326.37,"requestedAmount":125239.03,"interestRate":28.75,"installment":4603.87,"initiationFee":1207.5,"upfrontInitiationFee":"No","newAccNum":"xxx","newLoanAmtTotal":125239.03,"newLoadAmtAdmin":69,"totalInstallment":4603.87,"loanTerm":"60","insurancePremium":442.56,"totalRepayment":125239.03,"accountInitiationFee":"1207.5","accountInterestRate":28.75,"accountInterestRateType":"Prime Linked / Variable","productAppliedName":"Personal Loan","activationTime":"2024-11-23T09:04:48Z","dueTime":"2024-11-25T11:00:00Z","consolidations":[{"supplierName":"NEDBANK PERSONAL LOANS","debtType":"NEDBANK PERSONAL LOANS","supplierAccNumberVerified":"xxx","referenceNumberVerified":"xxx","amountToLoanCreditProposed":"940.98","settlementAmountModifiableByClient":false,"settlementLetterRequired":"N"},{"supplierName":"NEDBANK PERSONAL LOANS","debtType":"NEDBANK PERSONAL LOANS","supplierAccNumberVerified":"xxx","referenceNumberVerified":"xxx","amountToLoanCreditProposed":"119298.05","settlementAmountModifiableByClient":false,"settlementLetterRequired":"N"}],"action":null,"machineName":"VM8","machineId":"e05d7843-4183-4733-a97d-66c554f7e4ed","requestPaq":"No","requestPaqOption":"","requestApplication":"No","requestApplicationOption":""}
+
+
+Here are some current queries that I use to draw rudimentary MI reports:
+
+totals by product:
+
+SELECT
+    json_extract(entryData, '$.dateNumber') AS dateNumber,
+	CASE WHEN json_extract(entryData, '$.status') = 'review' THEN 'reassigned' ELSE json_extract(entryData, '$.status') END as status,
+    COUNT(CASE WHEN json_extract(entryData, '$.productType') = 'Personal Loan' THEN 1 END) AS PersonalLoanCount,
+    COUNT(CASE WHEN json_extract(entryData, '$.productType') = 'Credit Card' THEN 1 END) AS CreditCardCount,
+    COUNT(CASE WHEN json_extract(entryData, '$.productType') = 'Overdraft' THEN 1 END) AS OverdraftCount
+FROM
+    static_storage_record
+WHERE
+json_extract(entryData, '$.dateNumber') > 20241020
+GROUP BY
+    json_extract(entryData, '$.dateNumber'),
+    json_extract(entryData, '$.status')
+ORDER BY
+    json_extract(entryData, '$.dateNumber');
+
+totals by status:
+
+SELECT
+    json_extract(entryData, '$.dateNumber') AS dateNumber,
+    COUNT(json_extract(entryData, '$.status')) AS ProcessCount,
+    COUNT(CASE WHEN json_extract(entryData, '$.status') = 'complete' THEN 1 END) AS CompleteCount,
+    COUNT(CASE WHEN json_extract(entryData, '$.status') = 'request' THEN 1 END) AS RequestCount,
+    COUNT(CASE WHEN json_extract(entryData, '$.status') = 'review' THEN 1 END) AS ReassignCount
+FROM
+    static_storage_record
+WHERE
+json_extract(entryData, '$.dateNumber') > 20241020
+GROUP BY
+    json_extract(entryData, '$.dateNumber')
+ORDER BY
+    json_extract(entryData, '$.dateNumber');
+
+
+I would like to present a better set of reports today. Please help me query and structure the following:
+
+- total tasks processed vs total cases by case _id:
+  - how many first time complete status
+  - how many times was a case pended by the review and request status
+
+- what are the most common reasons for pending based on the requestPaqComment and requestApplicationComment values, I know for sure the Disbursement account mismatch is the most common, but how to query this?
+
+Please suggest any other insight metrics you think the execs might find interesting and as always ask me anything
