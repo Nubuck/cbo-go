@@ -12,7 +12,9 @@ class DocumentValidationCLI {
     this.valueNormalizer = new ValueNormalizer();
     this.hybridValidator = new HybridValidator();
     this.documentProcessor = new DocumentProcessor({
-      modelPath: path.join(process.cwd(), 'eng.traineddata')
+      modelPath: path.join(process.cwd(), "eng.traineddata"),
+      saveDebugImages: true,
+      debugPath: "./output/debug",
     });
 
     // normalized pages
@@ -192,7 +194,7 @@ class DocumentValidationCLI {
     // Find section bounds using markers
     for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
       const pageBoxes = pages[pageIndex];
-      
+
       // Skip if page has no content
       if (!Array.isArray(pageBoxes)) continue;
 

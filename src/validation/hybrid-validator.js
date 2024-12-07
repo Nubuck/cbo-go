@@ -1,8 +1,10 @@
 import { fuzzy } from "fast-fuzzy";
 import Fuse from "fuse.js";
+import ValueNormalizer from './value-normalizer.js';
 
 class HybridValidator {
   constructor() {
+    this.valueNormalizer = new ValueNormalizer();
     this.fuzzyConfig = {
       currency: {
         tolerance: 0.05,
@@ -187,6 +189,7 @@ class HybridValidator {
       confidence: 1.0,
       fields: {},
       matches: {},
+      issues: [],
     };
 
     try {
@@ -196,7 +199,6 @@ class HybridValidator {
       );
 
       for (const [field, value] of criticalFields) {
-        // Skip product field validation
         if (field === "product") continue;
 
         const match = await this.findKnownValue(
@@ -207,24 +209,69 @@ class HybridValidator {
         );
 
         if (match) {
-          results.fields[field] = match.value;
-          results.matches[field] = match;
-          results.confidence *= match.confidence;
+          // Get field type and isOCR flag
+          const fieldType =
+            this.fieldTypes[field]?.type ||
+            this.determineFieldType(field, value);
+          const isOCR = !isDigital || match.source === "ocr";
+
+          // Normalize and compare values
+          const normalizedMatch = this.valueNormalizer.normalizeValue(
+            match.value,
+            fieldType,
+            isOCR
+          );
+          const normalizedExpected = this.valueNormalizer.normalizeValue(
+            value,
+            fieldType,
+            false
+          );
+
+          const comparison = this.compareNormalizedValues(
+            normalizedMatch,
+            normalizedExpected,
+            fieldType,
+            isOCR
+          );
+
+          // Store results
+          results.fields[field] = normalizedMatch.value;
+          results.matches[field] = {
+            ...match,
+            normalizedValue: normalizedMatch.value,
+            expectedValue: normalizedExpected.value,
+            confidence: comparison.confidence,
+          };
+
+          // Add validation issues if comparison failed
+          if (comparison.confidence < 0.8) {
+            results.issues.push({
+              field,
+              type: "value_mismatch",
+              found: match.value,
+              expected: value,
+              normalized: {
+                found: normalizedMatch.value,
+                expected: normalizedExpected.value,
+              },
+              reason: comparison.reason,
+              confidence: comparison.confidence,
+            });
+          }
+
+          results.confidence *= comparison.confidence;
         } else if (this.fieldPriorities[field]?.required) {
           results.valid = false;
+          results.issues.push({
+            field,
+            type: "missing_field",
+            reason: `Required field ${field} not found`,
+          });
         }
       }
 
-      // Validate spatial relationships only for valid critical fields
-      if (results.valid) {
-        const spatialValidation = await this.validateSpatialRelationships(
-          results.matches,
-          extractedContent
-        );
-
-        results.valid = results.valid && spatialValidation.valid;
-        results.confidence *= spatialValidation.confidence;
-      }
+      // Set valid flag based on issues
+      results.valid = results.issues.length === 0;
 
       return results;
     } catch (error) {
@@ -233,13 +280,70 @@ class HybridValidator {
     }
   }
 
-  determineFieldType(fieldName, value) {
-    // Check predefined field type first
-    if (this.fieldTypes[fieldName]) {
-      return this.fieldTypes[fieldName];
+  compareNormalizedValues(
+    normalizedFound,
+    normalizedExpected,
+    fieldType,
+    isOCR
+  ) {
+    if (!normalizedFound.value || !normalizedExpected.value) {
+      return {
+        confidence: 0,
+        reason: "normalization_failed",
+      };
     }
 
-    // Analyze value and surrounding context
+    switch (fieldType) {
+      case "currency":
+      case "percentage": {
+        const tolerance = isOCR ? 0.05 : 0.001;
+        const diff = Math.abs(normalizedFound.value - normalizedExpected.value);
+        const percentDiff = diff / normalizedExpected.value;
+
+        // Check for decimal shift errors
+        const decimalShiftDiff =
+          Math.abs(normalizedFound.value * 100 - normalizedExpected.value) /
+          normalizedExpected.value;
+
+        if (decimalShiftDiff < tolerance) {
+          return {
+            confidence: 0.8, // Lower confidence for decimal shift fixes
+            reason: "decimal_shift_corrected",
+            value: normalizedFound.value * 100,
+          };
+        }
+
+        return {
+          confidence:
+            percentDiff <= tolerance ? 1 - percentDiff / tolerance : 0,
+          reason: percentDiff <= tolerance ? "match" : "value_mismatch",
+        };
+      }
+
+      case "reference": {
+        const isMatch = normalizedFound.value === normalizedExpected.value;
+        return {
+          confidence: isMatch ? 1.0 : 0,
+          reason: isMatch ? "exact_match" : "reference_mismatch",
+        };
+      }
+
+      default:
+        return {
+          confidence:
+            normalizedFound.confidence * normalizedExpected.confidence,
+          reason: "default_comparison",
+        };
+    }
+  }
+
+  determineFieldType(field, value) {
+    // First check field type from configuration
+    if (this.fieldTypes[field]) {
+      return this.fieldTypes[field].type;
+    }
+
+    // Analyze value and context
     const valueStr = String(value).toLowerCase();
 
     // Check contextual indicators
@@ -253,7 +357,7 @@ class HybridValidator {
       }
     }
 
-    // Perform pattern-based detection
+    // Pattern-based detection
     if (/^R?\s*[\d.,]+/.test(valueStr)) return "currency";
     if (/[\d.,]+\s*%/.test(valueStr)) return "percentage";
     if (/^\d{10}$/.test(valueStr)) return "reference";
@@ -708,35 +812,53 @@ class HybridValidator {
     try {
       switch (fieldType) {
         case "currency": {
-          const foundNum = this.parseNumber(found);
-          const expectedNum = this.parseNumber(expected);
+          // Clean and normalize currency values
+          const foundNum = this.normalizeCurrencyToNumber(found);
+          const expectedNum =
+            typeof expected === "number"
+              ? expected
+              : this.normalizeCurrencyToNumber(expected);
 
           if (isNaN(foundNum) || isNaN(expectedNum)) {
-            return { score: 0, reason: "invalid_number" };
+            return {
+              score: 0,
+              reason: `invalid_number: found=${found}, expected=${expected}`,
+            };
           }
 
           const percentDiff = Math.abs((foundNum - expectedNum) / expectedNum);
           return {
             score:
-              percentDiff <= config.tolerance
-                ? 1 - percentDiff / config.tolerance
+              percentDiff <= this.fuzzyConfig.currency.tolerance
+                ? 1 - percentDiff / this.fuzzyConfig.currency.tolerance
                 : 0,
             reason: "match",
+            normalizedFound: foundNum,
+            normalizedExpected: expectedNum,
           };
         }
 
         case "percentage": {
-          const foundNum = this.parsePercentage(found);
-          const expectedNum = this.parsePercentage(expected);
+          // Clean and normalize percentage values
+          const foundNum = this.normalizePercentageToNumber(found);
+          const expectedNum =
+            typeof expected === "number"
+              ? expected
+              : this.normalizePercentageToNumber(expected);
 
           if (isNaN(foundNum) || isNaN(expectedNum)) {
-            return { score: 0, reason: "invalid_number" };
+            return {
+              score: 0,
+              reason: `invalid_percentage: found=${found}, expected=${expected}`,
+            };
           }
 
           const diff = Math.abs(foundNum - expectedNum);
           return {
-            score: diff <= config.tolerance ? 1 : 0,
+            score: diff <= this.fuzzyConfig.percentage.tolerance ? 1 : 0,
             reason: "match",
+            normalizedFound: foundNum,
+            normalizedExpected: expectedNum,
           };
         }
 
@@ -797,6 +919,43 @@ class HybridValidator {
       console.error(`Comparison failed for ${fieldType}:`, error);
       return { score: 0, reason: "error" };
     }
+  }
+  normalizeCurrencyToNumber(value) {
+    if (typeof value === "number") return value;
+
+    // Remove currency symbols and clean string
+    const cleaned = String(value)
+      .toLowerCase()
+      .replace(/[r$]/i, "")
+      .replace(/\s+/g, "")
+      .replace(/,(\d{2})$/, ".$1") // Handle comma as decimal separator
+      .replace(/[,\']/g, ""); // Remove other separators
+
+    const number = parseFloat(cleaned);
+
+    if (isNaN(number)) {
+      console.warn(`Failed to normalize currency value: ${value}`);
+    }
+
+    return number;
+  }
+
+  normalizePercentageToNumber(value) {
+    if (typeof value === "number") return value;
+
+    // Clean percentage string
+    const cleaned = String(value)
+      .replace(/\s+/g, "")
+      .replace(/[%]/g, "")
+      .replace(/,/g, ".");
+
+    const number = parseFloat(cleaned);
+
+    if (isNaN(number)) {
+      console.warn(`Failed to normalize percentage value: ${value}`);
+    }
+
+    return number;
   }
 
   parseNumber(value) {

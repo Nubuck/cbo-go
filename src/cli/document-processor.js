@@ -5,6 +5,7 @@ import { loadWasmBinary } from "tesseract-wasm/node";
 import cv from "@techstark/opencv-js";
 import sharp from "sharp";
 import {
+  promises as fs,
   existsSync,
   readFileSync,
 } from "node:fs";
@@ -44,6 +45,12 @@ class DocumentProcessor {
 
     // Store model path from options or use default paths
     this.modelPath = options.modelPath || this.findModelPath();
+
+     // Add debug options
+     this.debugOptions = {
+      outputPath: options.debugPath || path.join(process.cwd(), 'debug_output'),
+      saveImages: options.saveDebugImages || false,
+    };
   }
 
   /**
@@ -102,6 +109,11 @@ class DocumentProcessor {
    */
   async processDocument(filePath) {
     try {
+      // Create debug directory if needed
+      if (this.debugOptions.saveImages) {
+        await fs.mkdir(this.debugOptions.outputPath, { recursive: true });
+      }
+
       // Extract digital content first
       const pdfData = await this.pdfExtract.extract(filePath);
       const isDigital = this.hasValidDigitalContent(pdfData);
@@ -112,6 +124,16 @@ class DocumentProcessor {
       // Process each page
       const results = [];
       for (const [index, page] of pages.entries()) {
+        // Save debug image if enabled
+        if (this.debugOptions.saveImages) {
+          const imagePath = path.join(
+            this.debugOptions.outputPath,
+            `page_${index + 1}.png`
+          );
+          await fs.writeFile(imagePath, page);
+          console.log(`Saved debug image: ${imagePath}`);
+        }
+
         const processedPage = await this.processPage(
           page,
           index,

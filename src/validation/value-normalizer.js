@@ -50,75 +50,57 @@ class ValueNormalizer {
       },
     };
 
-    // Define common OCR mistakes and corrections
-    this.ocrCorrections = {
-      characters: {
-        O: "0",
-        l: "1",
-        I: "1",
-        S: "5",
-        B: "8",
-        Z: "2",
-        "?": "7",
+    // Add OCR substitution patterns
+    this.ocrSubstitutions = {
+      numbers: {
+        'l': '1', 'I': '1', '|': '1',
+        'O': '0', 'Q': '0', 'D': '0',
+        'S': '5', 'B': '8', 'Z': '2'
       },
       symbols: {
-        "·": ".",
-        "•": ".",
-        "'": ",",
-        "`": ",",
-        "´": ",",
-        '"': ",",
-      },
+        '·': '.', '•': '.',
+        '\'': ',', '`': ',',
+        '´': ',', '"': ',',
+        ' ': ''  // Remove spaces in numbers
+      }
+    };
+
+    this.confidenceModifiers = {
+      substitutions: 0.9,  // Small penalty for character substitutions
+      decimalShift: 0.8,  // Larger penalty for decimal point issues
+      digitGrouping: 0.95 // Minor penalty for grouping differences
     };
   }
 
-  async normalizeValue(value, type = "text", referenceValue = null) {
+ normalizeValue(value, type, isOCR = false) {
     if (!value) return { value: null, confidence: 0 };
 
-    // Get format specification
-    const format = this.formats[type];
-    if (!format) {
-      console.warn(`Unsupported value type: ${type}`);
-      return { value: null, confidence: 0 };
-    }
-
     try {
-      // Clean and normalize
-      const cleaned = this.cleanValue(value);
-      const normalized = format.normalize(cleaned);
-
-      // Validate format
-      if (!format.validate(normalized)) {
-        // Try OCR corrections if validation fails
-        const corrected = this.applyOCRCorrections(cleaned);
-        const normalizedCorrected = format.normalize(corrected);
-
-        if (!format.validate(normalizedCorrected)) {
-          return { value: null, confidence: 0 };
+      switch (type) {
+        case 'currency': {
+          // Handle both found and expected values consistently
+          const normalized = this.normalizeCurrency(value, isOCR);
+          return {
+            value: normalized.value,
+            confidence: normalized.confidence,
+            originalValue: value
+          };
         }
 
-        return {
-          value: normalizedCorrected,
-          confidence: 0.8, // Lower confidence for OCR corrections
-        };
-      }
+        case 'percentage': {
+          const normalized = this.normalizePercentage(value, isOCR);
+          return {
+            value: normalized.value,
+            confidence: normalized.confidence,
+            originalValue: value
+          };
+        }
 
-      // Compare with reference if provided
-      if (referenceValue !== null) {
-        const comparison = this.compareValues(normalized, referenceValue, type);
-        return {
-          value: normalized,
-          confidence: comparison.confidence,
-          fuzzyMatch: comparison.fuzzyMatch,
-        };
+        default:
+          return this.normalizeText(value, isOCR);
       }
-
-      return {
-        value: normalized,
-        confidence: 1.0,
-      };
     } catch (error) {
-      console.error(`Normalization failed for type ${type}:`, error);
+      console.error(`Normalization failed for ${type}:`, error);
       return { value: null, confidence: 0 };
     }
   }
@@ -201,30 +183,20 @@ class ValueNormalizer {
   /**
    * Apply OCR corrections to common mistakes
    */
-  applyOCRCorrections(value) {
-    // Common OCR misreads
-    const corrections = {
-      O: "0",
-      l: "1",
-      I: "1",
-      S: "5",
-      B: "8",
-      Z: "2",
-      "?": "7",
-      "·": ".",
-      "•": ".",
-      "'": ",",
-      "`": ",",
-      "´": ",",
-      '"': ",",
-    };
-
-    let corrected = value;
-    for (const [wrong, right] of Object.entries(corrections)) {
-      corrected = corrected.replace(new RegExp(wrong, "g"), right);
+  applyOCRSubstitutions(text) {
+    let processed = text;
+    
+    // Apply number substitutions
+    for (const [char, replacement] of Object.entries(this.ocrSubstitutions.numbers)) {
+      processed = processed.replace(new RegExp(char, 'g'), replacement);
     }
 
-    return corrected;
+    // Apply symbol substitutions
+    for (const [char, replacement] of Object.entries(this.ocrSubstitutions.symbols)) {
+      processed = processed.replace(new RegExp(char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), replacement);
+    }
+
+    return processed;
   }
 
   /**
@@ -260,43 +232,44 @@ class ValueNormalizer {
   /**
    * Compare normalized value with reference
    */
-  compareValues(value, reference) {
-    if (typeof value !== "number" || typeof reference !== "number") {
-      return { fuzzyMatch: false, confidence: 0 };
+  compareValues(found, expected, type, isOCR = false) {
+    const normalizedFound = this.normalizeValue(found, type, isOCR);
+    const normalizedExpected = this.normalizeValue(expected, type, false);
+
+    if (!normalizedFound.value || !normalizedExpected.value) {
+      return {
+        match: false,
+        confidence: 0,
+        reason: 'normalization_failed'
+      };
     }
 
-    // Calculate percentage difference
-    const difference = Math.abs(value - reference);
-    const percentDiff = (difference / reference) * 100;
+    switch (type) {
+      case 'currency':
+      case 'percentage': {
+        const tolerance = isOCR ? 0.05 : 0.001; // 5% tolerance for OCR, 0.1% for digital
+        const diff = Math.abs(normalizedFound.value - normalizedExpected.value);
+        const percentDiff = diff / normalizedExpected.value;
 
-    // Define confidence thresholds
-    const thresholds = {
-      exact: { maxDiff: 0.01, confidence: 1.0 }, // 0.01% difference
-      close: { maxDiff: 0.1, confidence: 0.9 }, // 0.1% difference
-      similar: { maxDiff: 1, confidence: 0.7 }, // 1% difference
-      fuzzy: { maxDiff: 5, confidence: 0.5 }, // 5% difference
-    };
-
-    // Find matching threshold
-    for (const [level, threshold] of Object.entries(thresholds)) {
-      if (percentDiff <= threshold.maxDiff) {
         return {
-          fuzzyMatch: true,
-          confidence: threshold.confidence,
-          difference: percentDiff,
-          matchLevel: level,
+          match: percentDiff <= tolerance,
+          confidence: Math.max(0, 1 - (percentDiff / tolerance)),
+          normalizedFound: normalizedFound.value,
+          normalizedExpected: normalizedExpected.value,
+          originalFound: found,
+          originalExpected: expected
         };
       }
+
+      default:
+        return {
+          match: normalizedFound.value === normalizedExpected.value,
+          confidence: normalizedFound.confidence * normalizedExpected.confidence,
+          normalizedFound: normalizedFound.value,
+          normalizedExpected: normalizedExpected.value
+        };
     }
-
-    return {
-      fuzzyMatch: false,
-      confidence: 0,
-      difference: percentDiff,
-      matchLevel: "none",
-    };
   }
-
   /**
    * Calculate confidence for currency format
    */
@@ -327,25 +300,86 @@ class ValueNormalizer {
     return confidence;
   }
 
-  normalizeCurrency(value) {
-    // Remove currency symbol and spaces
-    let processed = value.replace(/^R\s*/, "").replace(/\s/g, "");
+  normalizeCurrency(value, isOCR = false) {
+    // Handle number input
+    if (typeof value === 'number') {
+      return { value, confidence: 1.0 };
+    }
 
-    // Handle different decimal separators
-    if (processed.includes(",")) {
-      const afterComma = processed.split(",")[1];
-      if (afterComma && afterComma.length <= 2) {
-        processed = processed.replace(",", ".");
-      } else {
-        processed = processed.replace(/,/g, "");
+    let confidence = 1.0;
+    let processed = String(value).toLowerCase();
+
+    // Apply OCR substitutions if needed
+    if (isOCR) {
+      processed = this.applyOCRSubstitutions(processed);
+      confidence *= this.confidenceModifiers.substitutions;
+    }
+
+    // Remove currency symbols and clean
+    processed = processed
+      .replace(/[r$]/i, '')
+      .replace(/\s+/g, '')
+      .replace(/[,\'](?=\d{3})/g, ''); // Remove thousands separators
+
+    // Handle decimal points
+    if (processed.includes(',')) {
+      const parts = processed.split(',');
+      if (parts[1].length <= 2) {
+        processed = parts[0] + '.' + parts[1];
+        if (isOCR) confidence *= this.confidenceModifiers.decimalShift;
       }
     }
 
-    return processed;
+    const number = parseFloat(processed);
+    if (isNaN(number)) {
+      return { value: null, confidence: 0 };
+    }
+
+    // Check if decimal places were likely missed
+    if (number > 1000 && !processed.includes('.')) {
+      const withDecimal = number / 100;
+      return {
+        value: withDecimal,
+        confidence: confidence * this.confidenceModifiers.decimalShift
+      };
+    }
+
+    return { value: number, confidence };
   }
 
-  normalizePercentage(value) {
-    return value.replace(/\s*%\s*$/, "").trim();
+  normalizePercentage(value, isOCR = false) {
+    if (typeof value === 'number') {
+      return { value, confidence: 1.0 };
+    }
+
+    let confidence = 1.0;
+    let processed = String(value);
+
+    if (isOCR) {
+      processed = this.applyOCRSubstitutions(processed);
+      confidence *= this.confidenceModifiers.substitutions;
+    }
+
+    processed = processed
+      .replace(/\s+/g, '')
+      .replace(/[%]/g, '')
+      .replace(/,/g, '.');
+
+    const number = parseFloat(processed);
+    if (isNaN(number)) {
+      return { value: null, confidence: 0 };
+    }
+
+    // Handle common OCR percentage mistakes
+    if (number > 100 && !processed.includes('.')) {
+      const withDecimal = number / 100;
+      return {
+        value: withDecimal,
+        confidence: confidence * this.confidenceModifiers.decimalShift
+      };
+    }
+
+    return { value: number, confidence };
   }
 
   parseCurrency(value) {

@@ -15,6 +15,7 @@ dist-ssr
 repomix.xml
 public/*
 test/samples/*
+output/debug/*
 
 
 # Editor directories and files
