@@ -1,99 +1,90 @@
 # Hybrid Document Validation System - Project Context
 
-## Strategic Evolution
-We've made a significant pivot in our validation approach, moving from traditional label-based extraction to a more robust "known-value hunting" strategy with spatial verification. This shift was driven by the need to handle poor quality documents and OCR variations while maintaining high accuracy.
+## Implementation Progress 
 
-### New Core Strategy
-1. Hybrid Validation Approach
-   - Primary: Known-value fuzzy search across document
-   - Secondary: Spatial verification of found values
-   - Tertiary: Label proximity validation
+### Document Processing Pipeline
+We've implemented a robust document processing pipeline that:
+- Handles both digital PDFs and scanned documents
+- Uses pdf.js-extract for digital content
+- Combines pdf-to-img and tesseract-wasm for OCR 
+- Includes OpenCV-based image preprocessing
+- Detects and validates signatures
 
-2. Validation Priorities
-   - Loan amount fields (highest priority)
-   - Monthly installments
-   - Interest rates
-   - Insurance premiums
-   - Service & initiation fees (lower priority)
-
-### Validation Tolerances
-- Currency: 5c (0.05) variation allowed
-- Percentages: Trailing zeros ignored (29.00 = 29)
-- Bank names: Fuzzy matching with 0.6 threshold
-- Account numbers:
-  - Digital: Exact matching
-  - OCR: Single digit tolerance
-
-## Current Implementation State
-### Core Components
-1. `HybridValidator`
-   - Fuzzy value matching engine
-   - Configurable field type validation
-   - Spatial verification system
-   - Confidence scoring
+### Key Components
+1. `DocumentProcessor`
+   - Unified processing for digital and scanned docs
+   - Image preprocessing and enhancement
+   - OCR with region-based retries
+   - Signature detection
+   - Memory management and cleanup
+   - Model path configuration and auto-detection
 
 2. `DocumentValidationCLI`
-   - Integrated hybrid validation
-   - Enhanced preprocessing
-   - Section-based content organization
-   - Improved reporting
+   - Integration with HybridValidator
+   - Combined digital/OCR content preparation
+   - Enhanced reporting and validation
+   - Error handling and fallbacks
 
-3. Validation Profiles
-   - Comprehensive section definitions
-   - Field aliases and locations
-   - Type-specific validation rules
-   - Cross-validation configurations
+### Current Implementation State
+- Successfully integrated document processing pipeline
+- Added image preprocessing capabilities
+- Implemented unified text box model
+- Added signature detection
+- Working on OCR model loading issues
 
-### Progress Made
-1. Successfully implemented:
-   - Value-first validation approach
-   - Flexible fuzzy matching
-   - Priority-based validation
-   - Enhanced confidence scoring
+### Learnings & Improvements
+1. OCR Model Management:
+   - Need robust model path handling
+   - Should support multiple model locations
+   - Consider adding model download capability
+   - May need version checks
 
-2. Initial testing shows:
-   - Improved extraction accuracy
-   - Better handling of variations
-   - More meaningful confidence scores
-   - Clearer validation reporting
+2. Processing Optimizations:
+   - Added region-based OCR retries
+   - Enhanced image preprocessing for poor quality docs
+   - Improved signature detection
+   - Memory management for large documents
+
+3. Error Handling:
+   - Added fallback to digital-only processing
+   - Better error reporting and logging
+   - OCR availability checks
+   - Clear feedback on processing status
+
+## Next Steps
+1. Debug OCR model loading
+2. Enhance preprocessing for poor quality scans
+3. Implement section-based validation
+4. Add support for out-of-order pages
+5. Handle mixed digital/scanned content
 
 ## Technology Stack
 - Node.js 20
-- pdf-to-img
-- pdf.js-extract 
-- tesseract-wasm
-- @techstark/opencv-js
-- sharp
-- fast-fuzzy
-
-## Next Steps
-### Immediate Priorities
-1. Enhance field matching with expanded aliases
-2. Fine-tune fuzzy matching thresholds
-3. Test with diverse document samples
-4. Optimize spatial verification
-
-### Future Enhancements
-1. Machine learning for pattern recognition
-2. Adaptive confidence scoring
-3. Enhanced error reporting
-4. Performance optimization
+- pdf-to-img for page extraction
+- pdf.js-extract for digital content
+- tesseract-wasm for OCR
+- @techstark/opencv-js for image processing
+- sharp for image handling
+- fast-fuzzy and fuse.js for matching
 
 ## Critical Considerations
-1. Value Matching
-   - Prioritize finding known values
-   - Use fuzzy matching for flexibility
-   - Apply type-specific tolerances
+1. Image Processing
+   - Check page brightness and contrast
+   - Handle orientation issues
+   - Scale for better OCR results
+   - Support post-processing retries
 
-2. Spatial Verification
-   - Use as confirmation rather than primary strategy
-   - Allow for document variations
-   - Consider section-based validation
+2. Content Extraction
+   - Handle both digital and scanned content
+   - Support mixed document types
+   - Deal with poor quality scans
+   - Manage processing failures
 
-3. Error Handling
-   - Clear issue reporting
-   - Confidence-based decision making
-   - Detailed validation feedback
+3. Validation
+   - Cross-validate digital and OCR results
+   - Handle confidence scoring
+   - Support spatial verification
+   - Validate signatures and initials
 
 ## Dependencies
 ```json
@@ -103,15 +94,9 @@ We've made a significant pivot in our validation approach, moving from tradition
   "tesseract-wasm": "^0.10.0",
   "@techstark/opencv-js": "^4.10.0-release.1",
   "sharp": "^0.33.5",
-  "fast-fuzzy": "^1.12.0"
+  "fast-fuzzy": "^1.12.0",
+  "fuse.js": "^7.0.0"
 }
 ```
 
-## Development Focus
-The primary focus should be on:
-1. Implementing the complete HybridValidator
-2. Expanding validation profiles
-3. Testing with diverse documents
-4. Fine-tuning validation rules
-
-This new approach provides a more robust foundation for handling document variations while maintaining high validation accuracy.
+This new approach provides a more robust foundation for handling document variations while maintaining high validation accuracy. We're continuing to improve the preprocessing and OCR capabilities while keeping the system flexible enough to handle both digital and scanned documents effectively.

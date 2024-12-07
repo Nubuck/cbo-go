@@ -3,12 +3,17 @@ import { PDFExtract } from "pdf.js-extract";
 import ValueNormalizer from "../validation/value-normalizer.js";
 import HybridValidator from "../validation/hybrid-validator.js";
 import { validationProfiles } from "../validation/validation-profiles.js";
+import DocumentProcessor from "./document-processor.js";
+import path from "path";
 
 class DocumentValidationCLI {
   constructor() {
     this.pdfExtract = new PDFExtract();
     this.valueNormalizer = new ValueNormalizer();
     this.hybridValidator = new HybridValidator();
+    this.documentProcessor = new DocumentProcessor({
+      modelPath: path.join(process.cwd(), 'eng.traineddata')
+    });
 
     // normalized pages
     this.pages = [];
@@ -47,75 +52,163 @@ class DocumentValidationCLI {
     try {
       console.log(`Processing document: ${filePath}`);
 
-      // Extract PDF content
-      const pdfData = await this.pdfExtract.extract(filePath);
+      // Initialize document processor
+      await this.documentProcessor.initialize(
+        path.join(process.cwd(), "eng.traineddata")
+      );
 
-      if (!this.verifyPdfStructure(pdfData)) {
-        throw new Error("Invalid PDF structure");
-      }
+      // Process document through pipeline
+      const processedDoc = await this.documentProcessor.processDocument(
+        filePath
+      );
+      console.log(
+        `Document processed: ${
+          processedDoc.isDigital ? "Digital" : "Scanned"
+        } PDF`
+      );
 
-      // Preprocess pages
-      await this.preprocessPages(pdfData);
-
-      // Prepare content for hybrid validation
-      const documentContent = this.prepareContentForValidation(pdfData);
-
-      // Determine if digital or scanned
-      const isDigital = this.isDigitalDocument(pdfData);
+      // Preprocess pages with both digital and OCR content
+      const normalizedContent = await this.prepareContentForValidation(
+        processedDoc
+      );
+      console.log("Content prepared for validation");
 
       // Perform hybrid validation
       const results = await this.hybridValidator.validateDocument(
-        documentContent,
+        normalizedContent,
         caseModel,
-        isDigital
+        processedDoc.isDigital
       );
 
       // Generate enhanced report
-      return this.generateEnhancedReport(results, caseModel);
+      const report = this.generateEnhancedReport(results, caseModel);
 
+      // Log detailed results
+      this.printResults(report, processedDoc);
+
+      return report;
     } catch (error) {
       console.error("Document processing failed:", error);
       throw error;
+    } finally {
+      // Clean up resources
+      this.documentProcessor.destroy();
+    }
+  }
+  /**
+   * Print detailed results for debugging
+   */
+  printResults(report, processedDoc) {
+    console.log("\n=== Document Validation Results ===");
+    console.log(`Status: ${report.status}`);
+    console.log(
+      `Overall Confidence: ${(report.confidence.overall * 100).toFixed(2)}%`
+    );
+
+    console.log("\nField Results:");
+    for (const [field, value] of Object.entries(report.fields)) {
+      const confidence = report.confidence.fields[field];
+      console.log(`${field}:`);
+      console.log(`  Value: ${value}`);
+      console.log(
+        `  Confidence: ${(confidence?.confidence * 100 || 0).toFixed(2)}%`
+      );
+      if (confidence?.source) {
+        console.log(`  Source: ${confidence.source}`);
+      }
+    }
+
+    if (report.issues.length > 0) {
+      console.log("\nValidation Issues:");
+      report.issues.forEach((issue, index) => {
+        console.log(`${index + 1}. ${issue}`);
+      });
+    }
+
+    if (processedDoc.metadata?.hasSignatures) {
+      console.log("\nSignature Verification:");
+      processedDoc.pages.forEach((page, index) => {
+        if (page.signatures.length > 0) {
+          console.log(
+            `Page ${index + 1}: ${page.signatures.length} signature(s) detected`
+          );
+        }
+      });
     }
   }
 
-  prepareContentForValidation(pdfData) {
+  /**
+   * Prepare content for validation combining digital and OCR data
+   */
+  async prepareContentForValidation(processedDoc) {
     const content = {
-      pages: this.pages,
+      pages: [],
       sections: {},
       metadata: {
-        pageCount: pdfData.pages.length,
-        isDigital: this.isDigitalDocument(pdfData)
-      }
+        pageCount: processedDoc.pages.length,
+        isDigital: processedDoc.isDigital,
+        hasSignatures: processedDoc.metadata.hasSignatures,
+      },
     };
 
-    // Identify document sections
+    // Process each page's content
+    processedDoc.pages.forEach((page, index) => {
+      // Ensure page.boxes exists and is an array
+      const boxes = Array.isArray(page.boxes) ? page.boxes : [];
+      content.pages.push(boxes);
+
+      // Log box statistics per page
+      console.log(`\nPage ${index + 1} Statistics:`);
+      console.log(`- Total boxes: ${boxes.length}`);
+      console.log(
+        `- Digital boxes: ${boxes.filter((b) => b.source === "digital").length}`
+      );
+      console.log(
+        `- OCR boxes: ${boxes.filter((b) => b.source === "ocr").length}`
+      );
+
+      if (page.signatures && page.signatures.length > 0) {
+        console.log(`- Signatures detected: ${page.signatures.length}`);
+      }
+    });
+
+    // Identify document sections using updated content
     for (const [sectionName, config] of Object.entries(
       this.validationProfiles.paq.contentSections
     )) {
-      const sectionContent = this.identifySection(config);
+      const sectionContent = this.identifySection(config, content.pages);
       if (sectionContent) {
         content.sections[sectionName] = sectionContent;
+        console.log(`\nSection identified: ${sectionName}`);
+        console.log(`- Page: ${sectionContent.page}`);
+        console.log(`- Content items: ${sectionContent.content.length}`);
       }
     }
 
     return content;
   }
 
-  identifySection(sectionConfig) {
+  identifySection(sectionConfig, pages) {
     // Find section bounds using markers
-    for (let pageIndex = 0; pageIndex < this.pages.length; pageIndex++) {
-      const page = this.pages[pageIndex];
+    for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+      const pageBoxes = pages[pageIndex];
       
+      // Skip if page has no content
+      if (!Array.isArray(pageBoxes)) continue;
+
       // Look for section markers
-      const markerFound = sectionConfig.markers.some(marker =>
-        page.some(item => item.text.includes(marker))
+      const markerFound = sectionConfig.markers.some((marker) =>
+        pageBoxes.some((box) => box.text && box.text.includes(marker))
       );
 
       if (markerFound) {
         // Get content within expected bounds
-        const sectionContent = page.filter(item => {
-          const relativeY = item.bounds.y / page[0].bounds.height;
+        const pageHeight = Math.max(
+          ...pageBoxes.map((box) => box.bounds.y + box.bounds.height)
+        );
+
+        const sectionContent = pageBoxes.filter((box) => {
+          const relativeY = box.bounds.y / pageHeight;
           return (
             relativeY >= sectionConfig.expectedBounds.top &&
             relativeY <= sectionConfig.expectedBounds.bottom
@@ -125,7 +218,7 @@ class DocumentValidationCLI {
         return {
           content: sectionContent,
           page: pageIndex,
-          bounds: sectionConfig.expectedBounds
+          bounds: sectionConfig.expectedBounds,
         };
       }
     }
@@ -135,36 +228,56 @@ class DocumentValidationCLI {
 
   isDigitalDocument(pdfData) {
     // Check if document has searchable text
-    return pdfData.pages.some(page => 
-      page.content && page.content.length > 0 &&
-      page.content.some(item => 
-        item.str && item.str.trim().length > 0
-      )
+    return pdfData.pages.some(
+      (page) =>
+        page.content &&
+        page.content.length > 0 &&
+        page.content.some((item) => item.str && item.str.trim().length > 0)
     );
   }
 
+  /**
+   * Generate enhanced report with processing details
+   */
   generateEnhancedReport(results, caseModel) {
-    return {
+    const report = {
       status: results.valid ? "VALID" : "INVALID",
       fields: results.fields,
       confidence: {
         overall: results.confidence,
-        fields: results.matches
+        fields: results.matches,
       },
       validation: {
         digital: results.metadata?.isDigital,
         matchingStrategy: results.metadata?.strategy,
-        spatialVerification: results.metadata?.spatial
+        spatialVerification: results.metadata?.spatial,
       },
-      issues: this.generateIssuesList(results, caseModel)
+      issues: this.generateIssuesList(results, caseModel),
     };
+
+    // Add processing metadata if available
+    if (results.metadata?.processing) {
+      report.processing = {
+        enhancedRegions: results.metadata.processing.enhancedRegions || 0,
+        ocrRetries: results.metadata.processing.ocrRetries || 0,
+        signatureVerification:
+          results.metadata.processing.signatureVerification || {},
+      };
+    }
+
+    return report;
   }
 
+  /**
+   * Generate list of validation issues
+   */
   generateIssuesList(results, caseModel) {
     const issues = [];
 
     // Check required fields
-    for (const [field, config] of Object.entries(this.hybridValidator.fieldPriorities)) {
+    for (const [field, config] of Object.entries(
+      this.hybridValidator.fieldPriorities
+    )) {
       if (config.required && !results.fields[field]) {
         issues.push(`Missing required field: ${field}`);
       }
@@ -182,8 +295,10 @@ class DocumentValidationCLI {
 
   formatValidationFailure(failure) {
     // Format validation failures with clear context
-    return `${failure.field} validation failed: ${failure.reason}` +
-      (failure.details ? ` (${failure.details})` : '');
+    return (
+      `${failure.field} validation failed: ${failure.reason}` +
+      (failure.details ? ` (${failure.details})` : "")
+    );
   }
 
   /**

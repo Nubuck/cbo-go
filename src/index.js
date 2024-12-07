@@ -25,9 +25,15 @@ async function main() {
     "digital-application.pdf"
   );
   const cli = new DocumentValidationCLI();
-  const results = await cli.processDocument(docPath, caseModel);
-  const resultPath = path.join(process.cwd(), "result.json");
-  fs.writeFile(resultPath, JSON.stringify(results));
+
+  try {
+    const results = await cli.processDocument(docPath, caseModel);
+    const resultPath = path.join(process.cwd(), "result.json");
+    fs.writeFile(resultPath, JSON.stringify(results));
+    console.log("\nValidation Results:", JSON.stringify(results, null, 2));
+  } catch (error) {
+    console.error("Validation failed:", error);
+  }
 }
 
 main().catch(console.error);

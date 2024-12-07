@@ -62,3 +62,55 @@ I would like to present a better set of reports today. Please help me query and 
 - what are the most common reasons for pending based on the requestPaqComment and requestApplicationComment values, I know for sure the Disbursement account mismatch is the most common, but how to query this?
 
 Please suggest any other insight metrics you think the execs might find interesting and as always ask me anything
+
+
+
+I'll help implement the scanning and OCR pipeline to complement our hybrid validation approach. Let me first ask a few clarifying questions about the current state:
+
+1. For the hybrid validation approach, we're currently handling both digital PDFs and scanned documents, but primarily focusing on digital first with pdf.js-extract, correct? 
+
+2. Looking at the example-cli.js proof of concept, I see you're using:
+   - pdf-to-img with scale: 3 for better OCR quality
+   - tesseract-wasm with word-level text boxes
+   - Custom image loading with sharp for consistent RGBA format
+
+3. I notice in HybridValidator we have some OCR-specific configurations but no integrated OCR pipeline yet. The current confidence scoring considers OCR vs digital sources though.
+
+4. The project-context.md suggests we're using @techstark/opencv-js - are you planning to use this for any image preprocessing before OCR? 
+
+For implementation, I'm thinking we should:
+
+1. Add an OCR processing pipeline that integrates with our existing HybridValidator
+2. Create a unified text box model that works for both PDF extraction and OCR
+3. Implement image preprocessing optimization for better OCR results
+4. Handle multi-page documents properly with concurrent processing
+
+Would you prefer we start with any particular aspect? Also, do you have any specific requirements around:
+
+- Image preprocessing approach (contrast enhancement, deskewing, etc.)
+- Handling multi-page documents (process all at once vs streaming)
+- OCR confidence thresholds and validation
+- Memory management for large documents
+
+Let me know your thoughts and priorities, and I can propose a specific implementation approach.
+
+
+1. We started with digital documents first to establish a running cli. There's likely going to be more OCR cases than digital cases so we need to inspect each document to establish if there is proper digital text boxes or whether the pages need to be extracted for OCR. in fact the image extract needs to happen for both types of documents, because we still need to do visual confirmation of signed initials on each page and a signature which doesnt translate in the digital data. So we extract all documents to images to check for signature markings guided by either the digital text boxes or the ocr text boxes
+
+2. correct - these same packages are availible in our repomix project. I've auditioned many packages and these have worked the best. opencv wasm is also there for heavy lifting image processing
+
+3. Correct - it's a start
+
+4. Correct
+
+You implementation plan is solid. Lets establish the extraction pipline with room for pre processing middleware. The types of pre processing checks and transformations we need to perform are:
+
+- check the page brightness - if it's too dark because the scanned document is actually a smart phone photo, we need to brighten and sharpen. if it's too light and faded we need adjust contrast and brightness, sharpen and maybe layer
+- check page orientation - many documents arrive scanned in up-side-down, side-ways, skew to the left or the right or skew left one page and the next is skew right. 
+- check page size / resoluton - when the image quality confidence is low we will need to scale the image to get a better tesseract read 
+
+We should also cater for post processing - for once the pre processing and validation process returns failed results due to hunted values not being found, we should take any page section info available where we expect to find the hunted values, crop that section of the image and enlarge and enhance the image to OCR again and hopefully get a better read.
+
+Scanned documents also aren't always in the right page order, so really we should evaluate each page that can potentially contain the values we have not yet hunted. both digital and scanned documents can both also have multiple documents within - dispensation form, paq and application documents joined. 
+
+My priority is to establish the OCR pipeline, normalize the tesseract results with the digital boxes into a common model, pre process images, post process images
