@@ -18,11 +18,17 @@ async function main() {
     collectionBank: "Nedbank",
     collectionAccountNo: "1148337962",
   };
+  // const docPath = path.join(
+  //   process.cwd(),
+  //   "test",
+  //   "samples",
+  //   "digital-application.pdf"
+  // );
   const docPath = path.join(
     process.cwd(),
     "test",
     "samples",
-    "digital-application.pdf"
+    "scanned-application.pdf"
   );
   const cli = new DocumentValidationCLI();
 

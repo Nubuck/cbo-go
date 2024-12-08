@@ -4,11 +4,7 @@ import { createOCREngine } from "tesseract-wasm";
 import { loadWasmBinary } from "tesseract-wasm/node";
 import cv from "@techstark/opencv-js";
 import sharp from "sharp";
-import {
-  promises as fs,
-  existsSync,
-  readFileSync,
-} from "node:fs";
+import { promises as fs, existsSync, readFileSync } from "node:fs";
 import path from "path";
 
 class DocumentProcessor {
@@ -46,9 +42,9 @@ class DocumentProcessor {
     // Store model path from options or use default paths
     this.modelPath = options.modelPath || this.findModelPath();
 
-     // Add debug options
-     this.debugOptions = {
-      outputPath: options.debugPath || path.join(process.cwd(), 'debug_output'),
+    // Add debug options
+    this.debugOptions = {
+      outputPath: options.debugPath || path.join(process.cwd(), "debug_output"),
       saveImages: options.saveDebugImages || false,
     };
   }
@@ -193,7 +189,7 @@ class DocumentProcessor {
 
         // Check OCR quality and retry with enhanced processing if needed
         if (this.needsEnhancedOCR(boxes, ocrResults.orientation)) {
-          const enhancedResults = await this.performEnhancedOCR(
+          const enhancedResults = await this.performPostOCR(
             processed.image,
             pageIndex
           );
@@ -225,10 +221,259 @@ class DocumentProcessor {
     }
   }
 
+  // Add these methods to the DocumentProcessor class
+
+  /**
+   * Perform OCR on image with retries for low confidence
+   */
+  async performOCR(image) {
+    try {
+      if (!this.ocrEngine) {
+        throw new Error("OCR engine not initialized");
+      }
+
+      // Convert image data for OCR
+      const imageData = await this.prepareImageForOCR(image);
+
+      // Load image into OCR engine
+      this.ocrEngine.loadImage(imageData);
+
+      // Get initial orientation
+      const orientation = this.ocrEngine.getOrientation();
+      let results = {
+        boxes: [],
+        orientation,
+        confidence: 0,
+        metadata: {
+          retries: 0,
+          enhancements: [],
+        },
+      };
+
+      // Get initial text boxes
+      results.boxes = this.ocrEngine.getTextBoxes("word");
+      results.confidence = this.calculateOverallConfidence(results.boxes);
+
+      // Check if results need enhancement
+      if (this.needsEnhancedOCR(results)) {
+        const enhanced = await this.performEnhancedOCR(image, results);
+        Object.assign(results, enhanced);
+      }
+
+      return results;
+    } catch (error) {
+      console.error("OCR processing failed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Prepare image data for OCR processing
+   */
+  async prepareImageForOCR(image) {
+    // If image is already in correct format, return as is
+    if (image.data && image.width && image.height) {
+      return image;
+    }
+
+    try {
+      // Convert to required format
+      const sharpImage = sharp(image);
+      const metadata = await sharpImage.metadata();
+
+      return {
+        data: await sharpImage.raw().ensureAlpha().toBuffer(),
+        width: metadata.width,
+        height: metadata.height,
+      };
+    } catch (error) {
+      console.error("Image preparation failed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Calculate overall confidence from OCR results
+   */
+  calculateOverallConfidence(boxes) {
+    if (!boxes || boxes.length === 0) return 0;
+
+    // Calculate weighted average confidence
+    const totalConfidence = boxes.reduce((sum, box) => {
+      // Weight longer text boxes more heavily
+      const weight = Math.min(box.text.length / 5, 2);
+      return sum + box.confidence * weight;
+    }, 0);
+
+    const totalWeight = boxes.reduce((sum, box) => {
+      return sum + Math.min(box.text.length / 5, 2);
+    }, 0);
+
+    return totalWeight > 0 ? totalConfidence / totalWeight : 0;
+  }
+
+  /**
+   * Perform focused OCR on specific region
+   */
+  async performRegionOCR(image, region, options = {}) {
+    try {
+      // Extract and enhance region
+      const regionImage = await this.extractRegion(image, region);
+      const enhanced = await this.enhanceRegion(regionImage);
+
+      // Prepare image data
+      const imageData = await this.prepareImageForOCR(enhanced.image);
+
+      // Load image into OCR engine
+      this.ocrEngine.loadImage(imageData);
+
+      // Get text boxes
+      const boxes = this.ocrEngine.getTextBoxes("word");
+      const confidence = this.calculateOverallConfidence(boxes);
+
+      // Clean up
+      regionImage.delete();
+      enhanced.image.delete();
+
+      return {
+        boxes,
+        confidence,
+        orientation: this.ocrEngine.getOrientation(),
+        metadata: {
+          region,
+          enhancements: enhanced.metadata,
+        },
+      };
+    } catch (error) {
+      console.error("Region OCR failed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Extract region from image for focused OCR
+   */
+  async extractRegion(image, region) {
+    const mat = await this.imageToMat(image);
+
+    // Create region of interest
+    const roi = mat.roi(
+      new cv.Rect(region.x, region.y, region.width, region.height)
+    );
+
+    // Convert back to image format
+    const buffer = await this.matToImageBuffer(roi);
+
+    // Clean up
+    mat.delete();
+    roi.delete();
+
+    return buffer;
+  }
+
+  /**
+   * Perform enhanced OCR with multiple preprocessing attempts
+   */
+  async performEnhancedOCR(image, initialResults) {
+    const results = {
+      ...initialResults,
+      metadata: {
+        ...initialResults.metadata,
+        retries: 0,
+        enhancements: [],
+      },
+    };
+
+    // Try different enhancement strategies
+    const enhancements = [
+      { name: "contrast", fn: async (img) => this.enhanceContrast(img) },
+      { name: "sharpen", fn: async (img) => this.sharpenImage(img) },
+      { name: "denoise", fn: async (img) => this.denoiseImage(img) },
+      { name: "threshold", fn: async (img) => this.adaptiveThreshold(img) },
+    ];
+
+    for (const enhancement of enhancements) {
+      try {
+        // Apply enhancement
+        const enhanced = await enhancement.fn(image);
+        const imageData = await this.prepareImageForOCR(enhanced);
+
+        // Perform OCR on enhanced image
+        this.ocrEngine.loadImage(imageData);
+        const boxes = this.ocrEngine.getTextBoxes("word");
+        const confidence = this.calculateOverallConfidence(boxes);
+
+        // Keep best results
+        if (confidence > results.confidence) {
+          results.boxes = boxes;
+          results.confidence = confidence;
+          results.metadata.enhancements.push(enhancement.name);
+        }
+
+        results.metadata.retries++;
+
+        // Clean up
+        enhanced.delete();
+
+        // Stop if we achieve good confidence
+        if (confidence > 0.8) break;
+      } catch (error) {
+        console.warn(`Enhancement ${enhancement.name} failed:`, error);
+        continue;
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Perform OCR on difficult regions
+   */
+  async performDifficultRegionOCR(image, region) {
+    try {
+      // Extract and scale region
+      const roi = await this.extractRegion(image, region);
+      const scaled = await this.scaleImage(roi, 2.0); // Double size
+
+      // Apply focused enhancements
+      const enhanced = await this.enhanceRegion(scaled, {
+        denoise: true,
+        contrast: true,
+        sharpen: true,
+      });
+
+      // Perform OCR
+      const imageData = await this.prepareImageForOCR(enhanced.image);
+      this.ocrEngine.loadImage(imageData);
+
+      const results = {
+        boxes: this.ocrEngine.getTextBoxes("word"),
+        confidence: 0,
+        metadata: {
+          region,
+          scale: 2.0,
+          enhancements: enhanced.metadata,
+        },
+      };
+
+      results.confidence = this.calculateOverallConfidence(results.boxes);
+
+      // Clean up
+      roi.delete();
+      scaled.delete();
+      enhanced.image.delete();
+
+      return results;
+    } catch (error) {
+      console.error("Difficult region OCR failed:", error);
+      throw error;
+    }
+  }
+
   /**
    * Perform enhanced OCR on difficult regions
    */
-  async performEnhancedOCR(imageMat, pageIndex) {
+  async performPostOCR(imageMat, pageIndex) {
     const results = {
       boxes: [],
       metadata: {
