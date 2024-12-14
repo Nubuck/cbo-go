@@ -16,7 +16,7 @@ repomix.xml
 public/*
 test/samples/*
 output/debug/*
-
+docs/sample-data/**
 
 # Editor directories and files
 .vscode/*
