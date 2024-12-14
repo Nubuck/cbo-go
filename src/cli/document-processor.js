@@ -3,7 +3,6 @@ import { PDFExtract } from "pdf.js-extract";
 import { createOCREngine } from "tesseract-wasm";
 import { loadWasmBinary } from "tesseract-wasm/node";
 import cv from "@techstark/opencv-js";
-import sharp from "sharp";
 import { promises as fs, existsSync, readFileSync } from "node:fs";
 import path from "path";
 
@@ -57,7 +56,6 @@ class DocumentProcessor {
       try {
         const wasmBinary = await loadWasmBinary();
         this.ocrEngine = await createOCREngine({ wasmBinary });
-        console.log("MODEL PATH", this.modelPath);
         if (!existsSync(this.modelPath)) {
           throw new Error(`Tesseract model not found at: ${this.modelPath}`);
         }
@@ -119,19 +117,20 @@ class DocumentProcessor {
 
       // Process each page
       const results = [];
-      for (const [index, page] of pages.entries()) {
+      for (const [index, pageBuffer] of pages.entries()) {
         // Save debug image if enabled
         if (this.debugOptions.saveImages) {
           const imagePath = path.join(
             this.debugOptions.outputPath,
             `page_${index + 1}.png`
           );
-          await fs.writeFile(imagePath, page);
+          await fs.writeFile(imagePath, pageBuffer);
           console.log(`Saved debug image: ${imagePath}`);
         }
 
+        // Convert buffer to mat
         const processedPage = await this.processPage(
-          page,
+          pageBuffer,
           index,
           pdfData.pages[index]
         );
@@ -183,6 +182,7 @@ class DocumentProcessor {
         );
         result.metadata.preprocessing = processed.metadata;
 
+        console.log("processPage -> processed", processed);
         // Perform initial OCR
         const ocrResults = await this.performOCR(processed.image);
         const boxes = this.normalizeOCRBoxes(ocrResults, pageIndex);
@@ -221,8 +221,6 @@ class DocumentProcessor {
     }
   }
 
-  // Add these methods to the DocumentProcessor class
-
   /**
    * Perform OCR on image with retries for low confidence
    */
@@ -234,12 +232,19 @@ class DocumentProcessor {
 
       // Convert image data for OCR
       const imageData = await this.prepareImageForOCR(image);
+      console.log("OCR Image Data:", {
+        width: imageData.width,
+        height: imageData.height,
+        hasData: !!imageData.data,
+      });
 
       // Load image into OCR engine
       this.ocrEngine.loadImage(imageData);
 
       // Get initial orientation
       const orientation = this.ocrEngine.getOrientation();
+      console.log("OCR Orientation:", orientation);
+
       let results = {
         boxes: [],
         orientation,
@@ -252,12 +257,28 @@ class DocumentProcessor {
 
       // Get initial text boxes
       results.boxes = this.ocrEngine.getTextBoxes("word");
-      results.confidence = this.calculateOverallConfidence(results.boxes);
+      console.log("OCR Initial Boxes:", results.boxes.length);
+      // Log a few sample boxes
+      results.boxes.slice(0, 5).forEach((box) => {
+        console.log("Sample Box:", {
+          text: box.text,
+          confidence: box.confidence,
+          bbox: box.bbox,
+        });
+      });
 
-      // Check if results need enhancement
+      results.confidence = this.calculateOverallConfidence(results.boxes);
+      console.log("OCR Initial Confidence:", results.confidence);
+
+      // If low confidence or few results, try enhancement
       if (this.needsEnhancedOCR(results)) {
+        console.log("Attempting Enhanced OCR...");
         const enhanced = await this.performEnhancedOCR(image, results);
         Object.assign(results, enhanced);
+        console.log("Enhanced OCR Results:", {
+          boxes: results.boxes.length,
+          confidence: results.confidence,
+        });
       }
 
       return results;
@@ -271,23 +292,54 @@ class DocumentProcessor {
    * Prepare image data for OCR processing
    */
   async prepareImageForOCR(image) {
-    // If image is already in correct format, return as is
-    if (image.data && image.width && image.height) {
-      return image;
-    }
-
     try {
-      // Convert to required format
-      const sharpImage = sharp(image);
-      const metadata = await sharpImage.metadata();
+      // If input is already Mat, start with a clone
+      const srcMat =
+        image instanceof cv.Mat ? image.clone() : this.imageToMat(image);
+      let processed = srcMat;
 
+      // Convert to RGBA if needed (tesseract expects 4 channels)
+      if (processed.channels() === 1) {
+        const rgba = new cv.Mat();
+        cv.cvtColor(processed, rgba, cv.COLOR_GRAY2RGBA);
+        processed.delete();
+        processed = rgba;
+      } else if (processed.channels() === 3) {
+        const rgba = new cv.Mat();
+        cv.cvtColor(processed, rgba, cv.COLOR_BGR2RGBA);
+        processed.delete();
+        processed = rgba;
+      }
+
+      // Ensure proper resolution for OCR (300+ DPI equivalent)
+      const minDim = Math.min(processed.rows, processed.cols);
+      if (minDim < 1000) {
+        // Arbitrary threshold for "low resolution"
+        const scale = 1200 / minDim;
+        const scaled = new cv.Mat();
+        cv.resize(
+          processed,
+          scaled,
+          new cv.Size(0, 0),
+          scale,
+          scale,
+          cv.INTER_CUBIC
+        );
+        processed.delete();
+        processed = scaled;
+      }
+
+      // Return in format Tesseract expects
       return {
-        data: await sharpImage.raw().ensureAlpha().toBuffer(),
-        width: metadata.width,
-        height: metadata.height,
+        data: Buffer.from(processed.data),
+        width: processed.cols,
+        height: processed.rows,
       };
     } catch (error) {
       console.error("Image preparation failed:", error);
+      if (image instanceof cv.Mat) {
+        image.delete();
+      }
       throw error;
     }
   }
@@ -750,14 +802,14 @@ class DocumentProcessor {
   async applyPreprocessing(imageMat) {
     const metadata = {};
 
-    // Convert to grayscale for analysis
+    // Convert to grayscale for initial analysis
     const gray = new cv.Mat();
     cv.cvtColor(imageMat, gray, cv.COLOR_RGBA2GRAY);
 
-    // Check and correct orientation
+    // Detect and correct skew
     const orientation = await this.detectOrientation(gray);
     if (Math.abs(orientation.angle) > this.imageConfig.orientationThreshold) {
-      const rotated = await this.rotateImage(imageMat, orientation.angle);
+      const rotated = await this.rotateImage(imageMat, -orientation.angle);
       metadata.orientation = orientation;
       imageMat.delete();
       imageMat = rotated;
@@ -768,10 +820,34 @@ class DocumentProcessor {
     metadata.quality = quality;
 
     if (quality.needsEnhancement) {
-      const enhanced = await this.enhanceImage(imageMat, quality);
-      metadata.enhancement = enhanced.metadata;
+      // Create enhanced copy
+      const enhanced = new cv.Mat();
+      imageMat.copyTo(enhanced);
+
+      // Apply adaptive histogram equalization for better contrast
+      if (quality.contrast < 0.4) {
+        const clahe = new cv.CLAHE(3.0, new cv.Size(8, 8));
+        clahe.apply(enhanced, enhanced);
+        metadata.enhancement = { ...metadata.enhancement, contrast: true };
+      }
+
+      // Denoise if needed
+      if (quality.noise > 0.1) {
+        cv.fastNlMeansDenoisingColored(enhanced, enhanced);
+        metadata.enhancement = { ...metadata.enhancement, denoised: true };
+      }
+
+      // Sharpen for better OCR if text is blurry
+      if (quality.sharpness < 0.3) {
+        const kernel = cv.Mat.ones(3, 3, cv.CV_8S);
+        kernel.data[4] = -8;
+        cv.filter2D(enhanced, enhanced, -1, kernel);
+        kernel.delete();
+        metadata.enhancement = { ...metadata.enhancement, sharpened: true };
+      }
+
       imageMat.delete();
-      imageMat = enhanced.image;
+      imageMat = enhanced;
     }
 
     gray.delete();
@@ -976,22 +1052,58 @@ class DocumentProcessor {
   }
 
   /**
-   * Convert image to OpenCV matrix
+   * Convert image buffer/data to OpenCV matrix
    */
   async imageToMat(imageData) {
-    // Convert sharp buffer to OpenCV Mat
-    const sharpImage = sharp(imageData);
-    const { width, height } = await sharpImage.metadata();
+    try {
+      // Handle different input types
+      if (imageData instanceof cv.Mat) {
+        return imageData.clone();
+      }
 
-    const buffer = await sharpImage.removeAlpha().raw().toBuffer();
+      // Convert Buffer to Mat
+      if (Buffer.isBuffer(imageData) || imageData instanceof Uint8Array) {
+        // Create array from buffer
+        const data = new Uint8Array(imageData);
 
-    const mat = cv.matFromImageData({
-      data: buffer,
-      width,
-      height,
-    });
+        // Create Mat directly from array
+        // Try to determine dimensions - we might need to adjust this based on actual image size
+        // Assuming RGBA format initially
+        const width = Math.sqrt(data.length / 4);
+        const height = width;
+        const channels = 4;
 
-    return mat;
+        if (!isNaN(width) && width % 1 === 0) {
+          // If dimensions work out evenly
+          const mat = new cv.Mat(height, width, cv.CV_8UC4);
+          mat.data.set(data);
+          return mat;
+        } else {
+          // If dimensions aren't even, try single channel
+          const mat = new cv.Mat(data.length, 1, cv.CV_8UC1);
+          mat.data.set(data);
+          return mat;
+        }
+      }
+
+      // Handle raw pixel data with dimensions
+      if (imageData.data && imageData.width && imageData.height) {
+        const channels =
+          imageData.data.length / (imageData.width * imageData.height);
+        let mat = new cv.Mat(
+          imageData.height,
+          imageData.width,
+          cv.CV_8UC(channels)
+        );
+        mat.data.set(imageData.data);
+        return mat;
+      }
+
+      throw new Error("Unsupported image data format");
+    } catch (error) {
+      console.error("Mat conversion failed:", error);
+      throw error;
+    }
   }
 
   /**
@@ -1088,6 +1200,7 @@ class DocumentProcessor {
       item.str.includes("COPY")
     );
   }
+
   /**
    * Calculate dominant angle from detected lines
    */
