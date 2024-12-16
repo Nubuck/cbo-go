@@ -1,14 +1,1 @@
-{
-  "status": "INVALID",
-  "fields": {},
-  "confidence": { "overall": 1, "fields": {} },
-  "validation": {},
-  "issues": [
-    "Missing required field: caseId",
-    "Missing required field: loanAmount",
-    "Missing required field: instalment",
-    "Missing required field: interestRate",
-    "Missing required field: insurancePremium",
-    "Missing required field: collectionAccountNo"
-  ]
-}
+{"status":"INVALID","fields":{},"confidence":{"overall":1,"fields":{}},"validation":{},"issues":["Missing required field: caseId","Missing required field: loanAmount","Missing required field: instalment","Missing required field: interestRate","Missing required field: insurancePremium","Missing required field: collectionAccountNo"]}

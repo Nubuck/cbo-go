@@ -15,6 +15,7 @@ class DocumentValidationCLI {
       modelPath: path.join(process.cwd(), "eng.traineddata"),
       saveDebugImages: true,
       debugPath: path.join(process.cwd(), "debug_output"),
+      imagePath: path.join(process.cwd(), "debug_output", "images"),
     });
 
     // normalized pages
