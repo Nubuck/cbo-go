@@ -17,7 +17,7 @@ public/*
 test/samples/*
 output/debug/*
 docs/sample-data/**
-
+debug_output
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

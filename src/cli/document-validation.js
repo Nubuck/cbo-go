@@ -14,7 +14,7 @@ class DocumentValidationCLI {
     this.documentProcessor = new DocumentProcessor({
       modelPath: path.join(process.cwd(), "eng.traineddata"),
       saveDebugImages: true,
-      debugPath: "./output/debug",
+      debugPath: path.join(process.cwd(), "debug_output"),
     });
 
     // normalized pages

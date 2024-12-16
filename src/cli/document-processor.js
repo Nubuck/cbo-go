@@ -5,6 +5,7 @@ import { loadWasmBinary } from "tesseract-wasm/node";
 import cv from "@techstark/opencv-js";
 import { promises as fs, existsSync, readFileSync } from "node:fs";
 import path from "path";
+import sharp from "sharp";
 
 class DocumentProcessor {
   constructor(options = {}) {
@@ -42,33 +43,342 @@ class DocumentProcessor {
     this.modelPath = options.modelPath || this.findModelPath();
 
     // Add debug options
-    this.debugOptions = {
-      outputPath: options.debugPath || path.join(process.cwd(), "debug_output"),
-      saveImages: options.saveDebugImages || false,
+    // Debug logging configuration
+    this.debug = {
+      enabled: true,
+      logPath: options.debugPath || path.join(process.cwd(), "debug_output"),
+      imagePath:
+        options.debugPath || path.join(process.cwd(), "debug_output", "images"),
+      logFile: "processing.log",
     };
+
+    this.log(
+      "MODEL PATH contructor value - constructor:",
+      "INFO",
+      this.modelPath
+    );
   }
 
   /**
    * Initialize OCR engine
    */
   async initialize() {
-    if (!this.ocrEngine) {
-      try {
+    try {
+      await this.initDebugDirectory();
+      this.log("Initializing DocumentProcessor - initialize");
+
+      if (!this.ocrEngine) {
         const wasmBinary = await loadWasmBinary();
+        this.log("WASM binary loaded successfully - initialize");
+
         this.ocrEngine = await createOCREngine({ wasmBinary });
+        this.log("OCR engine created successfully - initialize");
+
         if (!existsSync(this.modelPath)) {
           throw new Error(`Tesseract model not found at: ${this.modelPath}`);
         }
 
         const model = readFileSync(this.modelPath);
         this.ocrEngine.loadModel(model);
-
-        console.log("OCR engine initialized successfully");
-      } catch (error) {
-        console.error("OCR initialization failed:", error);
-        console.warn("Falling back to digital-only document processing");
-        this.ocrEngine = null;
+        this.log("Tesseract model loaded successfully - initialize");
       }
+    } catch (error) {
+      this.log(
+        `Initialization failed - initialize:`,
+        "ERROR",
+        error?.stack || error.toString?.()
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Process document with combined digital and OCR approach
+   */
+  async processDocument(filePath) {
+    try {
+      this.log(`Starting document processing - processDocument: ${filePath}`);
+
+      // Extract digital content first
+      const pdfData = await this.pdfExtract.extract(filePath);
+      const isDigital = this.hasValidDigitalContent(pdfData);
+      this.log(
+        `Document type detected - processDocument: ${
+          isDigital ? "Digital" : "Scanned"
+        }`
+      );
+
+      if (isDigital) {
+        this.log(
+          "Digital content structure - processDocument:",
+          "INFO",
+          JSON.stringify(pdfData.pages[0].content.slice(0, 2))
+        );
+      }
+
+      // Extract images
+      this.log("Extracting page images - processDocument");
+      const pages = await this.extractPages(filePath);
+      this.log(`Extracted ${pages.length} pages - processDocument`);
+
+      // Process each page
+      const results = [];
+      for (const [index, pageBuffer] of pages.entries()) {
+        this.log(
+          `Processing page ${index + 1}/${pages.length} - processDocument`
+        );
+
+        try {
+          // Save debug image
+          await this.saveDebugImage(
+            pageBuffer,
+            `page_${index + 1}_original.png`
+          );
+
+          // Convert buffer to mat
+          const processedPage = await this.processPage(
+            pageBuffer,
+            index,
+            pdfData.pages[index]
+          );
+
+          this.log(
+            `Page ${index + 1} processing results - processDocument:`,
+            "INFO",
+            {
+              boxes: processedPage.boxes.length,
+              signatures: processedPage.signatures.length,
+              metadata: processedPage.metadata,
+            }
+          );
+
+          results.push(processedPage);
+        } catch (error) {
+          this.log(
+            `Error processing page ${index + 1} - processDocument:`,
+            "ERROR",
+            error?.stack || error.toString?.()
+          );
+          throw error;
+        }
+      }
+
+      return {
+        pages: results,
+        isDigital,
+        metadata: {
+          pageCount: pages.length,
+          processedAt: new Date(),
+          hasSignatures: results.some((p) => p.signatures?.length > 0),
+        },
+      };
+    } catch (error) {
+      this.log(
+        `Document processing failed - processDocument:`,
+        "ERROR",
+        error?.stack || error.toString?.()
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Process individual page with preprocessing and OCR
+   */
+  async processPage(pageImage, pageIndex, digitalData) {
+    this.log(`Starting page ${pageIndex + 1} processing - processPage`);
+
+    const result = {
+      boxes: [],
+      signatures: [],
+      metadata: {},
+    };
+
+    try {
+      // Convert page image to Mat format
+      const imageMat = await this.imageToMat(pageImage);
+      this.log("Converted page to Mat format - processPage", "INFO", {
+        rows: imageMat.rows,
+        cols: imageMat.cols,
+        channels: imageMat.channels(),
+      });
+
+      // Get initial quality assessment
+      const initialQuality = await this.analyzeImageQuality(imageMat);
+      this.log(
+        "Initial image quality assessment - processPage:",
+        "INFO",
+        initialQuality
+      );
+      result.metadata.initialQuality = initialQuality;
+
+      // Determine if we need OCR based on digital content
+      const needsOCR =
+        !digitalData || !this.hasValidDigitalContent({ pages: [digitalData] });
+      this.log(`OCR needed - processPage: ${needsOCR}`, "INFO", {
+        hasDigitalData: !!digitalData,
+        contentValid: this.hasValidDigitalContent({ pages: [digitalData] }),
+      });
+
+      if (needsOCR) {
+        // Apply preprocessing
+        const processed = await this.applyPreprocessing(
+          imageMat,
+          initialQuality
+        );
+        this.log("Preprocessing applied - processPage:", "INFO", processed);
+        result.metadata.preprocessing = processed.metadata;
+
+        await this.saveDebugImage(
+          processed.image,
+          `page_${pageIndex + 1}_preprocessed.png`
+        );
+
+        // Perform OCR
+        const ocrResults = await this.performOCR(processed.image);
+        this.log("Initial OCR results - processPage:", "INFO", {
+          boxes: ocrResults.boxes.length,
+          orientation: ocrResults.orientation,
+          confidence: ocrResults.confidence,
+        });
+
+        const boxes = this.normalizeOCRBoxes(ocrResults, pageIndex);
+        this.log("Normalized OCR boxes - processPage:", "INFO", {
+          count: boxes.length,
+          sample: boxes.slice(0, 2),
+        });
+
+        // Check OCR quality and retry if needed
+        if (this.needsEnhancedOCR(boxes, ocrResults.orientation)) {
+          this.log("Enhanced OCR processing required - processPage");
+          const enhancedResults = await this.performEnhancedOCR(
+            processed.image,
+            pageIndex
+          );
+          boxes.push(...enhancedResults.boxes);
+          result.metadata.enhancedOCR = enhancedResults.metadata;
+          this.log("Enhanced OCR completed - processPage:", "INFO", {
+            additionalBoxes: enhancedResults.boxes.length,
+            metadata: enhancedResults.metadata,
+          });
+        }
+
+        result.boxes.push(...boxes);
+        processed.image.delete();
+      } else {
+        // Use digital content
+        const digitalBoxes = this.normalizeDigitalBoxes(digitalData, pageIndex);
+        this.log("Using digital content - processPage:", "INFO", {
+          boxes: digitalBoxes.length,
+          sample: digitalBoxes.slice(0, 2),
+        });
+        result.boxes.push(...digitalBoxes);
+      }
+
+      // Check for signatures
+      const signatureResults = await this.detectSignatures(imageMat, pageIndex);
+      result.signatures = signatureResults.marks;
+      result.metadata.signatureDetection = signatureResults.metadata;
+      this.log("Signature detection results - processPage:", "INFO", {
+        count: signatureResults.marks.length,
+        metadata: signatureResults.metadata,
+      });
+
+      imageMat.delete();
+      return result;
+    } catch (error) {
+      this.log(
+        `Page ${pageIndex + 1} processing failed - processPage:`,
+        "ERROR",
+        error?.stack || error.toString?.()
+      );
+      throw error;
+    }
+  }
+
+  // Logging utilities
+  async initDebugDirectory() {
+    if (this.debug.enabled) {
+      await fs.mkdir(this.debug.logPath, { recursive: true });
+      await fs.mkdir(this.debug.imagePath, { recursive: true });
+    }
+  }
+
+  log(message, level = "INFO", data = null) {
+    if (!this.debug.enabled) return;
+
+    const timestamp = new Date().toISOString();
+    const logMessage = `[${timestamp}] ${level}: ${message}${
+      data ? "\nData: " + JSON.stringify(data, null, 2) : ""
+    }\n`;
+
+    // Console output
+    console.log(logMessage);
+
+    // File output
+    fs.appendFile(
+      path.join(this.debug.logPath, this.debug.logFile),
+      logMessage
+    ).catch(console.error);
+  }
+
+  async saveDebugImage(image, filename) {
+    if (!this.debug.enabled) return;
+
+    try {
+      const imagePath = path.join(this.debug.imagePath, filename);
+
+      if (image instanceof cv.Mat) {
+        this.log("Image is Mat - saveDebugImage", "INFO");
+
+        // Convert Mat to raw pixel data
+        const channels = image.channels();
+        const buffer = Buffer.from(image.data);
+
+        // Log buffer details for debugging
+        this.log("Created buffer from Mat - saveDebugImage", "INFO", {
+          bufferLength: buffer.length,
+          matRows: image.rows,
+          matCols: image.cols,
+          channels,
+        });
+
+        // Use Sharp with raw pixel data
+        await sharp(buffer, {
+          raw: {
+            width: image.cols,
+            height: image.rows,
+            channels: channels,
+          },
+        })
+          .png()
+          .toFile(imagePath);
+      } else if (Buffer.isBuffer(image)) {
+        this.log("Image is Buffer - saveDebugImage");
+        await sharp(image).png().toFile(imagePath);
+      } else if (image instanceof Uint8Array) {
+        this.log("Image is Uint8Array - saveDebugImage");
+        const buffer = Buffer.from(image);
+        await sharp(buffer).png().toFile(imagePath);
+      }
+
+      this.log(`Saved debug image - saveDebugImage: ${filename}`, "INFO", {
+        type:
+          image instanceof cv.Mat
+            ? "cv.Mat"
+            : Buffer.isBuffer(image)
+            ? "Buffer"
+            : image instanceof Uint8Array
+            ? "Uint8Array"
+            : typeof image,
+      });
+    } catch (error) {
+      this.log(
+        `Failed to save debug image - saveDebugImage:`,
+        "ERROR",
+        error?.stack || error.toString()
+      );
+      throw error; // Rethrow to see error in processing
     }
   }
 
@@ -99,129 +409,6 @@ class DocumentProcessor {
   }
 
   /**
-   * Process document with combined digital and OCR approach
-   */
-  async processDocument(filePath) {
-    try {
-      // Create debug directory if needed
-      if (this.debugOptions.saveImages) {
-        await fs.mkdir(this.debugOptions.outputPath, { recursive: true });
-      }
-
-      // Extract digital content first
-      const pdfData = await this.pdfExtract.extract(filePath);
-      const isDigital = this.hasValidDigitalContent(pdfData);
-
-      // Extract images regardless of digital content (for signature verification)
-      const pages = await this.extractPages(filePath);
-
-      // Process each page
-      const results = [];
-      for (const [index, pageBuffer] of pages.entries()) {
-        // Save debug image if enabled
-        if (this.debugOptions.saveImages) {
-          const imagePath = path.join(
-            this.debugOptions.outputPath,
-            `page_${index + 1}.png`
-          );
-          await fs.writeFile(imagePath, pageBuffer);
-          console.log(`Saved debug image: ${imagePath}`);
-        }
-
-        // Convert buffer to mat
-        const processedPage = await this.processPage(
-          pageBuffer,
-          index,
-          pdfData.pages[index]
-        );
-        results.push(processedPage);
-      }
-
-      return {
-        pages: results,
-        isDigital,
-        metadata: {
-          pageCount: pages.length,
-          processedAt: new Date(),
-          hasSignatures: results.some((p) => p.signatures?.length > 0),
-        },
-      };
-    } catch (error) {
-      console.error("Document processing failed:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Process individual page with preprocessing and OCR
-   */
-  async processPage(pageImage, pageIndex, digitalData) {
-    const result = {
-      boxes: [],
-      signatures: [],
-      metadata: {},
-    };
-
-    try {
-      // Convert page image to Mat format
-      const imageMat = await this.imageToMat(pageImage);
-
-      // Get initial quality assessment
-      const initialQuality = await this.analyzeImageQuality(imageMat);
-      result.metadata.initialQuality = initialQuality;
-
-      // Determine if we need OCR based on digital content
-      const needsOCR =
-        !digitalData || !this.hasValidDigitalContent({ pages: [digitalData] });
-
-      if (needsOCR) {
-        // Apply preprocessing based on quality assessment
-        const processed = await this.applyPreprocessing(
-          imageMat,
-          initialQuality
-        );
-        result.metadata.preprocessing = processed.metadata;
-
-        console.log("processPage -> processed", processed);
-        // Perform initial OCR
-        const ocrResults = await this.performOCR(processed.image);
-        const boxes = this.normalizeOCRBoxes(ocrResults, pageIndex);
-
-        // Check OCR quality and retry with enhanced processing if needed
-        if (this.needsEnhancedOCR(boxes, ocrResults.orientation)) {
-          const enhancedResults = await this.performPostOCR(
-            processed.image,
-            pageIndex
-          );
-          boxes.push(...enhancedResults.boxes);
-          result.metadata.enhancedOCR = enhancedResults.metadata;
-        }
-
-        result.boxes.push(...boxes);
-        processed.image.delete();
-      } else {
-        // Use digital content but still process image for signatures
-        result.boxes.push(
-          ...this.normalizeDigitalBoxes(digitalData, pageIndex)
-        );
-      }
-
-      // Always check for signatures regardless of content type
-      const signatureResults = await this.detectSignatures(imageMat, pageIndex);
-      result.signatures = signatureResults.marks;
-      result.metadata.signatureDetection = signatureResults.metadata;
-
-      // Clean up
-      imageMat.delete();
-
-      return result;
-    } catch (error) {
-      console.error(`Page ${pageIndex} processing failed:`, error);
-      throw error;
-    }
-  }
-
-  /**
    * Perform OCR on image with retries for low confidence
    */
   async performOCR(image) {
@@ -232,7 +419,7 @@ class DocumentProcessor {
 
       // Convert image data for OCR
       const imageData = await this.prepareImageForOCR(image);
-      console.log("OCR Image Data:", {
+      this.log("OCR Image Data - performOCR:", "INFO", {
         width: imageData.width,
         height: imageData.height,
         hasData: !!imageData.data,
@@ -243,7 +430,7 @@ class DocumentProcessor {
 
       // Get initial orientation
       const orientation = this.ocrEngine.getOrientation();
-      console.log("OCR Orientation:", orientation);
+      this.log("OCR Orientation - performOCR:", "INFO", orientation);
 
       let results = {
         boxes: [],
@@ -257,10 +444,10 @@ class DocumentProcessor {
 
       // Get initial text boxes
       results.boxes = this.ocrEngine.getTextBoxes("word");
-      console.log("OCR Initial Boxes:", results.boxes.length);
+      this.log("OCR Initial Boxes - performOCR:", "INFO", results.boxes.length);
       // Log a few sample boxes
       results.boxes.slice(0, 5).forEach((box) => {
-        console.log("Sample Box:", {
+        this.log("Sample Box - performOCR:", "INFO", {
           text: box.text,
           confidence: box.confidence,
           bbox: box.bbox,
@@ -268,14 +455,18 @@ class DocumentProcessor {
       });
 
       results.confidence = this.calculateOverallConfidence(results.boxes);
-      console.log("OCR Initial Confidence:", results.confidence);
+      this.log(
+        "OCR Initial Confidence - performOCR:",
+        "INFO",
+        results.confidence
+      );
 
       // If low confidence or few results, try enhancement
       if (this.needsEnhancedOCR(results)) {
-        console.log("Attempting Enhanced OCR...");
+        this.log("Attempting Enhanced OCR - performOCR");
         const enhanced = await this.performEnhancedOCR(image, results);
         Object.assign(results, enhanced);
-        console.log("Enhanced OCR Results:", {
+        this.log("Enhanced OCR Results - performOCR:", "INFO", {
           boxes: results.boxes.length,
           confidence: results.confidence,
         });
@@ -283,7 +474,11 @@ class DocumentProcessor {
 
       return results;
     } catch (error) {
-      console.error("OCR processing failed:", error);
+      this.log(
+        "OCR processing failed - performOCR:",
+        "ERROR",
+        error?.stack || error.toString?.()
+      );
       throw error;
     }
   }
@@ -292,58 +487,76 @@ class DocumentProcessor {
    * Prepare image data for OCR processing
    */
   async prepareImageForOCR(image) {
+    let processed = null;
     try {
-      // If input is already Mat, start with a clone
-      const srcMat =
-        image instanceof cv.Mat ? image.clone() : this.imageToMat(image);
-      let processed = srcMat;
-
-      // Convert to RGBA if needed (tesseract expects 4 channels)
-      if (processed.channels() === 1) {
-        const rgba = new cv.Mat();
-        cv.cvtColor(processed, rgba, cv.COLOR_GRAY2RGBA);
-        processed.delete();
-        processed = rgba;
-      } else if (processed.channels() === 3) {
-        const rgba = new cv.Mat();
-        cv.cvtColor(processed, rgba, cv.COLOR_BGR2RGBA);
-        processed.delete();
-        processed = rgba;
-      }
-
-      // Ensure proper resolution for OCR (300+ DPI equivalent)
-      const minDim = Math.min(processed.rows, processed.cols);
-      if (minDim < 1000) {
-        // Arbitrary threshold for "low resolution"
-        const scale = 1200 / minDim;
-        const scaled = new cv.Mat();
-        cv.resize(
-          processed,
-          scaled,
-          new cv.Size(0, 0),
-          scale,
-          scale,
-          cv.INTER_CUBIC
-        );
-        processed.delete();
-        processed = scaled;
-      }
-
-      // Return in format Tesseract expects
-      return {
-        data: Buffer.from(processed.data),
-        width: processed.cols,
-        height: processed.rows,
+      processed = await this.imageToMat(image);
+      this.log("Initial Mat - prepareImageForOCR", "INFO", {
+        rows: processed.rows,
+        cols: processed.cols,
+        channels: processed.channels()
+      });
+  
+      // Keep dimensions consistent
+      const finalWidth = processed.cols;
+      const finalHeight = processed.rows;
+  
+      // Convert to grayscale first for enhancement
+      const gray = new cv.Mat();
+      cv.cvtColor(processed, gray, cv.COLOR_RGBA2GRAY);
+      processed.delete();
+      processed = gray;
+  
+      // Increase contrast and darken text
+      const enhanced = new cv.Mat();
+      cv.adaptiveThreshold(
+        processed,
+        enhanced,
+        255,
+        cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv.THRESH_BINARY,
+        15,  // Increased block size
+        12   // Higher constant for darker text
+      );
+      processed.delete();
+      processed = enhanced;
+  
+      // Convert back to RGBA for Tesseract
+      const rgba = new cv.Mat();
+      cv.cvtColor(enhanced, rgba, cv.COLOR_GRAY2RGBA);
+      enhanced.delete();
+      
+      // Create 4-channel buffer for Tesseract
+      const buffer = new Uint8Array(finalWidth * finalHeight * 4);
+      buffer.set(new Uint8Array(rgba.data));
+      rgba.delete();
+  
+      const imageData = {
+        data: buffer,
+        width: finalWidth,
+        height: finalHeight
       };
-    } catch (error) {
-      console.error("Image preparation failed:", error);
-      if (image instanceof cv.Mat) {
-        image.delete();
+  
+      // Verify dimensions and data length match Tesseract requirements
+      const expectedLength = finalWidth * finalHeight * 4; // 4 channels
+      if (buffer.length !== expectedLength) {
+        throw new Error(`Buffer size mismatch - expected ${expectedLength}, got ${buffer.length}`);
       }
+  
+      this.log("Prepared image for OCR - prepareImageForOCR", "INFO", {
+        width: imageData.width,
+        height: imageData.height,
+        dataLength: imageData.data.length,
+        expectedLength,
+        channels: 4
+      });
+  
+      return imageData;
+    } catch (error) {
+      this.log("OCR preparation failed - prepareImageForOCR", "ERROR", error);
+      if (processed) processed.delete();
       throw error;
     }
   }
-
   /**
    * Calculate overall confidence from OCR results
    */
@@ -397,7 +610,11 @@ class DocumentProcessor {
         },
       };
     } catch (error) {
-      console.error("Region OCR failed:", error);
+      this.log(
+        "Region OCR failed - performRegionOCR:",
+        "ERROR",
+        error?.stack || error.toString?.()
+      );
       throw error;
     }
   }
@@ -470,7 +687,11 @@ class DocumentProcessor {
         // Stop if we achieve good confidence
         if (confidence > 0.8) break;
       } catch (error) {
-        console.warn(`Enhancement ${enhancement.name} failed:`, error);
+        this.log(
+          `Enhancement ${enhancement.name} failed - performEnhancedOCR:`,
+          "ERROR",
+          error
+        );
         continue;
       }
     }
@@ -517,7 +738,11 @@ class DocumentProcessor {
 
       return results;
     } catch (error) {
-      console.error("Difficult region OCR failed:", error);
+      this.log(
+        "Difficult region OCR failed:",
+        "ERROR",
+        error?.stack || error.toString?.()
+      );
       throw error;
     }
   }
@@ -565,7 +790,11 @@ class DocumentProcessor {
 
       return results;
     } catch (error) {
-      console.error("Enhanced OCR failed:", error);
+      this.log(
+        "Enhanced OCR failed:",
+        "ERROR",
+        error?.stack || error.toString?.()
+      );
       return { boxes: [], metadata: { error } };
     }
   }
@@ -636,7 +865,11 @@ class DocumentProcessor {
       // Merge overlapping regions
       return this.mergeOverlappingRegions(regions);
     } catch (error) {
-      console.error("Region identification failed:", error);
+      this.log(
+        "Region identification failed:",
+        "ERROR",
+        error?.stack || error.toString?.()
+      );
       return [];
     }
   }
@@ -670,7 +903,11 @@ class DocumentProcessor {
         },
       };
     } catch (error) {
-      console.error("Region enhancement failed:", error);
+      this.log(
+        "Region enhancement failed:",
+        "ERROR",
+        error?.stack || error.toString?.()
+      );
       throw error;
     }
   }
@@ -678,14 +915,14 @@ class DocumentProcessor {
   /**
    * Check if region needs enhanced OCR processing
    */
-  needsEnhancedOCR(boxes, orientation) {
+  needsEnhancedOCR(results) {
     // Check box confidence and density
-    const lowConfidenceBoxes = boxes.filter((box) => box.confidence < 0.8);
+    const lowConfidenceBoxes = results.boxes.filter((box) => box.confidence < 0.8);
 
     return (
-      lowConfidenceBoxes.length > boxes.length * 0.2 || // More than 20% low confidence
-      Math.abs(orientation.angle) > 2 || // Significant skew
-      boxes.length < 10 // Too few boxes found
+      lowConfidenceBoxes.length > results.boxes.length * 0.2 || // More than 20% low confidence
+      Math.abs(results.orientation.angle) > 2 || // Significant skew
+      results.boxes.length < 10 // Too few boxes found
     );
   }
 
@@ -780,84 +1017,217 @@ class DocumentProcessor {
    * Extract pages as images from PDF
    */
   async extractPages(filePath) {
-    const pages = [];
-    const pdfDocument = await pdfImageExtract(filePath, {
-      scale: this.imageConfig.scale,
-      docInitParams: {
-        useSystemFonts: true,
-        disableFontFace: true,
-      },
-    });
+    try {
+      this.log("Starting PDF page extraction - extractPages", "INFO", {
+        scale: this.imageConfig.scale,
+        filePath,
+      });
 
-    for await (const image of pdfDocument) {
-      pages.push(image);
+      const pdfDocument = await pdfImageExtract(filePath, {
+        scale: this.imageConfig.scale || 3,
+        docInitParams: {
+          useSystemFonts: true,
+          disableFontFace: true,
+        },
+        imageType: "png",
+        density: 300,
+      });
+
+      const processedPages = [];
+
+      for await (const pageBuffer of pdfDocument) {
+        try {
+          // Save raw buffer for debugging
+          if (this.debug.enabled) {
+            await this.saveDebugImage(
+              pageBuffer,
+              `page_${processedPages.length + 1}_raw.png`
+            );
+          }
+
+          // First normalize using sharp
+          const normalizedBuffer = await sharp(pageBuffer)
+            .raw()
+            .ensureAlpha()
+            .toBuffer({ resolveWithObject: true });
+
+          this.log("Normalized image buffer - extractPages", "INFO", {
+            width: normalizedBuffer.info.width,
+            height: normalizedBuffer.info.height,
+            channels: normalizedBuffer.info.channels,
+            size: normalizedBuffer.data.length,
+          });
+
+          // Create mat from normalized data for further processing
+          const mat = new cv.Mat(
+            normalizedBuffer.info.height,
+            normalizedBuffer.info.width,
+            cv.CV_8UC4
+          );
+          mat.data.set(normalizedBuffer.data);
+
+          // Store original buffer which is what processDocument expects
+          processedPages.push(pageBuffer);
+
+          // Clean up
+          mat.delete();
+        } catch (error) {
+          this.log("Failed to process page buffer - extractPages", "ERROR", {
+            pageIndex: processedPages.length,
+            error: error?.stack || error.toString(),
+          });
+          throw error;
+        }
+      }
+
+      this.log(
+        `Successfully extracted ${processedPages.length} pages - extractPages`
+      );
+      return processedPages; // Return array of buffers as expected by processDocument
+    } catch (error) {
+      this.log("PDF page extraction failed", "ERROR", error);
+      throw error;
+    }
+  }
+
+  // Helper method to determine image shape from buffer
+  getImageShape(buffer) {
+    // PNG header starts with these bytes
+    const PNG_HEADER = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+
+    // Verify PNG header
+    const isPNG = PNG_HEADER.every((byte, i) => buffer[i] === byte);
+    if (!isPNG) {
+      throw new Error("Invalid PNG format");
     }
 
-    return pages;
+    // PNG dimensions are stored at bytes 16-23
+    const width =
+      (buffer[16] << 24) | (buffer[17] << 16) | (buffer[18] << 8) | buffer[19];
+    const height =
+      (buffer[20] << 24) | (buffer[21] << 16) | (buffer[22] << 8) | buffer[23];
+
+    // PNG color type is at byte 25
+    const colorType = buffer[25];
+
+    // Determine number of channels based on PNG color type
+    let channels;
+    switch (colorType) {
+      case 0:
+        channels = 1;
+        break; // Grayscale
+      case 2:
+        channels = 3;
+        break; // RGB
+      case 3:
+        channels = 1;
+        break; // Palette
+      case 4:
+        channels = 2;
+        break; // Grayscale + Alpha
+      case 6:
+        channels = 4;
+        break; // RGBA
+      default:
+        channels = 3;
+    }
+
+    return { width, height, channels };
   }
 
   /**
    * Apply preprocessing pipeline to image
    */
   async applyPreprocessing(imageMat) {
+    let gray = null; // Initialize outside try block
+    let enhanced = null;
     const metadata = {};
 
-    // Convert to grayscale for initial analysis
-    const gray = new cv.Mat();
-    cv.cvtColor(imageMat, gray, cv.COLOR_RGBA2GRAY);
+    try {
+      // Convert to grayscale for initial analysis
+      gray = new cv.Mat();
+      cv.cvtColor(imageMat, gray, cv.COLOR_RGBA2GRAY);
 
-    // Detect and correct skew
-    const orientation = await this.detectOrientation(gray);
-    if (Math.abs(orientation.angle) > this.imageConfig.orientationThreshold) {
-      const rotated = await this.rotateImage(imageMat, -orientation.angle);
-      metadata.orientation = orientation;
-      imageMat.delete();
-      imageMat = rotated;
+      // Detect and correct skew
+      const orientation = await this.detectOrientation(gray);
+      if (Math.abs(orientation.angle) > this.imageConfig.orientationThreshold) {
+        const rotated = await this.rotateImage(imageMat, -orientation.angle);
+        metadata.orientation = orientation;
+        imageMat.delete();
+        imageMat = rotated;
+      }
+
+      // Analyze and enhance image quality
+      const quality = await this.analyzeImageQuality(gray);
+      metadata.quality = quality;
+
+      if (quality.needsEnhancement) {
+        enhanced = imageMat.clone();
+
+        // Apply contrast enhancement if needed
+        if (quality.contrast < 0.4) {
+          // Use bilateral filter instead of adaptive histogram
+          const contrast = new cv.Mat();
+          cv.bilateralFilter(enhanced, contrast, 9, 75, 75);
+          enhanced.delete();
+          enhanced = contrast;
+          metadata.enhancement = { ...metadata.enhancement, contrast: true };
+        }
+
+        // Denoise using median blur instead of fastNlMeansDenoising
+        if (quality.noise > 0.1) {
+          const denoised = new cv.Mat();
+          cv.medianBlur(enhanced, denoised, 5);
+          enhanced.delete();
+          enhanced = denoised;
+          metadata.enhancement = { ...metadata.enhancement, denoised: true };
+        }
+
+        // Sharpen using unsharp masking technique
+        if (quality.sharpness < 0.3) {
+          const blurred = new cv.Mat();
+          const mask = new cv.Mat();
+          const sharpened = new cv.Mat();
+
+          // Create unsharp mask
+          cv.GaussianBlur(enhanced, blurred, new cv.Size(5, 5), 0);
+          cv.subtract(enhanced, blurred, mask);
+          cv.addWeighted(enhanced, 1.5, mask, 0.5, 0, sharpened);
+
+          enhanced.delete();
+          blurred.delete();
+          mask.delete();
+          enhanced = sharpened;
+          metadata.enhancement = { ...metadata.enhancement, sharpened: true };
+        }
+
+        // Ensure result is in proper format
+        const result = new cv.Mat();
+        enhanced.convertTo(result, cv.CV_8U);
+        enhanced.delete();
+        imageMat.delete();
+        imageMat = result;
+      }
+
+      gray.delete();
+
+      return {
+        image: imageMat,
+        metadata,
+      };
+    } catch (error) {
+      // Clean up on error
+      if (gray) gray.delete();
+      if (enhanced && enhanced !== imageMat) enhanced.delete();
+
+      this.log(
+        "Preprocessing failed - applyPreprocessing:",
+        "ERROR",
+        error?.stack || error.toString()
+      );
+      throw error;
     }
-
-    // Analyze and enhance image quality
-    const quality = await this.analyzeImageQuality(gray);
-    metadata.quality = quality;
-
-    if (quality.needsEnhancement) {
-      // Create enhanced copy
-      const enhanced = new cv.Mat();
-      imageMat.copyTo(enhanced);
-
-      // Apply adaptive histogram equalization for better contrast
-      if (quality.contrast < 0.4) {
-        const clahe = new cv.CLAHE(3.0, new cv.Size(8, 8));
-        clahe.apply(enhanced, enhanced);
-        metadata.enhancement = { ...metadata.enhancement, contrast: true };
-      }
-
-      // Denoise if needed
-      if (quality.noise > 0.1) {
-        cv.fastNlMeansDenoisingColored(enhanced, enhanced);
-        metadata.enhancement = { ...metadata.enhancement, denoised: true };
-      }
-
-      // Sharpen for better OCR if text is blurry
-      if (quality.sharpness < 0.3) {
-        const kernel = cv.Mat.ones(3, 3, cv.CV_8S);
-        kernel.data[4] = -8;
-        cv.filter2D(enhanced, enhanced, -1, kernel);
-        kernel.delete();
-        metadata.enhancement = { ...metadata.enhancement, sharpened: true };
-      }
-
-      imageMat.delete();
-      imageMat = enhanced;
-    }
-
-    gray.delete();
-
-    return {
-      image: imageMat,
-      metadata,
-    };
   }
-
   /**
    * Detect image orientation using OpenCV
    */
@@ -865,21 +1235,42 @@ class DocumentProcessor {
     try {
       // Use line detection to find dominant angles
       const edges = new cv.Mat();
+      const lines = new cv.Mat();
+
+      // Apply Canny edge detection
       cv.Canny(gray, edges, 50, 150, 3);
 
-      const lines = new cv.Mat();
+      // Apply Hough transform
       cv.HoughLines(edges, lines, 1, Math.PI / 180, 100);
 
-      // Calculate dominant angle
       let angle = 0;
+
       if (lines.rows > 0) {
+        // Calculate angles from detected lines
         const angles = [];
         for (let i = 0; i < lines.rows; i++) {
-          angles.push((lines.data32F[i * 2 + 1] * 180) / Math.PI);
+          // We get rho and theta values
+          const theta = lines.data32F[i * 2 + 1];
+          // Convert to degrees
+          let degrees = (theta * 180) / Math.PI - 90;
+          // Normalize to [-45, 45] range
+          if (degrees < -45) degrees += 90;
+          if (degrees > 45) degrees -= 90;
+          angles.push(degrees);
         }
-        angle = this.calculateDominantAngle(angles);
+
+        // Get median angle
+        angles.sort((a, b) => a - b);
+        angle = angles[Math.floor(angles.length / 2)];
+
+        this.log("Detected angles - detectOrientation:", "INFO", {
+          angleCount: angles.length,
+          medianAngle: angle,
+          sampleAngles: angles.slice(0, 3),
+        });
       }
 
+      // Clean up
       edges.delete();
       lines.delete();
 
@@ -888,7 +1279,11 @@ class DocumentProcessor {
         confidence: angle !== 0 ? 0.8 : 1.0,
       };
     } catch (error) {
-      console.error("Orientation detection failed:", error);
+      this.log(
+        "Orientation detection failed - detectOrientation:",
+        "ERROR",
+        error?.stack || error.toString()
+      );
       return { angle: 0, confidence: 0 };
     }
   }
@@ -925,12 +1320,13 @@ class DocumentProcessor {
       cv.absdiff(gray, blur, diff);
       analysis.noise = cv.mean(diff)[0] / 255;
 
-      // Determine if enhancement needed
+      // More conservative thresholds for enhancement
       analysis.needsEnhancement =
-        analysis.brightness < this.imageConfig.minBrightness ||
-        analysis.brightness > this.imageConfig.maxBrightness ||
-        analysis.contrast < 0.4 ||
-        analysis.sharpness < 0.3;
+        analysis.brightness < 0.2 || // Much darker
+        analysis.brightness > 0.9 || // Much lighter
+        analysis.contrast < 0.3 || // Really low contrast
+        analysis.sharpness < 0.2 || // Very blurry
+        analysis.noise > 0.2; // Very noisy
 
       // Clean up
       mean.delete();
@@ -941,7 +1337,11 @@ class DocumentProcessor {
 
       return analysis;
     } catch (error) {
-      console.error("Quality analysis failed:", error);
+      this.log(
+        "Quality analysis failed - analyzeImageQuality:",
+        "ERROR",
+        error?.stack || error.toString()
+      );
       return { ...analysis, error: true };
     }
   }
@@ -983,7 +1383,11 @@ class DocumentProcessor {
         metadata,
       };
     } catch (error) {
-      console.error("Image enhancement failed:", error);
+      this.log(
+        "Image enhancement failed - enhanceImage:",
+        "ERROR",
+        error?.stack || error.toString?.()
+      );
       enhanced.delete();
       return {
         image: imageMat.clone(),
@@ -1056,52 +1460,38 @@ class DocumentProcessor {
    */
   async imageToMat(imageData) {
     try {
-      // Handle different input types
+      // If already a Mat, return clone
       if (imageData instanceof cv.Mat) {
         return imageData.clone();
       }
 
-      // Convert Buffer to Mat
+      // If Buffer or raw data
       if (Buffer.isBuffer(imageData) || imageData instanceof Uint8Array) {
-        // Create array from buffer
-        const data = new Uint8Array(imageData);
+        const normalized = await sharp(imageData)
+          .raw()
+          .ensureAlpha()
+          .toBuffer({ resolveWithObject: true });
 
-        // Create Mat directly from array
-        // Try to determine dimensions - we might need to adjust this based on actual image size
-        // Assuming RGBA format initially
-        const width = Math.sqrt(data.length / 4);
-        const height = width;
-        const channels = 4;
+        const mat = new cv.Mat(
+          normalized.info.height,
+          normalized.info.width,
+          cv.CV_8UC4
+        );
+        mat.data.set(normalized.data);
 
-        if (!isNaN(width) && width % 1 === 0) {
-          // If dimensions work out evenly
-          const mat = new cv.Mat(height, width, cv.CV_8UC4);
-          mat.data.set(data);
-          return mat;
-        } else {
-          // If dimensions aren't even, try single channel
-          const mat = new cv.Mat(data.length, 1, cv.CV_8UC1);
-          mat.data.set(data);
-          return mat;
-        }
+        return mat;
       }
 
-      // Handle raw pixel data with dimensions
+      // Handle image data object with dimensions
       if (imageData.data && imageData.width && imageData.height) {
-        const channels =
-          imageData.data.length / (imageData.width * imageData.height);
-        let mat = new cv.Mat(
-          imageData.height,
-          imageData.width,
-          cv.CV_8UC(channels)
-        );
-        mat.data.set(imageData.data);
+        const mat = new cv.Mat(imageData.height, imageData.width, cv.CV_8UC4);
+        mat.data.set(new Uint8Array(imageData.data));
         return mat;
       }
 
       throw new Error("Unsupported image data format");
     } catch (error) {
-      console.error("Mat conversion failed:", error);
+      this.log("Mat conversion failed - imageToMat", "ERROR", error);
       throw error;
     }
   }
@@ -1110,12 +1500,44 @@ class DocumentProcessor {
    * Detect signatures and initials in image
    */
   async detectSignatures(imageMat, pageIndex) {
-    const signatures = [];
+    this.log("Starting signature detection for page " + pageIndex);
+
+    const results = {
+      marks: [],
+      metadata: {
+        processedArea: 0,
+        signatureCandidates: 0,
+        rejectedCandidates: 0,
+        processingTime: 0,
+      },
+    };
 
     try {
-      // Convert to binary image
+      const startTime = Date.now();
+
+      // Convert to grayscale if not already
+      let gray;
+      if (imageMat.channels() === 1) {
+        gray = imageMat.clone();
+      } else {
+        gray = new cv.Mat();
+        cv.cvtColor(imageMat, gray, cv.COLOR_RGBA2GRAY);
+      }
+
+      // Convert to binary image with adaptive threshold for better mark detection
       const binary = new cv.Mat();
-      cv.threshold(imageMat, binary, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU);
+      cv.adaptiveThreshold(
+        gray,
+        binary,
+        255,
+        cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv.THRESH_BINARY_INV,
+        11,
+        2
+      );
+
+      // Save debug image if enabled
+      await this.saveDebugImage(binary, `page_${pageIndex + 1}_binary.png`);
 
       // Find contours
       const contours = new cv.MatVector();
@@ -1128,41 +1550,101 @@ class DocumentProcessor {
         cv.CHAIN_APPROX_SIMPLE
       );
 
+      this.log(`Found ${contours.size()} initial contours`);
+      results.metadata.signatureCandidates = contours.size();
+
       // Analyze each contour
       for (let i = 0; i < contours.size(); i++) {
         const contour = contours.get(i);
+
+        // Get basic contour properties
         const area = cv.contourArea(contour);
         const perimeter = cv.arcLength(contour, true);
 
-        // Filter potential signatures based on characteristics
-        if (this.isSignatureCandidate(area, perimeter)) {
-          const rect = cv.boundingRect(contour);
-          signatures.push({
-            type: this.classifyMark(area, perimeter),
+        // Skip very small or very large contours
+        if (area < 100 || area > imageMat.rows * imageMat.cols * 0.1) {
+          results.metadata.rejectedCandidates++;
+          continue;
+        }
+
+        // Calculate contour complexity metrics
+        const complexity = (perimeter * perimeter) / area;
+        const hull = new cv.Mat();
+        cv.convexHull(contour, hull);
+        const hullArea = cv.contourArea(hull);
+        const solidity = area / hullArea;
+
+        // Signature characteristics:
+        // - High complexity (non-uniform shape)
+        // - Medium solidity (not too solid, not too sparse)
+        // - Reasonable aspect ratio
+        const rect = cv.boundingRect(contour);
+        const aspectRatio = rect.width / rect.height;
+
+        const isSignatureCandidate =
+          complexity > 50 && // Complex enough to be handwriting
+          solidity > 0.2 &&
+          solidity < 0.9 && // Not too solid/sparse
+          aspectRatio > 0.2 &&
+          aspectRatio < 5.0; // Reasonable shape
+
+        if (isSignatureCandidate) {
+          results.marks.push({
+            type: this.classifyMark(area, complexity, solidity),
             bounds: {
               x: rect.x,
               y: rect.y,
               width: rect.width,
               height: rect.height,
             },
-            confidence: this.calculateSignatureConfidence(area, perimeter),
+            confidence: this.calculateSignatureConfidence(complexity, solidity),
             page: pageIndex,
+            metadata: {
+              area,
+              complexity,
+              solidity,
+            },
           });
+        } else {
+          results.metadata.rejectedCandidates++;
         }
+
+        hull.delete();
       }
 
       // Clean up
+      gray.delete();
       binary.delete();
       contours.delete();
       hierarchy.delete();
 
-      return signatures;
+      results.metadata.processedArea = imageMat.rows * imageMat.cols;
+      results.metadata.processingTime = Date.now() - startTime;
+
+      this.log("Signature detection completed", "INFO", {
+        found: results.marks.length,
+        ...results.metadata,
+      });
+
+      return results;
     } catch (error) {
-      console.error("Signature detection failed:", error);
-      return [];
+      this.log(
+        "Signature detection failed:",
+        "ERROR",
+        error?.stack || error.toString?.()
+      );
+
+      // Return empty results with error metadata
+      return {
+        marks: [],
+        metadata: {
+          error: error.message,
+          errorType: error.name,
+          processingTime: 0,
+        },
+      };
     }
   }
-
   /**
    * Check if contour could be a signature or initial
    */
@@ -1176,18 +1658,28 @@ class DocumentProcessor {
   /**
    * Classify mark as signature or initial
    */
-  classifyMark(area, perimeter) {
-    const complexity = (perimeter * perimeter) / area;
-    return complexity > 100 ? "signature" : "initial";
+  classifyMark(area, complexity, solidity) {
+    // Signatures tend to be larger and more complex
+    if (complexity > 100 && area > 1000) {
+      return "signature";
+    }
+    // Initials are smaller and simpler
+    if (complexity > 30 && complexity <= 100) {
+      return "initial";
+    }
+    return "mark";
   }
 
   /**
    * Calculate confidence score for signature detection
    */
-  calculateSignatureConfidence(area, perimeter) {
-    const complexity = (perimeter * perimeter) / area;
-    const normalizedComplexity = Math.min(complexity / 200, 1);
-    return 0.5 + normalizedComplexity * 0.5;
+  calculateSignatureConfidence(complexity, solidity) {
+    // Normalize metrics
+    const complexityScore = Math.min(complexity / 200, 1);
+    const solidityScore = 1 - Math.abs(solidity - 0.5) * 2; // Best around 0.5
+
+    // Weight and combine scores
+    return complexityScore * 0.7 + solidityScore * 0.3;
   }
 
   /**
@@ -1232,83 +1724,55 @@ class DocumentProcessor {
   /**
    * Rotate image by given angle
    */
-  async rotateImage(imageMat, angle) {
-    // Get image center
-    const center = new cv.Point(imageMat.cols / 2, imageMat.rows / 2);
+  async rotateImage(mat, angle) {
+    if (Math.abs(angle) < 0.1) return mat.clone();
 
-    // Calculate rotation matrix
-    const rotMatrix = cv.getRotationMatrix2D(center, angle, 1.0);
-
-    // Determine new image bounds
-    const rads = Math.abs((angle * Math.PI) / 180);
-    const newWidth = Math.ceil(
-      imageMat.rows * Math.abs(Math.sin(rads)) +
-        imageMat.cols * Math.abs(Math.cos(rads))
-    );
-    const newHeight = Math.ceil(
-      imageMat.rows * Math.abs(Math.cos(rads)) +
-        imageMat.cols * Math.abs(Math.sin(rads))
-    );
-
-    // Adjust transformation matrix
-    rotMatrix.data64F[2] += (newWidth - imageMat.cols) / 2;
-    rotMatrix.data64F[5] += (newHeight - imageMat.rows) / 2;
-
-    // Perform rotation
-    const rotated = new cv.Mat();
-    cv.warpAffine(
-      imageMat,
-      rotated,
-      rotMatrix,
-      new cv.Size(newWidth, newHeight),
-      cv.INTER_LINEAR,
-      cv.BORDER_CONSTANT,
-      new cv.Scalar(255, 255, 255, 255)
-    );
-
-    // Clean up
-    rotMatrix.delete();
-
-    return rotated;
-  }
-
-  /**
-   * Perform focused OCR on specific region
-   */
-  async performRegionOCR(imageMat, region) {
     try {
-      // Extract region of interest
-      const roi = imageMat.roi(
-        new cv.Rect(region.x, region.y, region.width, region.height)
+      // Get image center
+      const center = new cv.Point(mat.cols / 2, mat.rows / 2);
+
+      // Get rotation matrix
+      const rotMat = cv.getRotationMatrix2D(center, angle, 1.0);
+
+      // Calculate new dimensions
+      const cos = Math.abs(rotMat.data64F[0]);
+      const sin = Math.abs(rotMat.data64F[1]);
+
+      const newWidth = Math.round(mat.rows * sin + mat.cols * cos);
+      const newHeight = Math.round(mat.rows * cos + mat.cols * sin);
+
+      // Adjust rotation matrix for new dimensions
+      rotMat.data64F[2] += newWidth / 2 - center.x;
+      rotMat.data64F[5] += newHeight / 2 - center.y;
+
+      // Create output Mat
+      const rotated = new cv.Mat();
+
+      // Perform rotation
+      cv.warpAffine(
+        mat,
+        rotated,
+        rotMat,
+        new cv.Size(newWidth, newHeight),
+        cv.INTER_LINEAR,
+        cv.BORDER_CONSTANT,
+        new cv.Scalar(255, 255, 255, 255)
       );
 
-      // Scale up for better OCR
-      const scaled = new cv.Mat();
-      cv.resize(roi, scaled, new cv.Size(0, 0), 2.0, 2.0, cv.INTER_CUBIC);
-
-      // Convert to proper format for OCR
-      const buffer = await this.matToImageBuffer(scaled);
-
-      // Perform OCR
-      this.ocrEngine.loadImage({
-        data: buffer,
-        width: scaled.cols,
-        height: scaled.rows,
+      this.log("Image rotation:", "INFO", {
+        originalSize: `${mat.cols}x${mat.rows}`,
+        newSize: `${newWidth}x${newHeight}`,
+        angle: angle,
+        center: `${center.x},${center.y}`,
       });
 
-      const results = {
-        boxes: this.ocrEngine.getTextBoxes("word"),
-        orientation: this.ocrEngine.getOrientation(),
-      };
-
       // Clean up
-      roi.delete();
-      scaled.delete();
+      rotMat.delete();
 
-      return results;
+      return rotated;
     } catch (error) {
-      console.error("Region OCR failed:", error);
-      throw error;
+      this.log("Image rotation failed:", "ERROR", error);
+      return mat.clone(); // Return original on error
     }
   }
 
@@ -1339,7 +1803,11 @@ class DocumentProcessor {
 
       return buffer;
     } catch (error) {
-      console.error("Mat to buffer conversion failed:", error);
+      this.log(
+        "Mat to buffer conversion failed:",
+        "ERROR",
+        error?.stack || error.toString?.()
+      );
       throw error;
     }
   }
