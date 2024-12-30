@@ -1,5 +1,15 @@
+import { promises as fs } from "node:fs";
+import path from "path";
+
 class ValueNormalizer {
-  constructor() {
+  constructor(options = {}) {
+    // Debug logging configuration
+    this.debug = {
+      enabled: true,
+      logPath: options.debugPath || path.join(process.cwd(), "debug_output"),
+      logFile: "processing.log",
+    };
+
     this.patterns = {
       currency: [
         /^R?\s*[\d,\s]+\.?\d*$/i, // R 1,234.56 or 1,234.56
@@ -81,6 +91,34 @@ class ValueNormalizer {
     };
   }
 
+  info(message, data = null) {
+    this.log(message, "INFO", data);
+  }
+  warn(message, data = null) {
+    this.log(message, "WARN", data);
+  }
+  err(message, data = null) {
+    this.log(message, "ERROR", data);
+  }
+
+  log(message, level = "INFO", data = null) {
+    if (!this.debug.enabled) return;
+
+    const timestamp = new Date().toISOString();
+    const logMessage = `ValueNormalizer: [${timestamp}] ${level}: ${message}${
+      data ? "\nData: " + JSON.stringify(data, null, 2) : ""
+    }\n`;
+
+    // Console output
+    console.log(logMessage);
+
+    // File output
+    fs.appendFile(
+      path.join(this.debug.logPath, this.debug.logFile),
+      logMessage
+    ).catch(this.err);
+  }
+
   normalizeValue(value, type, isOCR = false) {
     if (!value) return { value: null, confidence: 0 };
 
@@ -109,7 +147,7 @@ class ValueNormalizer {
           return this.normalizeText(value, isOCR);
       }
     } catch (error) {
-      console.error(`Normalization failed for ${type}:`, error);
+      this.err(`Normalization failed for ${type}:`, error);
       return { value: null, confidence: 0 };
     }
   }
@@ -283,7 +321,7 @@ class ValueNormalizer {
     // Get patterns for the specified type
     const patterns = this.numberPatterns[type];
     if (!patterns) {
-      console.warn(`No patterns defined for type: ${type}`);
+      this.warn(`No patterns defined for type: ${type}`);
       return { matched: false };
     }
 

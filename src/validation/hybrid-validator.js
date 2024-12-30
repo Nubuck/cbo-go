@@ -1,9 +1,18 @@
 import { fuzzy } from "fast-fuzzy";
 import Fuse from "fuse.js";
-import ValueNormalizer from './value-normalizer.js';
+import ValueNormalizer from "./value-normalizer.js";
+import { promises as fs } from "node:fs";
+import path from "path";
 
 class HybridValidator {
-  constructor() {
+  constructor(options = {}) {
+    // Debug logging configuration
+    this.debug = {
+      enabled: true,
+      logPath: options.debugPath || path.join(process.cwd(), "debug_output"),
+      logFile: "processing.log",
+    };
+
     this.valueNormalizer = new ValueNormalizer();
     this.fuzzyConfig = {
       currency: {
@@ -183,6 +192,34 @@ class HybridValidator {
     };
   }
 
+  info(message, data = null) {
+    this.log(message, "INFO", data);
+  }
+  warn(message, data = null) {
+    this.log(message, "WARN", data);
+  }
+  err(message, data = null) {
+    this.log(message, "ERROR", data);
+  }
+
+  log(message, level = "INFO", data = null) {
+    if (!this.debug.enabled) return;
+
+    const timestamp = new Date().toISOString();
+    const logMessage = `HybridValidator: [${timestamp}] ${level}: ${message}${
+      data ? "\nData: " + JSON.stringify(data, null, 2) : ""
+    }\n`;
+
+    // Console output
+    console.log(logMessage);
+
+    // File output
+    fs.appendFile(
+      path.join(this.debug.logPath, this.debug.logFile),
+      logMessage
+    ).catch(this.err);
+  }
+
   async validateDocument(extractedContent, caseModel, isDigital = true) {
     const results = {
       valid: true,
@@ -275,7 +312,7 @@ class HybridValidator {
 
       return results;
     } catch (error) {
-      console.error("Validation failed:", error);
+      this.err("Validation failed:", error);
       throw error;
     }
   }
@@ -386,7 +423,7 @@ class HybridValidator {
     const config = this.fuzzyConfig[fieldType];
 
     if (!config) {
-      console.warn(`No fuzzy config for field type: ${fieldType}`);
+      this.warn(`No fuzzy config for field type: ${fieldType}`);
       return null;
     }
 
@@ -429,7 +466,7 @@ class HybridValidator {
             highestScore = matchScore.score;
           }
         } catch (error) {
-          console.warn(`Error comparing values for ${field}:`, error);
+          this.warn(`Error comparing values for ${field}:`, error);
           continue;
         }
       }
@@ -640,7 +677,7 @@ class HybridValidator {
 
       return null;
     } catch (error) {
-      console.error("Case reference validation failed:", error);
+      this.err("Case reference validation failed:", error);
       return null;
     }
   }
@@ -675,7 +712,7 @@ class HybridValidator {
       }
 
       if (!accountSection) {
-        console.warn("Account details section not found");
+        this.warn("Account details section not found");
         return null;
       }
 
@@ -733,7 +770,7 @@ class HybridValidator {
 
       return bestMatch;
     } catch (error) {
-      console.error("Account number search failed:", error);
+      this.err("Account number search failed:", error);
       return null;
     }
   }
@@ -916,7 +953,7 @@ class HybridValidator {
         }
       }
     } catch (error) {
-      console.error(`Comparison failed for ${fieldType}:`, error);
+      this.err(`Comparison failed for ${fieldType}:`, error);
       return { score: 0, reason: "error" };
     }
   }
@@ -952,7 +989,7 @@ class HybridValidator {
     const number = parseFloat(cleaned);
 
     if (isNaN(number)) {
-      console.warn(`Failed to normalize percentage value: ${value}`);
+      this.warn(`Failed to normalize percentage value: ${value}`);
     }
 
     return number;

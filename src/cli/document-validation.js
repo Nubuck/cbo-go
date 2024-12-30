@@ -4,10 +4,18 @@ import ValueNormalizer from "../validation/value-normalizer.js";
 import HybridValidator from "../validation/hybrid-validator.js";
 import { validationProfiles } from "../validation/validation-profiles.js";
 import DocumentProcessor from "./document-processor.js";
+import { promises as fs } from "node:fs";
 import path from "path";
 
 class DocumentValidationCLI {
-  constructor() {
+  constructor(options = {}) {
+    // Debug logging configuration
+    this.debug = {
+      enabled: true,
+      logPath: options.debugPath || path.join(process.cwd(), "debug_output"),
+      logFile: "processing.log",
+    };
+
     this.pdfExtract = new PDFExtract();
     this.valueNormalizer = new ValueNormalizer();
     this.hybridValidator = new HybridValidator();
@@ -35,15 +43,46 @@ class DocumentValidationCLI {
     this.validationProfiles = validationProfiles;
   }
 
+  print(message, data = null) {
+    this.log(message, "LOG", data);
+  }
+  info(message, data = null) {
+    this.log(message, "INFO", data);
+  }
+  warn(message, data = null) {
+    this.log(message, "WARN", data);
+  }
+  err(message, data = null) {
+    this.log(message, "ERROR", data);
+  }
+
+  log(message, level = "INFO", data = null) {
+    if (!this.debug.enabled) return;
+
+    const timestamp = new Date().toISOString();
+    const logMessage = `${
+      level !== "LOG" ? `DocumentValidationCLI: [${timestamp}] ${level}: ` : ""
+    }${message}${data ? "\nData: " + JSON.stringify(data, null, 2) : ""}\n`;
+
+    // Console output
+    console.log(logMessage);
+
+    // File output
+    fs.appendFile(
+      path.join(this.debug.logPath, this.debug.logFile),
+      logMessage
+    ).catch(this.err);
+  }
+
   /**
    * Preprocess and normalize PDF pages
    */
   async preprocessPages(pdfData) {
-    console.log("Preprocessing PDF pages...");
+    this.info("Preprocessing PDF pages...");
     this.pages = pdfData.pages.map((page, index) => {
       const normalized = this.normalizePageContent(page);
-      console.log(`\nPreprocessed page ${index + 1}:`);
-      console.log(`- Normalized ${normalized.length} content items`);
+      this.info(`\nPreprocessed page ${index + 1}:`);
+      this.info(`- Normalized ${normalized.length} content items`);
       return normalized;
     });
   }
@@ -53,7 +92,7 @@ class DocumentValidationCLI {
    */
   async processDocument(filePath, caseModel) {
     try {
-      console.log(`Processing document: ${filePath}`);
+      this.print(`Processing document: ${filePath}`);
 
       // Initialize document processor
       await this.documentProcessor.initialize(
@@ -64,7 +103,7 @@ class DocumentValidationCLI {
       const processedDoc = await this.documentProcessor.processDocument(
         filePath
       );
-      console.log(
+      this.print(
         `Document processed: ${
           processedDoc.isDigital ? "Digital" : "Scanned"
         } PDF`
@@ -74,7 +113,7 @@ class DocumentValidationCLI {
       const normalizedContent = await this.prepareContentForValidation(
         processedDoc
       );
-      console.log("Content prepared for validation");
+      this.print("Content prepared for validation");
 
       // Perform hybrid validation
       const results = await this.hybridValidator.validateDocument(
@@ -91,7 +130,7 @@ class DocumentValidationCLI {
 
       return report;
     } catch (error) {
-      console.error("Document processing failed:", error);
+      this.err("Document processing failed:", error);
       throw error;
     } finally {
       // Clean up resources
@@ -102,37 +141,37 @@ class DocumentValidationCLI {
    * Print detailed results for debugging
    */
   printResults(report, processedDoc) {
-    console.log("\n=== Document Validation Results ===");
-    console.log(`Status: ${report.status}`);
-    console.log(
+    this.print("\n=== Document Validation Results ===");
+    this.print(`Status: ${report.status}`);
+    this.print(
       `Overall Confidence: ${(report.confidence.overall * 100).toFixed(2)}%`
     );
 
-    console.log("\nField Results:");
+    this.print("\nField Results:");
     for (const [field, value] of Object.entries(report.fields)) {
       const confidence = report.confidence.fields[field];
-      console.log(`${field}:`);
-      console.log(`  Value: ${value}`);
-      console.log(
+      this.print(`${field}:`);
+      this.print(`  Value: ${value}`);
+      this.print(
         `  Confidence: ${(confidence?.confidence * 100 || 0).toFixed(2)}%`
       );
       if (confidence?.source) {
-        console.log(`  Source: ${confidence.source}`);
+        this.print(`  Source: ${confidence.source}`);
       }
     }
 
     if (report.issues.length > 0) {
-      console.log("\nValidation Issues:");
+      this.print("\nValidation Issues:");
       report.issues.forEach((issue, index) => {
-        console.log(`${index + 1}. ${issue}`);
+        this.print(`${index + 1}. ${issue}`);
       });
     }
 
     if (processedDoc.metadata?.hasSignatures) {
-      console.log("\nSignature Verification:");
+      this.print("\nSignature Verification:");
       processedDoc.pages.forEach((page, index) => {
         if (page.signatures.length > 0) {
-          console.log(
+          this.print(
             `Page ${index + 1}: ${page.signatures.length} signature(s) detected`
           );
         }
@@ -161,17 +200,17 @@ class DocumentValidationCLI {
       content.pages.push(boxes);
 
       // Log box statistics per page
-      console.log(`\nPage ${index + 1} Statistics:`);
-      console.log(`- Total boxes: ${boxes.length}`);
-      console.log(
+      this.print(`\nPage ${index + 1} Statistics:`);
+      this.print(`- Total boxes: ${boxes.length}`);
+      this.print(
         `- Digital boxes: ${boxes.filter((b) => b.source === "digital").length}`
       );
-      console.log(
+      this.print(
         `- OCR boxes: ${boxes.filter((b) => b.source === "ocr").length}`
       );
 
       if (page.signatures && page.signatures.length > 0) {
-        console.log(`- Signatures detected: ${page.signatures.length}`);
+        this.print(`- Signatures detected: ${page.signatures.length}`);
       }
     });
 
@@ -182,9 +221,9 @@ class DocumentValidationCLI {
       const sectionContent = this.identifySection(config, content.pages);
       if (sectionContent) {
         content.sections[sectionName] = sectionContent;
-        console.log(`\nSection identified: ${sectionName}`);
-        console.log(`- Page: ${sectionContent.page}`);
-        console.log(`- Content items: ${sectionContent.content.length}`);
+        this.print(`\nSection identified: ${sectionName}`);
+        this.print(`- Page: ${sectionContent.page}`);
+        this.print(`- Content items: ${sectionContent.content.length}`);
       }
     }
 
@@ -309,12 +348,12 @@ class DocumentValidationCLI {
    */
   verifyPdfStructure(pdfData) {
     if (!pdfData || !Array.isArray(pdfData.pages)) {
-      console.error("Invalid PDF data structure - missing pages array");
+      this.err("Invalid PDF data structure - missing pages array");
       return false;
     }
 
     if (pdfData.pages.length === 0) {
-      console.error("PDF contains no pages");
+      this.err("PDF contains no pages");
       return false;
     }
 
@@ -323,7 +362,7 @@ class DocumentValidationCLI {
     );
 
     if (!hasValidContent) {
-      console.error("One or more pages have invalid content structure");
+      this.err("One or more pages have invalid content structure");
       return false;
     }
 
@@ -335,13 +374,13 @@ class DocumentValidationCLI {
    */
   debugPageContent(page) {
     if (!page || !Array.isArray(page.content)) {
-      console.log("Invalid page structure:", page);
+      this.info("Invalid page structure:", page);
       return;
     }
 
-    console.log("\nPage Content Sample:");
+    this.info("\nPage Content Sample:");
     page.content.slice(0, 5).forEach((item, index) => {
-      console.log(`\nItem ${index}:`, {
+      this.info(`\nItem ${index}:`, {
         text: item.str || "",
         x: item.x,
         y: item.y,
@@ -352,7 +391,7 @@ class DocumentValidationCLI {
       });
     });
 
-    console.log("\nTotal content items:", page.content.length);
+    this.info("\nTotal content items:", page.content.length);
   }
 
   /**
@@ -360,7 +399,7 @@ class DocumentValidationCLI {
    */
   normalizePageContent(page) {
     if (!page || !Array.isArray(page.content)) {
-      console.warn("Invalid page content structure");
+      this.warn("Invalid page content structure");
       return [];
     }
 
@@ -369,13 +408,13 @@ class DocumentValidationCLI {
         .filter((item) => {
           // Verify item structure
           if (!item || typeof item !== "object") {
-            console.warn("Invalid content item:", item);
+            this.warn("Invalid content item:", item);
             return false;
           }
 
           // Ensure required properties exist
           if (typeof item.str !== "string") {
-            console.warn("Missing or invalid str property:", item);
+            this.warn("Missing or invalid str property:", item);
             return false;
           }
 
@@ -403,9 +442,9 @@ class DocumentValidationCLI {
         .filter((item) => item.text.length > 0);
 
       // Debug normalized output
-      console.log("\nNormalized Content Sample:");
+      this.info("\nNormalized Content Sample:");
       normalized.slice(0, 3).forEach((item, index) => {
-        console.log(`\nNormalized Item ${index}:`, {
+        this.info(`\nNormalized Item ${index}:`, {
           text: item.text,
           bounds: item.bounds,
           meta: item.meta,
@@ -414,7 +453,7 @@ class DocumentValidationCLI {
 
       return normalized;
     } catch (error) {
-      console.error("Content normalization failed:", error);
+      this.err("Content normalization failed:", error);
       return [];
     }
   }
@@ -464,7 +503,7 @@ class DocumentValidationCLI {
       results.valid = results.issues.length === 0;
       return results;
     } catch (error) {
-      console.error("Document validation failed:", error);
+      this.err("Document validation failed:", error);
       throw error;
     }
   }
@@ -575,13 +614,13 @@ class DocumentValidationCLI {
   async findField(pageIndex, labels) {
     const content = this.pages[pageIndex];
     if (!content || content.length === 0) {
-      console.warn(
+      this.warn(
         `No valid content found for field search on page ${pageIndex + 1}`
       );
       return null;
     }
 
-    console.log(`\nSearching for labels on page ${pageIndex + 1}:`, labels);
+    this.info(`\nSearching for labels on page ${pageIndex + 1}:`, labels);
 
     let bestMatch = null;
     let highestConfidence = 0;
@@ -595,7 +634,7 @@ class DocumentValidationCLI {
           );
 
           if (matchScore > this.matchingConfig.labelMatchThreshold) {
-            console.log(`\nPotential label match:`, {
+            this.info(`\nPotential label match:`, {
               label,
               text: item.text,
               score: matchScore,
@@ -609,7 +648,7 @@ class DocumentValidationCLI {
                 value.bounds
               );
 
-              console.log("Found value:", {
+              this.info("Found value:", {
                 text: value.text,
                 confidence,
               });
@@ -630,16 +669,16 @@ class DocumentValidationCLI {
             }
           }
         } catch (error) {
-          console.error("Error processing match:", error);
+          this.err("Error processing match:", error);
           continue;
         }
       }
     }
 
     if (bestMatch) {
-      console.log("\nBest match:", bestMatch);
+      this.info("\nBest match:", bestMatch);
     } else {
-      console.log("\nNo matches found");
+      this.info("\nNo matches found");
     }
 
     return bestMatch;
@@ -668,7 +707,7 @@ class DocumentValidationCLI {
         verticalGap < maxVerticalGap;
 
       if (isCandidate) {
-        console.log(
+        this.info(
           `Found value candidate: "${item.text}" (gap: h=${horizontalGap}, v=${verticalGap})`
         );
       }
