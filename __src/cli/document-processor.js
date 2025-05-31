@@ -185,7 +185,7 @@ class DocumentProcessor {
   /**
    * Process individual page with preprocessing and OCR
    */
-  async processPage(pageImage, pageIndex, digitalData) {
+  async processPage(pageImage, pageIndex, digitalData = null) {
     const result = {
       boxes: [],
       signatures: [],
@@ -197,11 +197,6 @@ class DocumentProcessor {
     try {
       // Convert page image to Mat format
       currentMat = await this.imageToMat(pageImage);
-      // this.info("Converted page to Mat format - processPage", {
-      //   rows: currentMat.rows,
-      //   cols: currentMat.cols,
-      //   channels: currentMat.channels(),
-      // });
 
       // Get initial quality assessment
       const initialQuality = await this.analyzeImageQuality(currentMat);
@@ -227,6 +222,7 @@ class DocumentProcessor {
         );
         result.metadata.preprocessing = processed.metadata;
 
+        // Save preprocessed debug image
         await this.saveDebugImage(
           processed.image,
           `page_${pageIndex + 1}_preprocessed.png`
@@ -237,36 +233,67 @@ class DocumentProcessor {
         currentMat = processed.image;
         oldMat.delete();
 
-        // Perform OCR with processed image
-        const ocrResults = await this.performOCR(currentMat, pageIndex);
-        this.info("Initial OCR results - processPage:", {
-          boxes: ocrResults.boxes.length,
-          orientation: ocrResults.orientation,
-          confidence: ocrResults.confidence,
-        });
+        // Detect key regions
+        const regions = await this.detectDocumentRegions(currentMat);
+        result.metadata.regions = regions;
 
-        const boxes = this.normalizeOCRBoxes(ocrResults, pageIndex);
-        this.info("Normalized OCR boxes - processPage:", {
-          count: boxes.length,
-          sample: boxes.slice(0, 2),
-        });
+        // Process each region
+        const regionResults = [];
 
-        // Check OCR quality and retry if needed
-        if (this.needsEnhancedOCR(boxes, ocrResults.orientation)) {
-          this.log("Enhanced OCR processing required - processPage");
-          const enhancedResults = await this.performEnhancedOCR(
+        // Financial section with enhanced OCR
+        if (regions.financials) {
+          const financialResults = await this.performRegionOCR(
             currentMat,
-            pageIndex
+            regions.financials,
+            "financial"
           );
-          boxes.push(...enhancedResults.boxes);
-          result.metadata.enhancedOCR = enhancedResults.metadata;
-          this.info("Enhanced OCR completed - processPage:", {
-            additionalBoxes: enhancedResults.boxes.length,
-            metadata: enhancedResults.metadata,
-          });
+          regionResults.push(financialResults);
+
+          // Save debug image of financial region
+          if (this.debug.enabled) {
+            const debugMat = currentMat.clone();
+            cv.rectangle(
+              debugMat,
+              new cv.Point(regions.financials.x, regions.financials.y),
+              new cv.Point(
+                regions.financials.x + regions.financials.width,
+                regions.financials.y + regions.financials.height
+              ),
+              new cv.Scalar(0, 255, 0, 255),
+              2
+            );
+            await this.saveDebugImage(
+              debugMat,
+              `page_${pageIndex + 1}_financials.png`
+            );
+            debugMat.delete();
+          }
         }
 
-        result.boxes.push(...boxes);
+        // Header reference numbers
+        if (regions.header) {
+          const headerResults = await this.performRegionOCR(
+            currentMat,
+            regions.header,
+            "reference"
+          );
+          regionResults.push(headerResults);
+        }
+
+        // Process full page for remaining content
+        const fullPageResults = await this.performOCR(currentMat, pageIndex);
+
+        // Merge all OCR results, prioritizing region-specific results
+        const boxes = this.mergeOCRResults(regionResults, fullPageResults);
+        result.boxes = this.normalizeOCRBoxes(boxes, pageIndex);
+
+        // Save OCR debug visualization
+        if (this.debug.enabled) {
+          const debugMat = currentMat.clone();
+          this.visualizeOCRResults(debugMat, result.boxes);
+          await this.saveDebugImage(debugMat, `ocr_boxes_${pageIndex + 1}.png`);
+          debugMat.delete();
+        }
       } else {
         // Use digital content
         const digitalBoxes = this.normalizeDigitalBoxes(digitalData, pageIndex);
@@ -284,16 +311,19 @@ class DocumentProcessor {
       );
       result.signatures = signatureResults.marks;
       result.metadata.signatureDetection = signatureResults.metadata;
-      this.info("Signature detection results - processPage:", {
-        count: signatureResults.marks.length,
-        metadata: signatureResults.metadata,
-      });
+
+      // Save binary image used for signature detection
+      if (this.debug.enabled) {
+        await this.saveDebugImage(
+          signatureResults.binaryImage,
+          `page_${pageIndex + 1}_binary.png`
+        );
+      }
 
       return result;
     } catch (error) {
       this.err(
         `Page ${pageIndex + 1} processing failed - processPage:`,
-
         error?.stack || error.toString()
       );
       throw error;
@@ -301,6 +331,88 @@ class DocumentProcessor {
       // Ensure cleanup
       if (currentMat) currentMat.delete();
     }
+  }
+
+  // Helper function to merge OCR results from different sources
+  mergeOCRResults(regionResults, fullPageResults) {
+    const mergedBoxes = [];
+    const usedAreas = new Set();
+
+    // Add region-specific results first
+    for (const region of regionResults) {
+      for (const box of region.boxes) {
+        mergedBoxes.push({
+          ...box,
+          source: region.type,
+          confidence: box.confidence * 1.2, // Boost confidence for region-specific results
+        });
+        // Mark area as processed
+        usedAreas.add(
+          `${box.bounds.x},${box.bounds.y},${box.bounds.width},${box.bounds.height}`
+        );
+      }
+    }
+
+    // Add full page results that don't overlap with region results
+    for (const box of fullPageResults.boxes) {
+      const boxKey = `${box.bounds.x},${box.bounds.y},${box.bounds.width},${box.bounds.height}`;
+      if (!this.isBoxOverlapping(box, usedAreas)) {
+        mergedBoxes.push(box);
+      }
+    }
+
+    return mergedBoxes;
+  }
+
+  // Helper function to check box overlap
+  isBoxOverlapping(box, usedAreas) {
+    for (const areaKey of usedAreas) {
+      const [x, y, w, h] = areaKey.split(",").map(Number);
+      if (
+        box.bounds.x < x + w &&
+        box.bounds.x + box.bounds.width > x &&
+        box.bounds.y < y + h &&
+        box.bounds.y + box.bounds.height > y
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Helper function to visualize OCR results
+  visualizeOCRResults(debugMat, boxes) {
+    boxes.forEach((box) => {
+      const confidence = box.confidence || 0;
+      const color =
+        box.source === "financial"
+          ? new cv.Scalar(0, 255, 0, 255) // Green for financial
+          : box.source === "reference"
+          ? new cv.Scalar(255, 0, 0, 255) // Red for reference
+          : new cv.Scalar(0, 0, 255, 255); // Blue for general
+
+      cv.rectangle(
+        debugMat,
+        new cv.Point(box.bounds.x, box.bounds.y),
+        new cv.Point(
+          box.bounds.x + box.bounds.width,
+          box.bounds.y + box.bounds.height
+        ),
+        color,
+        2
+      );
+
+      // Add confidence score
+      cv.putText(
+        debugMat,
+        `${(confidence * 100).toFixed(0)}%`,
+        new cv.Point(box.bounds.x, box.bounds.y - 5),
+        cv.FONT_HERSHEY_SIMPLEX,
+        0.5,
+        color,
+        1
+      );
+    });
   }
 
   // Logging utilities
@@ -318,6 +430,7 @@ class DocumentProcessor {
     this.log(message, "WARN", data);
   }
   err(message, data = null) {
+    console.error(message, data);
     this.log(message, "ERROR", data);
   }
 
@@ -594,14 +707,16 @@ class DocumentProcessor {
    * Prepare image data for OCR processing
    */
   async prepareImageForOCR(image) {
+    this.log('prepareImageForOCR 1')
     let processed = await this.imageToMat(image);
 
     try {
+      this.log('prepareImageForOCR 2')
       // Convert to grayscale
       const gray = new cv.Mat();
       cv.cvtColor(processed, gray, cv.COLOR_RGBA2GRAY);
       processed.delete();
-
+      this.log('prepareImageForOCR 3')
       // Apply more aggressive thresholding for form documents
       const binary = new cv.Mat();
       cv.adaptiveThreshold(
@@ -614,25 +729,25 @@ class DocumentProcessor {
         12 // Higher constant for darker text
       );
       gray.delete();
-
+      this.log('prepareImageForOCR 4')
       // Remove noise
       const kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(2, 2));
       const denoised = new cv.Mat();
       cv.morphologyEx(binary, denoised, cv.MORPH_OPEN, kernel);
       binary.delete();
       kernel.delete();
-
+      this.log('prepareImageForOCR 5')
       // Convert back to RGBA
       const rgba = new cv.Mat();
       cv.cvtColor(denoised, rgba, cv.COLOR_GRAY2RGBA);
       denoised.delete();
-
+      this.log('prepareImageForOCR 6')
       const imageData = {
         width: rgba.cols,
         height: rgba.rows,
         data: new Uint8ClampedArray(rgba.data),
       };
-
+      this.log('prepareImageForOCR 7')
       rgba.delete();
       return imageData;
     } catch (error) {
@@ -766,35 +881,35 @@ class DocumentProcessor {
    */
   async performRegionOCR(imageMat, region, type) {
     try {
+      this.log('performRegionOCR 1')
       // Enhance region
       const enhanced = await this.enhanceRegion(imageMat, region, type);
-      
+      this.log('performRegionOCR 2')
       // Prepare for OCR
       const imageData = await this.prepareImageForOCR(enhanced);
       enhanced.delete();
-  
+      this.log('performRegionOCR 3')
       // Load enhanced image
       this.ocrEngine.loadImage(imageData);
-  
+      this.log('performRegionOCR 4')
       // Set OCR parameters based on region type
-      if (type === 'financial') {
+      if (type === "financial") {
         this.ocrEngine.setVariable("tessedit_char_whitelist", "0123456789.,R");
-      } else if (type === 'reference') {
+      } else if (type === "reference") {
         this.ocrEngine.setVariable("tessedit_char_whitelist", "0123456789");
       }
-  
+      this.log('performRegionOCR 5')
       // Get text boxes
       const boxes = this.ocrEngine.getTextBoxes("word");
-  
+      this.log('performRegionOCR 6')
       // Post-process boxes
       const processedBoxes = this.postProcessRegionBoxes(boxes, type);
-  
+      this.log('performRegionOCR 7')
       return {
         boxes: processedBoxes,
         type,
-        region
+        region,
       };
-  
     } catch (error) {
       this.err("Region OCR failed:", error);
       throw error;
@@ -1136,6 +1251,15 @@ class DocumentProcessor {
         new cv.Rect(region.x, region.y, region.width, region.height)
       );
 
+      // Debug region info
+      this.info("Enhancing region:", {
+        type,
+        dims: `${roi.rows}x${roi.cols}`,
+        channels: roi.channels(),
+        depth: roi.depth(),
+        region,
+      });
+
       // Scale up region
       const scale = type === "financial" ? 3.0 : 2.0;
       const scaled = new cv.Mat();
@@ -1144,39 +1268,63 @@ class DocumentProcessor {
       // Apply region-specific enhancements
       switch (type) {
         case "financial": {
-          // Enhance contrast for numbers
-          const enhanced = new cv.Mat();
-          scaled.convertTo(enhanced, -1, 1.5, 10);
+          // Convert to 8-bit if needed
+          const gray = new cv.Mat();
+          if (scaled.channels() > 1) {
+            cv.cvtColor(scaled, gray, cv.COLOR_RGBA2GRAY);
+          } else {
+            scaled.copyTo(gray);
+          }
 
-          // Denoise
+          // Ensure 8-bit depth
+          const gray8bit = new cv.Mat();
+          gray.convertTo(gray8bit, cv.CV_8U);
+
+          // Debug pre-filter state
+          this.info("Pre-filter image state:", {
+            dims: `${gray8bit.rows}x${gray8bit.cols}`,
+            channels: gray8bit.channels(),
+            depth: gray8bit.depth(),
+          });
+
+          // Use median blur for denoising
           const denoised = new cv.Mat();
-          cv.fastNlMeansDenoising(enhanced, denoised);
+          cv.medianBlur(gray8bit, denoised, 3);
 
-          // Sharpen
-          const kernel = new cv.Mat.ones(3, 3, cv.CV_8S);
-          kernel.data[4] = -8;
-          const sharpened = new cv.Mat();
-          cv.filter2D(
-            denoised,
-            sharpened,
-            -1,
-            kernel,
-            new cv.Point(-1, -1),
-            0,
-            cv.BORDER_DEFAULT
-          );
+          // Enhance contrast
+          const enhanced = new cv.Mat();
+          denoised.convertTo(enhanced, -1, 1.5, 10);
 
-          enhanced.delete();
+          // Debug post-processing
+          this.info("Post-processing state:", {
+            dims: `${enhanced.rows}x${enhanced.cols}`,
+            channels: enhanced.channels(),
+            depth: enhanced.depth(),
+          });
+
+          // Clean up
+          gray.delete();
+          gray8bit.delete();
           denoised.delete();
-          kernel.delete();
-          return sharpened;
+
+          return enhanced;
         }
 
         case "reference": {
-          // Optimize for text/numbers
+          // For reference numbers, use adaptive thresholding with preprocessing
+          const gray = new cv.Mat();
+          if (scaled.channels() > 1) {
+            cv.cvtColor(scaled, gray, cv.COLOR_RGBA2GRAY);
+          } else {
+            scaled.copyTo(gray);
+          }
+
+          const blurred = new cv.Mat();
+          cv.GaussianBlur(gray, blurred, new cv.Size(3, 3), 0);
+
           const binary = new cv.Mat();
           cv.adaptiveThreshold(
-            scaled,
+            blurred,
             binary,
             255,
             cv.ADAPTIVE_THRESH_GAUSSIAN_C,
@@ -1184,6 +1332,10 @@ class DocumentProcessor {
             11,
             2
           );
+
+          // Clean up
+          gray.delete();
+          blurred.delete();
           return binary;
         }
 
@@ -1191,11 +1343,19 @@ class DocumentProcessor {
           return scaled;
       }
     } catch (error) {
-      this.err("Region enhancement failed:", error);
-      throw error;
+      this.err("Region enhancement failed:", {
+        error: error?.stack || error.toString(),
+        type,
+        region,
+        errorCode: typeof error === "number" ? error : undefined,
+      });
+
+      // Return original region on error
+      return imageMat.roi(
+        new cv.Rect(region.x, region.y, region.width, region.height)
+      );
     }
   }
-
   /**
    * Check if region needs enhanced OCR processing
    */
@@ -1253,8 +1413,8 @@ class DocumentProcessor {
     stats.needsEnhancement =
       stats.contrast < 0.4 || stats.brightness < 0.3 || stats.brightness > 0.8;
 
-    mean.delete();
-    stddev.delete();
+    // mean.delete();
+    // stddev.delete();
 
     return stats;
   }

@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 *.db
-repomix.xml
+repomix.*
 public/*
 test/samples/*
 output/debug/*

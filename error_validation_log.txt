@@ -1,0 +1,22 @@
+[2025-05-31T11:26:37.533Z] 📄 Document type: Digital PDF
+[2025-05-31T11:26:37.533Z] 📊 Pages found: 6
+[2025-05-31T11:26:37.534Z] 🔤 Processing digital PDF with PAQ.js field mapping
+[2025-05-31T11:26:37.535Z] 📦 Extracted 649 bounding boxes
+[2025-05-31T11:26:37.556Z] 🔧 Merged into 444 consolidated boxes
+[2025-05-31T11:26:37.562Z] 🎯 Starting spatial field search with PAQ.js mapping
+[2025-05-31T11:26:37.563Z] 🔍 Found 6 boxes containing case ID "10016998899"
+[2025-05-31T11:26:37.563Z] 
+🔍 Processing: caseId (expected: 10016998899)
+[2025-05-31T11:26:37.564Z] 📋 Search labels: [Case reference no]
+[2025-05-31T11:26:37.565Z] ❌ Validation failed: this.processCaseIdField is not a function
+
+============================================================
+DEBUG LOG SUMMARY
+============================================================
+Total bounding boxes: 649
+Merged boxes: 444
+Fields processed: 1
+Fields found: 0
+Fields valid: 0
+Success rate: 0%
+============================================================
