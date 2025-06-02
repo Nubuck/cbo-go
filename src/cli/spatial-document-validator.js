@@ -177,24 +177,382 @@ class SpatialDocumentValidator {
     return await this.spatialFieldSearch(mergedBoxes, caseModel);
   }
 
+  // Enhanced OCR processing methods for SpatialDocumentValidator class
+  // Add this import at the top of spatial-document-validator.js:
+  // import { promises as fs } from "node:fs";
+
   async validateScannedPDF(filePath, caseModel) {
-    this.log("🖼️  Processing scanned PDF");
+    this.logImportant("🖼️  Processing scanned PDF with enhanced OCR pipeline");
 
-    const pages = await this.extractPageImages(filePath);
-    const firstPageBuffer = pages[0];
+    try {
+      // Extract all pages as images
+      const pages = await this.extractPageImages(filePath);
+      this.logImportant(`📄 Extracted ${pages.length} pages from PDF`);
 
-    const ocrBoxes = await this.performOCRWithBoxes(firstPageBuffer);
-    this.log(`📦 OCR extracted ${ocrBoxes.length} bounding boxes`);
+      // Save original pages to disk for debugging
+      const docName = path.basename(filePath, ".pdf");
+      await this.saveOriginalPages(pages, docName);
 
-    await fs.writeFile(
-      "debug_ocr_boxes.json",
-      JSON.stringify(ocrBoxes, null, 2)
+      // Process first page (can be extended to search all pages)
+      const firstPageBuffer = pages[0];
+
+      // Enhanced OCR with proper box normalization (saves enhanced image too)
+      const ocrBoxes = await this.performEnhancedOCR(
+        firstPageBuffer,
+        0,
+        docName
+      );
+      this.summary.totalBoxes = ocrBoxes.length;
+      this.logImportant(`📦 OCR extracted ${ocrBoxes.length} bounding boxes`);
+
+      // Save debug data
+      await fs.writeFile(
+        "debug_ocr_raw_boxes.json",
+        JSON.stringify(ocrBoxes, null, 2)
+      );
+
+      // Apply same merging logic as digital PDFs
+      const mergedBoxes = this.mergeNearbyBoxes(ocrBoxes);
+      // const mergedBoxes = [...ocrBoxes]
+      this.summary.mergedBoxes = mergedBoxes.length;
+      this.logImportant(
+        `🔧 Merged into ${mergedBoxes.length} consolidated boxes`
+      );
+
+      await fs.writeFile(
+        "debug_ocr_merged_boxes.json",
+        JSON.stringify(mergedBoxes, null, 2)
+      );
+
+      // Apply the SAME spatial field search as digital PDFs!
+      return await this.spatialFieldSearch(mergedBoxes, caseModel);
+    } catch (error) {
+      this.log(`❌ OCR validation failed: ${error.message}`, "error");
+      throw error;
+    }
+  }
+
+  async performEnhancedOCR(imageBuffer, pageIndex = 0, docName = "page") {
+    this.logImportant(
+      "🔍 Performing enhanced OCR with digital PDF compatibility"
     );
 
-    const mergedBoxes = this.mergeNearbyBoxes(ocrBoxes);
-    this.log(`🔧 Merged into ${mergedBoxes.length} consolidated boxes`);
+    try {
+      // Image preprocessing for better OCR quality (saves enhanced image to disk)
+      const processedImage = await this.preprocessImageForOCR(
+        imageBuffer,
+        pageIndex,
+        docName
+      );
 
-    return await this.spatialFieldSearch(mergedBoxes, caseModel);
+      // DEBUG: Log imageData details before loading
+      this.log(`🎯 About to load image into Tesseract:`);
+      this.log(`   - Width: ${processedImage.imageData.width}`);
+      this.log(`   - Height: ${processedImage.imageData.height}`);
+      this.log(`   - Buffer length: ${processedImage.imageData.data.length}`);
+      this.log(
+        `   - Expected length: ${
+          processedImage.imageData.width * processedImage.imageData.height * 4
+        }`
+      );
+
+      // Load image into tesseract with error handling
+      try {
+        this.ocrEngine.loadImage(processedImage.imageData);
+        this.log(`✅ Image successfully loaded into Tesseract`);
+      } catch (loadError) {
+        this.log(
+          `❌ Tesseract loadImage failed: ${loadError.message}`,
+          "error"
+        );
+        throw new Error(`Tesseract loadImage failed: ${loadError.message}`);
+      }
+
+      // Get word-level bounding boxes from tesseract
+      const rawBoxes = this.ocrEngine.getTextBoxes("word");
+      this.logImportant(`📦 Tesseract found ${rawBoxes.length} raw text boxes`);
+
+      await fs.writeFile(
+        "debug_tesseract_boxes.json",
+        JSON.stringify(rawBoxes, null, 2)
+      );
+
+      // CRITICAL: Normalize OCR boxes to match digital PDF format
+      const normalizedBoxes = this.normalizeOCRBoxes(
+        rawBoxes,
+        processedImage.info,
+        pageIndex
+      );
+
+      // Filter out low-confidence and empty boxes
+      const filteredBoxes = normalizedBoxes.filter((box) => {
+        const hasText = box.text && box.text.trim().length > 0;
+        const hasReasonableConfidence = true; // box.confidence > 0.03; // 30% minimum
+        const hasValidDimensions = box.width > 1 && box.height > 1;
+
+        if (!hasText || !hasReasonableConfidence || !hasValidDimensions) {
+          this.log(
+            `🗑️  Filtering out box: "${box.text}" (conf: ${box.confidence})`
+          );
+          return false;
+        }
+        return true;
+      });
+
+      this.logImportant(
+        `✅ Filtered to ${filteredBoxes.length} quality boxes (${Math.round(
+          (filteredBoxes.length / rawBoxes.length) * 100
+        )}% retention)`
+      );
+
+      return filteredBoxes;
+    } catch (error) {
+      this.log(`❌ OCR processing failed: ${error.message}`, "error");
+      throw error;
+    }
+  }
+
+  async preprocessImageForOCR(imageBuffer, pageIndex, docName) {
+    this.log(
+      "🎨 Preprocessing image for optimal OCR quality (Simplified approach)"
+    );
+
+    try {
+      // Save enhanced image to disk for debugging FIRST
+      const enhancedImagePath = `debug_${docName}_page${
+        pageIndex + 1
+      }_enhanced.png`;
+      await sharp(imageBuffer)
+        // .grayscale()
+        // .normalize()
+        // .resize({ width: undefined, height: undefined, factor: 2 })
+        // .png()
+        .toFile(enhancedImagePath);
+
+      this.logImportant(`💾 Enhanced image saved: ${enhancedImagePath}`);
+
+      // Process for Tesseract using your working example pattern
+      const enhancedSharp = sharp(imageBuffer)
+        // .grayscale()
+        // .normalize()
+        // .resize({ width: undefined, height: undefined, factor: 2 })
+        .ensureAlpha(); // RGBA as in your working example
+
+      const { width, height } = await enhancedSharp.metadata();
+      const data = await enhancedSharp.raw().toBuffer();
+
+      // Create ImageData object (matches your example-cli.js pattern)
+      const imageData = {
+        data,
+        width,
+        height,
+      };
+
+      this.log(`📐 Enhanced image: ${width}x${height} (2x scale)`);
+      this.log(
+        `🎯 ImageData for Tesseract: ${width}x${height}, buffer=${data.length} bytes`
+      );
+      this.log(`🔍 Expected buffer size: ${width * height * 4} bytes (RGBA)`);
+
+      return {
+        imageData,
+        info: { width, height, channels: 4 },
+        enhancedImagePath,
+      };
+    } catch (error) {
+      this.log(`❌ Image preprocessing failed: ${error.message}`, "error");
+      throw error;
+    }
+  }
+
+  normalizeOCRBoxes(rawBoxes, imageInfo, pageIndex) {
+    this.log(
+      `🔄 Normalizing ${rawBoxes.length} OCR boxes to digital PDF format`
+    );
+
+    const normalizedBoxes = rawBoxes.map((box, index) => {
+      // Tesseract uses different coordinate system - normalize to PDF.js format
+      const normalizedBox = {
+        // Core text content
+        text: box.text.trim(),
+
+        // Spatial coordinates (tesseract bbox format: {x0, y0, x1, y1})
+        x: box.rect ? box.rect.left : box.bbox ? box.bbox.x0 : box.left,
+        y: box.rect ? box.rect.top : box.bbox ? box.bbox.y0 : box.top,
+        width: box.rect
+          ? box.rect.right - box.rect.left
+          : box.bbox
+          ? box.bbox.x1 - box.bbox.x0
+          : box.right - box.left,
+        height: box.rect
+          ? box.rect.bottom - box.rect.top
+          : box.bbox
+          ? box.bbox.y1 - box.bbox.y0
+          : box.bottom - box.top,
+
+        // Page information (matching digital PDF format)
+        pageIndex: pageIndex,
+        pageWidth: imageInfo.width,
+        pageHeight: imageInfo.height,
+        boxIndex: index,
+
+        // OCR-specific metadata
+        confidence: box.confidence,
+        source: "ocr",
+
+        // Additional OCR quality indicators
+        ocrQuality: this.assessOCRQuality(box),
+      };
+
+      // Log high-value boxes for debugging
+      if (this.containsFinancialData(normalizedBox.text)) {
+        this.log(
+          `💰 Financial box found: "${
+            normalizedBox.text
+          }" at (${normalizedBox.x.toFixed(1)}, ${normalizedBox.y.toFixed(
+            1
+          )}) conf: ${normalizedBox.confidence}%`
+        );
+      }
+
+      return normalizedBox;
+    });
+
+    this.log(
+      `✅ Normalized ${normalizedBoxes.length} boxes to digital PDF format`
+    );
+    return normalizedBoxes;
+  }
+
+  normalizeOCRBoxesOld(ocrResults, pageIndex) {
+    return ocrResults.boxes.map((box) => {
+      const { isFinancial, adjustedConfidence } = this.isFinancialValue(
+        box.text,
+        box.confidence
+      );
+
+      return {
+        text: box.text.trim(),
+        confidence: isFinancial ? adjustedConfidence : box.confidence,
+        bounds: {
+          x: box.rect ? box.rect.left : box.bbox ? box.bbox.x0 : box.left,
+          y: box.rect ? box.rect.top : box.bbox ? box.bbox.y0 : box.top,
+          width: box.rect
+            ? box.rect.right - box.rect.left
+            : box.bbox
+            ? box.bbox.x1 - box.bbox.x0
+            : box.right - box.left,
+          height: box.rect
+            ? box.rect.bottom - box.rect.top
+            : box.bbox
+            ? box.bbox.y1 - box.bbox.y0
+            : box.bottom - box.top,
+        },
+        page: pageIndex,
+        source: "ocr",
+        type: isFinancial ? "financial" : "text",
+        metadata: {
+          baseline: box.baseline,
+          orientation: box.orientation,
+        },
+      };
+    });
+  }
+
+  containsFinancialData(text) {
+    // Quick check for financial indicators
+    return /(?:R\s*[\d\s,.']+|[\d.,]+\s*%|\b\d{10,11}\b)/.test(text);
+  }
+
+  assessOCRQuality(box) {
+    // Assess OCR quality based on multiple factors
+    let quality = "good";
+
+    if (box.confidence < 50) quality = "poor";
+    else if (box.confidence < 70) quality = "fair";
+
+    // Check for mixed alphanumeric in numbers (common OCR error)
+    if (
+      /\d/.test(box.text) &&
+      /[a-zA-Z]/.test(box.text) &&
+      box.text.length < 10
+    ) {
+      quality = "mixed_characters";
+    }
+
+    return quality;
+  }
+
+  // Enhanced debugging for OCR-specific issues
+  logOCRDiagnostics(boxes) {
+    this.logImportant("\n🔍 OCR DIAGNOSTICS");
+
+    const byConfidence = {
+      high: boxes.filter((b) => b.confidence >= 80).length,
+      medium: boxes.filter((b) => b.confidence >= 60 && b.confidence < 80)
+        .length,
+      low: boxes.filter((b) => b.confidence < 60).length,
+    };
+
+    const financialBoxes = boxes.filter((b) =>
+      this.containsFinancialData(b.text)
+    );
+
+    this.logImportant(
+      `📊 Confidence distribution: High(${byConfidence.high}) Medium(${byConfidence.medium}) Low(${byConfidence.low})`
+    );
+    this.logImportant(`💰 Financial boxes detected: ${financialBoxes.length}`);
+
+    if (financialBoxes.length > 0) {
+      this.logImportant("💰 Financial boxes preview:");
+      financialBoxes.slice(0, 5).forEach((box) => {
+        this.logImportant(`   "${box.text}" (conf: ${box.confidence}%)`);
+      });
+    }
+  }
+
+  async saveOriginalPages(pages, docName) {
+    this.logImportant(`💾 Saving ${pages.length} original page images to disk`);
+
+    try {
+      for (let i = 0; i < pages.length; i++) {
+        const originalPagePath = `debug_${docName}_page${i + 1}_original.png`;
+        await fs.writeFile(originalPagePath, pages[i]);
+        this.logImportant(
+          `💾 Original page ${i + 1} saved: ${originalPagePath}`
+        );
+      }
+
+      this.logImportant(
+        `✅ All ${pages.length} original pages saved successfully`
+      );
+    } catch (error) {
+      this.log(`❌ Failed to save original pages: ${error.message}`, "error");
+      throw error;
+    }
+  }
+
+  async createImageDebugSummary(docName, pageCount, enhancedPaths) {
+    this.logImportant("\n📁 IMAGE DEBUG FILES CREATED:");
+    this.logImportant("─".repeat(50));
+
+    for (let i = 1; i <= pageCount; i++) {
+      this.logImportant(`📄 Page ${i}:`);
+      this.logImportant(
+        `   • debug_${docName}_page${i}_original.png - Raw PDF extraction`
+      );
+      this.logImportant(
+        `   • debug_${docName}_page${i}_enhanced.png - Sharp preprocessing`
+      );
+    }
+
+    this.logImportant("\n💡 Image Comparison Guide:");
+    this.logImportant("─".repeat(50));
+    this.logImportant("• Original: Direct PDF-to-image conversion");
+    this.logImportant("• Enhanced: Grayscale + Normalized + 2x Scale + Sharp");
+    this.logImportant(
+      "• Compare quality to assess OCR preprocessing effectiveness"
+    );
   }
 
   extractBoundingBoxes(pdfData) {
@@ -1611,7 +1969,7 @@ class SpatialDocumentValidator {
 
   async extractPageImages(filePath) {
     const pdfDocument = await pdfImageExtract(filePath, {
-      scale: 2,
+      scale: 3,
       docInitParams: {
         useSystemFonts: true,
         disableFontFace: true,

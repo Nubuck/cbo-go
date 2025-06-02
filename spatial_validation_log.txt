@@ -1,421 +1,208 @@
-[2025-05-31T13:30:07.319Z] 📄 Document type: Digital PDF
-[2025-05-31T13:30:07.319Z] 📊 Pages found: 6
-[2025-05-31T13:30:07.320Z] 🔤 Processing digital PDF with PAQ.js field mapping
-[2025-05-31T13:30:07.321Z] 📦 Extracted 649 bounding boxes
-[2025-05-31T13:30:07.339Z] 🔧 Merged into 444 consolidated boxes
-[2025-05-31T13:30:07.342Z] 🎯 Starting spatial field search with PAQ.js mapping
-[2025-05-31T13:30:07.343Z] 🔍 Found 6 boxes containing case ID "10016998899"
-[2025-05-31T13:30:07.343Z] 
-🔍 Processing: caseId (expected: 10016998899)
-[2025-05-31T13:30:07.343Z] 📋 Search labels: [Case reference no]
-[2025-05-31T13:30:07.344Z] 🎯 Extracting value from "10016998899" (type: reference)
-[2025-05-31T13:30:07.344Z] 🔢 Extracted number: "10016998899"
-[2025-05-31T13:30:07.344Z] ✅ Direct case ID match: "10016998899"
-[2025-05-31T13:30:07.344Z] 🎯 Validating: found=10016998899, expected=10016998899, type=reference
-[2025-05-31T13:30:07.345Z] 🔢 Reference validation: "10016998899" === "10016998899" → true
-[2025-05-31T13:30:07.345Z] ✅ VALID caseId: Found=10016998899, Expected=10016998899, Confidence=100%
-[2025-05-31T13:30:07.345Z] 
-🔍 Processing: loanAmount (expected: 90640.57)
-[2025-05-31T13:30:07.346Z] 📋 Search labels: [Payout amount]
-[2025-05-31T13:30:07.346Z] 📊 Multi-table check: loanAmount, isFinancial: false, isStaff: true
-[2025-05-31T13:30:07.346Z] 🏷️  Searching for labels: [Payout amount]
-[2025-05-31T13:30:07.349Z] 🔍 Trying pattern: "Payout amount"
-[2025-05-31T13:30:07.349Z] 🎯 Match: "Payout amount" (score: 1.000, type: exact) for "Payout amount"
-[2025-05-31T13:30:07.350Z] ✅ Best label match: "Payout amount" (score: 1.000)
-[2025-05-31T13:30:07.350Z] ✅ Label found: "Payout amount" (confidence: 100.0%)
-[2025-05-31T13:30:07.350Z] 🎯 Using DIRECT VALUE MATCHING for: 90640.57
-[2025-05-31T13:30:07.350Z] 🏷️  Label: "Payout amount" at (19.336, 183.39499999999998) on page 1
-[2025-05-31T13:30:07.350Z] 🎯 Extracting value from "Payout amount" (type: currency)
-[2025-05-31T13:30:07.350Z] 💰 No currency found in: "Payout amount"
-[2025-05-31T13:30:07.351Z] 📏 Line spacing calculation: 58 Y positions, 42 valid gaps, median: 17
-[2025-05-31T13:30:07.351Z] 📦 Focused area: 25 boxes to check
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "* Fees include value-added tax (VAT)." (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "* Fees include value-added tax (VAT)."
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "have paid the loan into your account by phoning 0800 555 111 (toll-free)" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "have paid the loan into your account by phoning 0800 555 111 (toll-free)"
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "PERSONAL LOAN - EMPLOYEE BENEFIT" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "PERSONAL LOAN - EMPLOYEE BENEFIT"
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "· must immediately notify us if your salary is not paid into the account. Client name: MRS THOBEKA MAZIBU" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "· must immediately notify us if your salary is not paid into the account. Client name: MRS THOBEKA MAZIBU"
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "Payout amount" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "Payout amount"
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "R90 640,57" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 Extracted currency: "R90 640,57" → "R90 640,57" → 90640.57
-[2025-05-31T13:30:07.351Z] 🎯 Validating: found=90640.57, expected=90640.57, type=currency
-[2025-05-31T13:30:07.351Z] 💰 Currency/Percentage validation: diff=0.00, tolerance=0.05, valid=true, confidence=1.00
-[2025-05-31T13:30:07.351Z] 💰 Extracted from "R90 640,57": 90640.57 → Match: true (confidence: 100.0%)
-[2025-05-31T13:30:07.351Z] 🎉 ✅ EXACT MATCH FOUND: 90640.57 at (161.0, 183.4)
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "Total interest" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "Total interest"
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "R31 328,93" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 Extracted currency: "R31 328,93" → "R31 328,93" → 31328.93
-[2025-05-31T13:30:07.351Z] 🎯 Validating: found=31328.93, expected=90640.57, type=currency
-[2025-05-31T13:30:07.351Z] 💰 Currency/Percentage validation: diff=59311.64, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.351Z] 💰 Extracted from "R31 328,93": 31328.93 → Match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "Split payout: To merchant" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "Split payout: To merchant"
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "Total interest, fees and credit life" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "Total interest, fees and credit life"
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "insurance" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "insurance"
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "R48 143,93" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 Extracted currency: "R48 143,93" → "R48 143,93" → 48143.93
-[2025-05-31T13:30:07.351Z] 🎯 Validating: found=48143.93, expected=90640.57, type=currency
-[2025-05-31T13:30:07.351Z] 💰 Currency/Percentage validation: diff=42496.64, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.351Z] 💰 Extracted from "R48 143,93": 48143.93 → Match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "To your nominated account Refer to SPOA" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "To your nominated account Refer to SPOA"
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "Monthly instalment (including interest," (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "Monthly instalment (including interest,"
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "fees and credit insurance)" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "fees and credit insurance)"
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "Credit advanced (including the initiation Experian (Pty) Ltd (head office)" (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "Credit advanced (including the initiation Experian (Pty) Ltd (head office)"
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "fee) In this agreement clause headings are for convenience only and should not be used to interpret the agreement." (type: currency)
-[2025-05-31T13:30:07.351Z] 💰 No currency found in: "fee) In this agreement clause headings are for convenience only and should not be used to interpret the agreement."
-[2025-05-31T13:30:07.351Z] 🎯 Extracting value from "R91 848,07" (type: currency)
-[2025-05-31T13:30:07.352Z] 💰 Extracted currency: "R91 848,07" → "R91 848,07" → 91848.07
-[2025-05-31T13:30:07.352Z] 🎯 Validating: found=91848.07, expected=90640.57, type=currency
-[2025-05-31T13:30:07.352Z] 💰 Currency/Percentage validation: diff=1207.50, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.352Z] 💰 Extracted from "R91 848,07": 91848.07 → Match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.352Z] 🎯 Extracting value from "Number of monthly instalments" (type: currency)
-[2025-05-31T13:30:07.352Z] 💰 No currency found in: "Number of monthly instalments"
-[2025-05-31T13:30:07.352Z] 🎯 Extracting value from "60" (type: currency)
-[2025-05-31T13:30:07.352Z] 💰 No currency found in: "60"
-[2025-05-31T13:30:07.352Z] 🎯 Extracting value from "Total of all monthly instalments" (type: currency)
-[2025-05-31T13:30:07.352Z] 💰 No currency found in: "Total of all monthly instalments"
-[2025-05-31T13:30:07.352Z] 🎯 Extracting value from "Instalments payable" (type: currency)
-[2025-05-31T13:30:07.352Z] 💰 No currency found in: "Instalments payable"
-[2025-05-31T13:30:07.352Z] 🎯 Extracting value from "Monthly R 17 000,00" (type: currency)
-[2025-05-31T13:30:07.352Z] 💰 Extracted currency: "Monthly R 17 000,00" → "R 17 000,00" → 17000
-[2025-05-31T13:30:07.352Z] 🎯 Validating: found=17000, expected=90640.57, type=currency
-[2025-05-31T13:30:07.352Z] 💰 Currency/Percentage validation: diff=73640.57, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.352Z] 💰 Extracted from "Monthly R 17 000,00": 17000 → Match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.352Z] 🎯 Extracting value from "(including interest, fees and credit life R139 992,00 3 411,58" (type: currency)
-[2025-05-31T13:30:07.352Z] 💰 Extracted currency: "(including interest, fees and credit life R139 992,00 3 411,58" → "R139 992,00" → 139992
-[2025-05-31T13:30:07.352Z] 🎯 Validating: found=139992, expected=90640.57, type=currency
-[2025-05-31T13:30:07.352Z] 💰 Currency/Percentage validation: diff=49351.43, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.352Z] 💰 Extracted from "(including interest, fees and credit life R139 992,00 3 411,58": 139992 → Match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.352Z] 🎯 Extracting value from "insurance)" (type: currency)
-[2025-05-31T13:30:07.352Z] 💰 No currency found in: "insurance)"
-[2025-05-31T13:30:07.352Z] 🏆 Found 1 exact matches, selecting best positioned:
-[2025-05-31T13:30:07.352Z] 🏆 WINNER: "R90 640,57" → 90640.57 at (161.0, 183.4)
-[2025-05-31T13:30:07.352Z]    📊 sameLine:true, toRight:true, confidence:100.0%
-[2025-05-31T13:30:07.352Z] ✅ Value found: "R90 640,57"
-[2025-05-31T13:30:07.352Z] 🎯 Extracting value from "R90 640,57" (type: currency)
-[2025-05-31T13:30:07.352Z] 💰 Extracted currency: "R90 640,57" → "R90 640,57" → 90640.57
-[2025-05-31T13:30:07.352Z] 🎯 Validating: found=90640.57, expected=90640.57, type=currency
-[2025-05-31T13:30:07.352Z] 💰 Currency/Percentage validation: diff=0.00, tolerance=0.05, valid=true, confidence=1.00
-[2025-05-31T13:30:07.352Z] ✅ VALID loanAmount: Found=90640.57, Expected=90640.57, Confidence=100%
-[2025-05-31T13:30:07.352Z] 
-🔍 Processing: instalment (expected: 3393.49)
-[2025-05-31T13:30:07.352Z] 📋 Search labels: [Monthly instalment (including interest]
-[2025-05-31T13:30:07.353Z] 📊 Multi-table check: instalment, isFinancial: true, isStaff: true
-[2025-05-31T13:30:07.353Z] 🏦 Attempting multi-table search for instalment
-[2025-05-31T13:30:07.354Z] 🏦 Processing multi-table field: instalment (Staff: Yes)
-[2025-05-31T13:30:07.355Z] 🎯 Using DIRECT VALUE MATCHING approach for expected: 3393.49
-[2025-05-31T13:30:07.356Z] 🏷️  Searching for ALL label instances: [Monthly instalment (including interest]
-[2025-05-31T13:30:07.356Z] 🔍 Searching for pattern: "Monthly instalment (including interest"
-[2025-05-31T13:30:07.357Z] 🎯 Found label instance: "Monthly instalment (including interest," (score: 0.950, type: prefix)
-[2025-05-31T13:30:07.357Z] 🎯 Found label instance: "Monthly instalment (including interest, R3 393,49" (score: 0.950, type: prefix)
-[2025-05-31T13:30:07.358Z] ✅ Total label instances found: 2
-[2025-05-31T13:30:07.358Z] 📊 Found 2 label instances for instalment
-[2025-05-31T13:30:07.358Z] 📋 Processing label instance 1: "Monthly instalment (including interest,"
-[2025-05-31T13:30:07.358Z] 📏 Line spacing calculation: 58 Y positions, 42 valid gaps, median: 17
-[2025-05-31T13:30:07.358Z] 📦 Label 1 focused area: 16 boxes to check
-[2025-05-31T13:30:07.358Z] 🎯 Extracting value from "Total interest" (type: currency)
-[2025-05-31T13:30:07.358Z] 💰 No currency found in: "Total interest"
-[2025-05-31T13:30:07.358Z] 🎯 Extracting value from "R31 328,93" (type: currency)
-[2025-05-31T13:30:07.359Z] 💰 Extracted currency: "R31 328,93" → "R31 328,93" → 31328.93
-[2025-05-31T13:30:07.359Z] 💰 Table 1 extracted: 31328.93 from "R31 328,93"
-[2025-05-31T13:30:07.359Z] 🎯 Extracting value from "Total interest, fees and credit life" (type: currency)
-[2025-05-31T13:30:07.359Z] 💰 No currency found in: "Total interest, fees and credit life"
-[2025-05-31T13:30:07.359Z] 🎯 Extracting value from "insurance" (type: currency)
-[2025-05-31T13:30:07.359Z] 💰 No currency found in: "insurance"
-[2025-05-31T13:30:07.359Z] 🎯 Extracting value from "R48 143,93" (type: currency)
-[2025-05-31T13:30:07.359Z] 💰 Extracted currency: "R48 143,93" → "R48 143,93" → 48143.93
-[2025-05-31T13:30:07.359Z] 💰 Table 1 extracted: 48143.93 from "R48 143,93"
-[2025-05-31T13:30:07.359Z] 🎯 Extracting value from "Monthly instalment (including interest," (type: currency)
-[2025-05-31T13:30:07.359Z] 💰 No currency found in: "Monthly instalment (including interest,"
-[2025-05-31T13:30:07.359Z] 🎯 Extracting value from "fees and credit insurance)" (type: currency)
-[2025-05-31T13:30:07.359Z] 💰 No currency found in: "fees and credit insurance)"
-[2025-05-31T13:30:07.359Z] 🎯 Extracting value from "Number of monthly instalments" (type: currency)
-[2025-05-31T13:30:07.359Z] 💰 No currency found in: "Number of monthly instalments"
-[2025-05-31T13:30:07.359Z] 🎯 Extracting value from "60" (type: currency)
-[2025-05-31T13:30:07.359Z] 💰 No currency found in: "60"
-[2025-05-31T13:30:07.359Z] 🎯 Extracting value from "Total of all monthly instalments" (type: currency)
-[2025-05-31T13:30:07.359Z] 💰 No currency found in: "Total of all monthly instalments"
-[2025-05-31T13:30:07.359Z] 🎯 Extracting value from "(including interest, fees and credit life R139 992,00 3 411,58" (type: currency)
-[2025-05-31T13:30:07.359Z] 💰 Extracted currency: "(including interest, fees and credit life R139 992,00 3 411,58" → "R139 992,00" → 139992
-[2025-05-31T13:30:07.359Z] 💰 Table 1 extracted: 139992 from "(including interest, fees and credit life R139 992,00 3 411,58"
-[2025-05-31T13:30:07.360Z] 🎯 Extracting value from "insurance)" (type: currency)
-[2025-05-31T13:30:07.360Z] 💰 No currency found in: "insurance)"
-[2025-05-31T13:30:07.360Z] 🎯 Extracting value from "Credit cost multiple (ratio of total cost" (type: currency)
-[2025-05-31T13:30:07.360Z] 💰 No currency found in: "Credit cost multiple (ratio of total cost"
-[2025-05-31T13:30:07.360Z] 🎯 Extracting value from "of credit to be paid out to credit amount) 1.54" (type: currency)
-[2025-05-31T13:30:07.360Z] 💰 No currency found in: "of credit to be paid out to credit amount) 1.54"
-[2025-05-31T13:30:07.360Z] 🎯 Extracting value from "Annual interest rate - variable linked to 11.75%" (type: currency)
-[2025-05-31T13:30:07.360Z] 💰 No currency found in: "Annual interest rate - variable linked to 11.75%"
-[2025-05-31T13:30:07.360Z] 🎯 Extracting value from "prime" (type: currency)
-[2025-05-31T13:30:07.360Z] 💰 No currency found in: "prime"
-[2025-05-31T13:30:07.360Z] 📋 Processing label instance 2: "Monthly instalment (including interest, R3 393,49"
-[2025-05-31T13:30:07.360Z] 📏 Line spacing calculation: 51 Y positions, 38 valid gaps, median: 21
-[2025-05-31T13:30:07.360Z] 📦 Label 2 focused area: 23 boxes to check
-[2025-05-31T13:30:07.360Z] 🎯 Extracting value from "Total vehicle loan repayments" (type: currency)
-[2025-05-31T13:30:07.360Z] 💰 No currency found in: "Total vehicle loan repayments"
-[2025-05-31T13:30:07.360Z] 🎯 Extracting value from "R 3 587,00" (type: currency)
-[2025-05-31T13:30:07.360Z] 💰 Extracted currency: "R 3 587,00" → "R 3 587,00" → 3587
-[2025-05-31T13:30:07.360Z] 💰 Table 2 extracted: 3587 from "R 3 587,00"
-[2025-05-31T13:30:07.361Z] 🎯 Extracting value from "All other debt repayments" (type: currency)
-[2025-05-31T13:30:07.361Z] 💰 No currency found in: "All other debt repayments"
-[2025-05-31T13:30:07.361Z] 🎯 Extracting value from "R 3 089,00" (type: currency)
-[2025-05-31T13:30:07.361Z] 💰 Extracted currency: "R 3 089,00" → "R 3 089,00" → 3089
-[2025-05-31T13:30:07.361Z] 💰 Table 2 extracted: 3089 from "R 3 089,00"
-[2025-05-31T13:30:07.362Z] 🎯 Extracting value from "Total monthly living expenses" (type: currency)
-[2025-05-31T13:30:07.362Z] 💰 No currency found in: "Total monthly living expenses"
-[2025-05-31T13:30:07.362Z] 🎯 Extracting value from "R 1 500,00" (type: currency)
-[2025-05-31T13:30:07.362Z] 💰 Extracted currency: "R 1 500,00" → "R 1 500,00" → 1500
-[2025-05-31T13:30:07.362Z] 💰 Table 2 extracted: 1500 from "R 1 500,00"
-[2025-05-31T13:30:07.362Z] 🎯 Extracting value from "Total interest" (type: currency)
-[2025-05-31T13:30:07.362Z] 💰 No currency found in: "Total interest"
-[2025-05-31T13:30:07.362Z] 🎯 Extracting value from "R88 333,73" (type: currency)
-[2025-05-31T13:30:07.362Z] 💰 Extracted currency: "R88 333,73" → "R88 333,73" → 88333.73
-[2025-05-31T13:30:07.363Z] 💰 Table 2 extracted: 88333.73 from "R88 333,73"
-[2025-05-31T13:30:07.364Z] 🎯 Extracting value from "Total interest, fees and credit life" (type: currency)
-[2025-05-31T13:30:07.365Z] 💰 No currency found in: "Total interest, fees and credit life"
-[2025-05-31T13:30:07.365Z] 🎯 Extracting value from "insurance R14,78" (type: currency)
-[2025-05-31T13:30:07.365Z] 💰 Extracted currency: "insurance R14,78" → "R14,78" → 14.78
-[2025-05-31T13:30:07.365Z] 💰 Table 2 extracted: 14.78 from "insurance R14,78"
-[2025-05-31T13:30:07.366Z] 🎯 Extracting value from "R111 761,33" (type: currency)
-[2025-05-31T13:30:07.366Z] 💰 Extracted currency: "R111 761,33" → "R111 761,33" → 111761.33
-[2025-05-31T13:30:07.367Z] 💰 Table 2 extracted: 111761.33 from "R111 761,33"
-[2025-05-31T13:30:07.367Z] 🎯 Extracting value from "Monthly instalment (including interest, R3 393,49" (type: currency)
-[2025-05-31T13:30:07.367Z] 💰 Extracted currency: "Monthly instalment (including interest, R3 393,49" → "R3 393,49" → 3393.49
-[2025-05-31T13:30:07.367Z] 💰 Table 2 extracted: 3393.49 from "Monthly instalment (including interest, R3 393,49"
-[2025-05-31T13:30:07.368Z] 🎯 Extracting value from "Number of monthly instalments" (type: currency)
-[2025-05-31T13:30:07.368Z] 💰 No currency found in: "Number of monthly instalments"
-[2025-05-31T13:30:07.368Z] 🎯 Extracting value from "60" (type: currency)
-[2025-05-31T13:30:07.368Z] 💰 No currency found in: "60"
-[2025-05-31T13:30:07.368Z] 🎯 Extracting value from "Total of all monthly instalments" (type: currency)
-[2025-05-31T13:30:07.368Z] 💰 No currency found in: "Total of all monthly instalments"
-[2025-05-31T13:30:07.368Z] 🎯 Extracting value from "(including interest, fees and credit life R203 609,40" (type: currency)
-[2025-05-31T13:30:07.368Z] 💰 Extracted currency: "(including interest, fees and credit life R203 609,40" → "R203 609,40" → 203609.4
-[2025-05-31T13:30:07.368Z] 💰 Table 2 extracted: 203609.4 from "(including interest, fees and credit life R203 609,40"
-[2025-05-31T13:30:07.369Z] 🎯 Extracting value from "insurance)" (type: currency)
-[2025-05-31T13:30:07.369Z] 💰 No currency found in: "insurance)"
-[2025-05-31T13:30:07.369Z] 🎯 Extracting value from "Credit cost multiple (ratio of total cost" (type: currency)
-[2025-05-31T13:30:07.369Z] 💰 No currency found in: "Credit cost multiple (ratio of total cost"
-[2025-05-31T13:30:07.369Z] 🎯 Extracting value from "of credit to be paid out to credit amount) 2.25" (type: currency)
-[2025-05-31T13:30:07.369Z] 💰 No currency found in: "of credit to be paid out to credit amount) 2.25"
-[2025-05-31T13:30:07.369Z] 🎯 Extracting value from "Annual interest rate - fixed" (type: currency)
-[2025-05-31T13:30:07.369Z] 💰 No currency found in: "Annual interest rate - fixed"
-[2025-05-31T13:30:07.369Z] 🎯 Extracting value from "29.25%" (type: currency)
-[2025-05-31T13:30:07.369Z] 💰 No currency found in: "29.25%"
-[2025-05-31T13:30:07.369Z] 🎯 Extracting value from "Merchant/Consultant no" (type: currency)
-[2025-05-31T13:30:07.369Z] 💰 No currency found in: "Merchant/Consultant no"
-[2025-05-31T13:30:07.369Z] 🎯 Extracting value from "NB306504" (type: currency)
-[2025-05-31T13:30:07.369Z] 💰 No currency found in: "NB306504"
-[2025-05-31T13:30:07.369Z] 📊 Multi-table extraction complete: Found 11 total values
-[2025-05-31T13:30:07.369Z] 🔍 Checking 11 values for exact match to: 3393.49
-[2025-05-31T13:30:07.370Z] 🎯 Validating: found=31328.93, expected=3393.49, type=currency
-[2025-05-31T13:30:07.370Z] 💰 Currency/Percentage validation: diff=27935.44, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.370Z]    📊 Table 1: 31328.93 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.370Z] 🎯 Validating: found=48143.93, expected=3393.49, type=currency
-[2025-05-31T13:30:07.370Z] 💰 Currency/Percentage validation: diff=44750.44, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.370Z]    📊 Table 1: 48143.93 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.371Z] 🎯 Validating: found=139992, expected=3393.49, type=currency
-[2025-05-31T13:30:07.371Z] 💰 Currency/Percentage validation: diff=136598.51, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.371Z]    📊 Table 1: 139992 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.371Z] 🎯 Validating: found=3587, expected=3393.49, type=currency
-[2025-05-31T13:30:07.371Z] 💰 Currency/Percentage validation: diff=193.51, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.371Z]    📊 Table 2: 3587 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.371Z] 🎯 Validating: found=3089, expected=3393.49, type=currency
-[2025-05-31T13:30:07.371Z] 💰 Currency/Percentage validation: diff=304.49, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.371Z]    📊 Table 2: 3089 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.372Z] 🎯 Validating: found=1500, expected=3393.49, type=currency
-[2025-05-31T13:30:07.372Z] 💰 Currency/Percentage validation: diff=1893.49, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.372Z]    📊 Table 2: 1500 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.372Z] 🎯 Validating: found=88333.73, expected=3393.49, type=currency
-[2025-05-31T13:30:07.372Z] 💰 Currency/Percentage validation: diff=84940.24, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.372Z]    📊 Table 2: 88333.73 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.372Z] 🎯 Validating: found=14.78, expected=3393.49, type=currency
-[2025-05-31T13:30:07.372Z] 💰 Currency/Percentage validation: diff=3378.71, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.372Z]    📊 Table 2: 14.78 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.373Z] 🎯 Validating: found=111761.33, expected=3393.49, type=currency
-[2025-05-31T13:30:07.373Z] 💰 Currency/Percentage validation: diff=108367.84, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.373Z]    📊 Table 2: 111761.33 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.373Z] 🎯 Validating: found=3393.49, expected=3393.49, type=currency
-[2025-05-31T13:30:07.373Z] 💰 Currency/Percentage validation: diff=0.00, tolerance=0.05, valid=true, confidence=1.00
-[2025-05-31T13:30:07.373Z]    📊 Table 2: 3393.49 → exact match: true (confidence: 100.0%)
-[2025-05-31T13:30:07.374Z] 🎯 Validating: found=203609.4, expected=3393.49, type=currency
-[2025-05-31T13:30:07.374Z] 💰 Currency/Percentage validation: diff=200215.91, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.374Z]    📊 Table 2: 203609.4 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.374Z] ✅ Found exact match in table 2: 3393.49
-[2025-05-31T13:30:07.374Z] ✅ VALID instalment: Found=3393.49, Expected=3393.49, Confidence=100%
-[2025-05-31T13:30:07.375Z] 
+[2025-06-02T04:14:21.745Z] 📄 Document type: Scanned PDF
+[2025-06-02T04:14:21.745Z] 📊 Pages found: 5
+[2025-06-02T04:14:21.746Z] 🖼️  Processing scanned PDF with enhanced OCR pipeline
+[2025-06-02T04:14:24.390Z] 📄 Extracted 5 pages from PDF
+[2025-06-02T04:14:24.391Z] 💾 Saving 5 original page images to disk
+[2025-06-02T04:14:24.394Z] 💾 Original page 1 saved: debug_scanned-application_page1_original.png
+[2025-06-02T04:14:24.406Z] 💾 Original page 2 saved: debug_scanned-application_page2_original.png
+[2025-06-02T04:14:24.408Z] 💾 Original page 3 saved: debug_scanned-application_page3_original.png
+[2025-06-02T04:14:24.414Z] 💾 Original page 4 saved: debug_scanned-application_page4_original.png
+[2025-06-02T04:14:24.417Z] 💾 Original page 5 saved: debug_scanned-application_page5_original.png
+[2025-06-02T04:14:24.417Z] ✅ All 5 original pages saved successfully
+[2025-06-02T04:14:24.418Z] 🔍 Performing enhanced OCR with digital PDF compatibility
+[2025-06-02T04:14:24.419Z] 🎨 Preprocessing image for optimal OCR quality (Simplified approach)
+[2025-06-02T04:14:24.499Z] 💾 Enhanced image saved: debug_scanned-application_page1_enhanced.png
+[2025-06-02T04:14:24.536Z] 📐 Enhanced image: 1786x2527 (2x scale)
+[2025-06-02T04:14:24.536Z] 🎯 ImageData for Tesseract: 1786x2527, buffer=18052888 bytes
+[2025-06-02T04:14:24.536Z] 🔍 Expected buffer size: 18052888 bytes (RGBA)
+[2025-06-02T04:14:24.536Z] 🎯 About to load image into Tesseract:
+[2025-06-02T04:14:24.536Z]    - Width: 1786
+[2025-06-02T04:14:24.536Z]    - Height: 2527
+[2025-06-02T04:14:24.536Z]    - Buffer length: 18052888
+[2025-06-02T04:14:24.536Z]    - Expected length: 18052888
+[2025-06-02T04:14:24.562Z] ✅ Image successfully loaded into Tesseract
+[2025-06-02T04:14:28.713Z] 📦 Tesseract found 559 raw text boxes
+[2025-06-02T04:14:28.718Z] 🔄 Normalizing 559 OCR boxes to digital PDF format
+[2025-06-02T04:14:28.719Z] 💰 Financial box found: "10017007279" at (1306.0, 345.0) conf: 0.9643839001655579%
+[2025-06-02T04:14:28.719Z] 💰 Financial box found: "0768323073" at (1049.0, 536.0) conf: 0.9613984823226929%
+[2025-06-02T04:14:28.720Z] 💰 Financial box found: "R147" at (525.0, 1514.0) conf: 0.8301063776016235%
+[2025-06-02T04:14:28.720Z] 💰 Financial box found: "R42" at (1303.0, 1516.0) conf: 0.08351501822471619%
+[2025-06-02T04:14:28.720Z] 💰 Financial box found: "R5" at (1302.0, 1691.0) conf: 0.5982699394226074%
+[2025-06-02T04:14:28.720Z] 💰 Financial box found: "{R326" at (1301.0, 1865.0) conf: 0.6415623426437378%
+[2025-06-02T04:14:28.720Z] 💰 Financial box found: "R1" at (523.0, 1951.0) conf: 0.2057497352361679%
+[2025-06-02T04:14:28.720Z] 💰 Financial box found: "29.25%" at (1300.0, 2039.0) conf: 0.7382202744483948%
+[2025-06-02T04:14:28.720Z] ✅ Normalized 559 boxes to digital PDF format
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
+[2025-06-02T04:14:28.720Z] ✅ Filtered to 497 quality boxes (89% retention)
+[2025-06-02T04:14:28.721Z] 📦 OCR extracted 497 bounding boxes
+[2025-06-02T04:14:28.734Z] 🔧 Merged into 168 consolidated boxes
+[2025-06-02T04:14:28.737Z] 🎯 Starting spatial field search with PAQ.js mapping
+[2025-06-02T04:14:28.737Z] 🔍 Found 1 boxes containing case ID "10017007279"
+[2025-06-02T04:14:28.738Z] 
+🔍 Processing: caseId (expected: 10017007279)
+[2025-06-02T04:14:28.738Z] 📋 Search labels: [Case reference no]
+[2025-06-02T04:14:28.739Z] 🎯 Extracting value from "10017007279" (type: reference)
+[2025-06-02T04:14:28.739Z] 🔢 Extracted number: "10017007279"
+[2025-06-02T04:14:28.739Z] ✅ Direct case ID match: "10017007279"
+[2025-06-02T04:14:28.739Z] 🎯 Validating: found=10017007279, expected=10017007279, type=reference
+[2025-06-02T04:14:28.739Z] 🔢 Reference validation: "10017007279" === "10017007279" → true
+[2025-06-02T04:14:28.739Z] ✅ VALID caseId: Found=10017007279, Expected=10017007279, Confidence=100%
+[2025-06-02T04:14:28.740Z] 
+🔍 Processing: loanAmount (expected: 147126.55)
+[2025-06-02T04:14:28.740Z] 📋 Search labels: [Payout amount]
+[2025-06-02T04:14:28.740Z] 📊 Multi-table check: loanAmount, isFinancial: false, isStaff: false
+[2025-06-02T04:14:28.741Z] 🏷️  Searching for labels: [Payout amount]
+[2025-06-02T04:14:28.744Z] 🔍 Trying pattern: "Payout amount"
+[2025-06-02T04:14:28.745Z] 🎯 Match: "Payout amount." (score: 0.950, type: prefix) for "Payout amount"
+[2025-06-02T04:14:28.745Z] ✅ Best label match: "Payout amount." (score: 0.950)
+[2025-06-02T04:14:28.745Z] ✅ Label found: "Payout amount." (confidence: 95.0%)
+[2025-06-02T04:14:28.746Z] 🎯 Using DIRECT VALUE MATCHING for: 147126.55
+[2025-06-02T04:14:28.746Z] 🏷️  Label: "Payout amount." at (148, 1514) on page 0
+[2025-06-02T04:14:28.746Z] 🎯 Extracting value from "Payout amount." (type: currency)
+[2025-06-02T04:14:28.746Z] 💰 No currency found in: "Payout amount."
+[2025-06-02T04:14:28.746Z] 📏 Line spacing calculation: 155 Y positions, 94 valid gaps, median: 16
+[2025-06-02T04:14:28.746Z] 📦 Focused area: 8 boxes to check
+[2025-06-02T04:14:28.746Z] 🎯 Extracting value from "PERSONAL LOAN PRE-AGREEMENT STATEMENT AND QUOTATION SUMMARY MONTHLY RESPONSIBILITIES." (type: currency)
+[2025-06-02T04:14:28.747Z] 💰 No currency found in: "PERSONAL LOAN PRE-AGREEMENT STATEMENT AND QUOTATION SUMMARY MONTHLY RESPONSIBILITIES."
+[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "-" (type: currency)
+[2025-06-02T04:14:28.747Z] 💰 No currency found in: "-"
+[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "Payout amount." (type: currency)
+[2025-06-02T04:14:28.747Z] 💰 No currency found in: "Payout amount."
+[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "R147 126,58" (type: currency)
+[2025-06-02T04:14:28.747Z] 💰 Extracted currency: "R147 126,58" → "R147 126,58" → 147126.58
+[2025-06-02T04:14:28.747Z] 🎯 Validating: found=147126.58, expected=147126.55, type=currency
+[2025-06-02T04:14:28.747Z] 💰 Currency/Percentage validation: diff=0.03, tolerance=0.05, valid=true, confidence=1.00
+[2025-06-02T04:14:28.747Z] 💰 Extracted from "R147 126,58": 147126.58 → Match: true (confidence: 100.0%)
+[2025-06-02T04:14:28.747Z] 🎉 ✅ EXACT MATCH FOUND: 147126.58 at (525.0, 1514.0)
+[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "as |" (type: currency)
+[2025-06-02T04:14:28.747Z] 💰 No currency found in: "as |"
+[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "Split ‘ payout: To merchant" (type: currency)
+[2025-06-02T04:14:28.747Z] 💰 No currency found in: "Split ‘ payout: To merchant"
+[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "Refer to SPOA" (type: currency)
+[2025-06-02T04:14:28.747Z] 💰 No currency found in: "Refer to SPOA"
+[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "[" (type: currency)
+[2025-06-02T04:14:28.747Z] 💰 No currency found in: "["
+[2025-06-02T04:14:28.747Z] 🏆 Found 1 exact matches, selecting best positioned:
+[2025-06-02T04:14:28.747Z] 🏆 WINNER: "R147 126,58" → 147126.58 at (525.0, 1514.0)
+[2025-06-02T04:14:28.747Z]    📊 sameLine:true, toRight:true, confidence:100.0%
+[2025-06-02T04:14:28.747Z] ✅ Value found: "R147 126,58"
+[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "R147 126,58" (type: currency)
+[2025-06-02T04:14:28.747Z] 💰 Extracted currency: "R147 126,58" → "R147 126,58" → 147126.58
+[2025-06-02T04:14:28.747Z] 🎯 Validating: found=147126.58, expected=147126.55, type=currency
+[2025-06-02T04:14:28.747Z] 💰 Currency/Percentage validation: diff=0.03, tolerance=0.05, valid=true, confidence=1.00
+[2025-06-02T04:14:28.747Z] ✅ VALID loanAmount: Found=147126.58, Expected=147126.55, Confidence=100%
+[2025-06-02T04:14:28.748Z] 
+🔍 Processing: instalment (expected: 5436.68)
+[2025-06-02T04:14:28.748Z] 📋 Search labels: [Monthly instalment (including interest]
+[2025-06-02T04:14:28.748Z] 📊 Multi-table check: instalment, isFinancial: true, isStaff: false
+[2025-06-02T04:14:28.749Z] 🏷️  Searching for labels: [Monthly instalment (including interest]
+[2025-06-02T04:14:28.749Z] 🔍 Trying pattern: "Monthly instalment (including interest"
+[2025-06-02T04:14:28.749Z] ❌ No label matches found above threshold
+[2025-06-02T04:14:28.749Z] ❌ Label not found for instalment
+[2025-06-02T04:14:28.750Z] ❌ Field processing failed for instalment
+[2025-06-02T04:14:28.750Z] 
 🔍 Processing: interestRate (expected: 29.25)
-[2025-05-31T13:30:07.375Z] 📋 Search labels: [Annual interest rate - fixed]
-[2025-05-31T13:30:07.377Z] 📊 Multi-table check: interestRate, isFinancial: false, isStaff: true
-[2025-05-31T13:30:07.377Z] 🏷️  Searching for labels: [Annual interest rate - fixed]
-[2025-05-31T13:30:07.381Z] 🔍 Trying pattern: "Annual interest rate - fixed"
-[2025-05-31T13:30:07.381Z] 🎯 Match: "G1.2.10 Your loan is subject to a fixed interest rate. See 'Annual interest rate - fixed' in the table above." (score: 0.800, type: contains) for "Annual interest rate - fixed"
-[2025-05-31T13:30:07.382Z] 🎯 Match: "Annual interest rate - fixed" (score: 1.000, type: exact) for "Annual interest rate - fixed"
-[2025-05-31T13:30:07.382Z] ✅ Best label match: "Annual interest rate - fixed" (score: 1.000)
-[2025-05-31T13:30:07.382Z] ✅ Label found: "Annual interest rate - fixed" (confidence: 100.0%)
-[2025-05-31T13:30:07.382Z] 🎯 Using DIRECT VALUE MATCHING for: 29.25
-[2025-05-31T13:30:07.382Z] 🏷️  Label: "Annual interest rate - fixed" at (307.418, 723.75) on page 0
-[2025-05-31T13:30:07.382Z] 🎯 Extracting value from "Annual interest rate - fixed" (type: percentage)
-[2025-05-31T13:30:07.382Z] 📏 Line spacing calculation: 51 Y positions, 38 valid gaps, median: 21
-[2025-05-31T13:30:07.382Z] 📦 Focused area: 19 boxes to check
-[2025-05-31T13:30:07.382Z] 🎯 Extracting value from "insurance R14,78" (type: percentage)
-[2025-05-31T13:30:07.382Z] 🎯 Extracting value from "R111 761,33" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "Monthly instalment (including interest, R3 393,49" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "Number of monthly instalments" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "60" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "Total of all monthly instalments" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "(including interest, fees and credit life R203 609,40" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "insurance)" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "Credit cost multiple (ratio of total cost" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "of credit to be paid out to credit amount) 2.25" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "Annual interest rate - fixed" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "29.25%" (type: percentage)
-[2025-05-31T13:30:07.383Z] 📊 Extracted percentage: "29.25%" → 29.25
-[2025-05-31T13:30:07.383Z] 🎯 Validating: found=29.25, expected=29.25, type=percentage
-[2025-05-31T13:30:07.383Z] 💰 Currency/Percentage validation: diff=0.00, tolerance=0.01, valid=true, confidence=1.00
-[2025-05-31T13:30:07.383Z] 💰 Extracted from "29.25%": 29.25 → Match: true (confidence: 100.0%)
-[2025-05-31T13:30:07.383Z] 🎉 ✅ EXACT MATCH FOUND: 29.25 at (449.1, 723.8)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "Merchant/Consultant no" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "NB306504" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "Name and surname" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "Sindy Gosa" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "NB306504 - 18/9/2023 12:18:26" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "PreAgreementQuote" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "Staff-assisted PAQ" (type: percentage)
-[2025-05-31T13:30:07.383Z] 🏆 Found 1 exact matches, selecting best positioned:
-[2025-05-31T13:30:07.383Z] 🏆 WINNER: "29.25%" → 29.25 at (449.1, 723.8)
-[2025-05-31T13:30:07.383Z]    📊 sameLine:true, toRight:true, confidence:100.0%
-[2025-05-31T13:30:07.383Z] ✅ Value found: "29.25%"
-[2025-05-31T13:30:07.383Z] 🎯 Extracting value from "29.25%" (type: percentage)
-[2025-05-31T13:30:07.383Z] 📊 Extracted percentage: "29.25%" → 29.25
-[2025-05-31T13:30:07.383Z] 🎯 Validating: found=29.25, expected=29.25, type=percentage
-[2025-05-31T13:30:07.383Z] 💰 Currency/Percentage validation: diff=0.00, tolerance=0.01, valid=true, confidence=1.00
-[2025-05-31T13:30:07.383Z] ✅ VALID interestRate: Found=29.25, Expected=29.25, Confidence=100%
-[2025-05-31T13:30:07.383Z] 
-🔍 Processing: insurancePremium (expected: 321.46)
-[2025-05-31T13:30:07.383Z] 📋 Search labels: [Credit life insurance (included in]
-[2025-05-31T13:30:07.384Z] 📊 Multi-table check: insurancePremium, isFinancial: true, isStaff: true
-[2025-05-31T13:30:07.384Z] 🏦 Attempting multi-table search for insurancePremium
-[2025-05-31T13:30:07.384Z] 🏦 Processing multi-table field: insurancePremium (Staff: Yes)
-[2025-05-31T13:30:07.384Z] 🎯 Using DIRECT VALUE MATCHING approach for expected: 321.46
-[2025-05-31T13:30:07.385Z] 🏷️  Searching for ALL label instances: [Credit life insurance (included in]
-[2025-05-31T13:30:07.385Z] 🔍 Searching for pattern: "Credit life insurance (included in"
-[2025-05-31T13:30:07.385Z] 🎯 Found label instance: "(b) It is to your benefit to make payments on or before the instalment due date. Credit life insurance (included in" (score: 0.800, type: contains)
-[2025-05-31T13:30:07.386Z] 🎯 Found label instance: "Credit life insurance (included in the R211,25" (score: 0.950, type: prefix)
-[2025-05-31T13:30:07.387Z] ✅ Total label instances found: 2
-[2025-05-31T13:30:07.387Z] 📊 Found 2 label instances for insurancePremium
-[2025-05-31T13:30:07.388Z] 📋 Processing label instance 1: "(b) It is to your benefit to make payments on or before the instalment due date. Credit life insurance (included in"
-[2025-05-31T13:30:07.389Z] 📏 Line spacing calculation: 58 Y positions, 54 valid gaps, median: 9
-[2025-05-31T13:30:07.389Z] 📦 Label 1 focused area: 9 boxes to check
-[2025-05-31T13:30:07.389Z] 🎯 Extracting value from "(b) It is to your benefit to make payments on or before the instalment due date. Credit life insurance (included in" (type: currency)
-[2025-05-31T13:30:07.389Z] 💰 No currency found in: "(b) It is to your benefit to make payments on or before the instalment due date. Credit life insurance (included in"
-[2025-05-31T13:30:07.389Z] 🎯 Extracting value from "(c) physical address, we will continue to use the last address given, even though the information may be incorrect." (type: currency)
-[2025-05-31T13:30:07.389Z] 💰 No currency found in: "(c) physical address, we will continue to use the last address given, even though the information may be incorrect."
-[2025-05-31T13:30:07.389Z] 🎯 Extracting value from "(d) OR G1.2.6 You must read the quotation, agreement and debit order authority together." (type: currency)
-[2025-05-31T13:30:07.389Z] 💰 No currency found in: "(d) OR G1.2.6 You must read the quotation, agreement and debit order authority together."
-[2025-05-31T13:30:07.389Z] 🎯 Extracting value from "(e) ** If you have chosen to pay the initiation fee upfront, which will reduce the total interest amount that you have to pay, you can do so within five days after we" (type: currency)
-[2025-05-31T13:30:07.389Z] 💰 No currency found in: "(e) ** If you have chosen to pay the initiation fee upfront, which will reduce the total interest amount that you have to pay, you can do so within five days after we"
-[2025-05-31T13:30:07.389Z] 🎯 Extracting value from "The debit order will show on your bank statement as `NEDBPL', combined with your loan account number." (type: currency)
-[2025-05-31T13:30:07.389Z] 💰 No currency found in: "The debit order will show on your bank statement as `NEDBPL', combined with your loan account number."
-[2025-05-31T13:30:07.389Z] 🎯 Extracting value from "(f) DECLARATION IF YOU ARE NOT MARRIED IN COMMUNITY OF PROPERTY ." (type: currency)
-[2025-05-31T13:30:07.389Z] 💰 No currency found in: "(f) DECLARATION IF YOU ARE NOT MARRIED IN COMMUNITY OF PROPERTY ."
-[2025-05-31T13:30:07.389Z] 🎯 Extracting value from "date falls on a Saturday, Sunday or public holiday) (changed debit order date). Quote ref number" (type: currency)
-[2025-05-31T13:30:07.389Z] 💰 No currency found in: "date falls on a Saturday, Sunday or public holiday) (changed debit order date). Quote ref number"
-[2025-05-31T13:30:07.389Z] 🎯 Extracting value from "(g) any agreement(s) following the approval of your application." (type: currency)
-[2025-05-31T13:30:07.390Z] 💰 No currency found in: "(g) any agreement(s) following the approval of your application."
-[2025-05-31T13:30:07.390Z] 🎯 Extracting value from "(h) · You must ensure that your account is accessible and that there is enough money in your account to cover the amount or the maximum amount, and you" (type: currency)
-[2025-05-31T13:30:07.390Z] 💰 No currency found in: "(h) · You must ensure that your account is accessible and that there is enough money in your account to cover the amount or the maximum amount, and you"
-[2025-05-31T13:30:07.390Z] 📋 Processing label instance 2: "Credit life insurance (included in the R211,25"
-[2025-05-31T13:30:07.390Z] 📏 Line spacing calculation: 58 Y positions, 42 valid gaps, median: 17
-[2025-05-31T13:30:07.390Z] 📦 Label 2 focused area: 12 boxes to check
-[2025-05-31T13:30:07.390Z] 🎯 Extracting value from "Number of monthly instalments" (type: currency)
-[2025-05-31T13:30:07.390Z] 💰 No currency found in: "Number of monthly instalments"
-[2025-05-31T13:30:07.390Z] 🎯 Extracting value from "60" (type: currency)
-[2025-05-31T13:30:07.390Z] 💰 No currency found in: "60"
-[2025-05-31T13:30:07.390Z] 🎯 Extracting value from "Total of all monthly instalments" (type: currency)
-[2025-05-31T13:30:07.390Z] 💰 No currency found in: "Total of all monthly instalments"
-[2025-05-31T13:30:07.390Z] 🎯 Extracting value from "(including interest, fees and credit life R139 992,00 3 411,58" (type: currency)
-[2025-05-31T13:30:07.390Z] 💰 Extracted currency: "(including interest, fees and credit life R139 992,00 3 411,58" → "R139 992,00" → 139992
-[2025-05-31T13:30:07.390Z] 💰 Table 2 extracted: 139992 from "(including interest, fees and credit life R139 992,00 3 411,58"
-[2025-05-31T13:30:07.390Z] 🎯 Extracting value from "insurance)" (type: currency)
-[2025-05-31T13:30:07.390Z] 💰 No currency found in: "insurance)"
-[2025-05-31T13:30:07.390Z] 🎯 Extracting value from "Credit cost multiple (ratio of total cost" (type: currency)
-[2025-05-31T13:30:07.390Z] 💰 No currency found in: "Credit cost multiple (ratio of total cost"
-[2025-05-31T13:30:07.390Z] 🎯 Extracting value from "of credit to be paid out to credit amount) 1.54" (type: currency)
-[2025-05-31T13:30:07.390Z] 💰 No currency found in: "of credit to be paid out to credit amount) 1.54"
-[2025-05-31T13:30:07.390Z] 🎯 Extracting value from "Annual interest rate - variable linked to 11.75%" (type: currency)
-[2025-05-31T13:30:07.390Z] 💰 No currency found in: "Annual interest rate - variable linked to 11.75%"
-[2025-05-31T13:30:07.390Z] 🎯 Extracting value from "prime" (type: currency)
-[2025-05-31T13:30:07.390Z] 💰 No currency found in: "prime"
-[2025-05-31T13:30:07.390Z] 🎯 Extracting value from "Credit life insurance (included in the R211,25" (type: currency)
-[2025-05-31T13:30:07.390Z] 💰 Extracted currency: "Credit life insurance (included in the R211,25" → "R211,25" → 211.25
-[2025-05-31T13:30:07.391Z] 💰 Table 2 extracted: 211.25 from "Credit life insurance (included in the R211,25"
-[2025-05-31T13:30:07.391Z] 🎯 Extracting value from "instalment)" (type: currency)
-[2025-05-31T13:30:07.391Z] 💰 No currency found in: "instalment)"
-[2025-05-31T13:30:07.391Z] 🎯 Extracting value from "R196,47" (type: currency)
-[2025-05-31T13:30:07.391Z] 💰 Extracted currency: "R196,47" → "R196,47" → 196.47
-[2025-05-31T13:30:07.391Z] 💰 Table 2 extracted: 196.47 from "R196,47"
-[2025-05-31T13:30:07.391Z] 📊 Multi-table extraction complete: Found 3 total values
-[2025-05-31T13:30:07.392Z] 🔍 Checking 3 values for exact match to: 321.46
-[2025-05-31T13:30:07.392Z] 🎯 Validating: found=139992, expected=321.46, type=currency
-[2025-05-31T13:30:07.392Z] 💰 Currency/Percentage validation: diff=139670.54, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.393Z]    📊 Table 2: 139992 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.393Z] 🎯 Validating: found=211.25, expected=321.46, type=currency
-[2025-05-31T13:30:07.393Z] 💰 Currency/Percentage validation: diff=110.21, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.393Z]    📊 Table 2: 211.25 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.393Z] 🎯 Validating: found=196.47, expected=321.46, type=currency
-[2025-05-31T13:30:07.393Z] 💰 Currency/Percentage validation: diff=124.99, tolerance=0.05, valid=false, confidence=0.00
-[2025-05-31T13:30:07.393Z]    📊 Table 2: 196.47 → exact match: false (confidence: 0.0%)
-[2025-05-31T13:30:07.394Z] ⚠️  No exact match found for 321.46. Applying staff logic...
-[2025-05-31T13:30:07.395Z] ✅ Staff logic: Accepting table 2 value: 211.25 (expected 321.46)
-[2025-05-31T13:30:07.396Z] ✅ VALID insurancePremium: Found=211.25, Expected=321.46, Confidence=85%
-[2025-05-31T13:30:07.397Z] 
-🔍 Processing: collectionAccountNo (expected: 1148337962)
-[2025-05-31T13:30:07.397Z] 📋 Search labels: [Account number]
-[2025-05-31T13:30:07.398Z] 📊 Multi-table check: collectionAccountNo, isFinancial: false, isStaff: true
-[2025-05-31T13:30:07.398Z] 🏷️  Searching for labels: [Account number]
-[2025-05-31T13:30:07.400Z] 🔍 Trying pattern: "Account number"
-[2025-05-31T13:30:07.401Z] 🎯 Match: "The debit order will show on your bank statement as `NEDBPL', combined with your loan account number." (score: 0.800, type: contains) for "Account number"
-[2025-05-31T13:30:07.402Z] 🎯 Match: "Account number 1148337962" (score: 0.950, type: prefix) for "Account number"
-[2025-05-31T13:30:07.403Z] ✅ Best label match: "Account number 1148337962" (score: 0.950)
-[2025-05-31T13:30:07.403Z] ✅ Label found: "Account number 1148337962" (confidence: 95.0%)
-[2025-05-31T13:30:07.403Z] 🎯 Using DIRECT VALUE MATCHING for: 1148337962
-[2025-05-31T13:30:07.403Z] 🏷️  Label: "Account number 1148337962" at (162.187, 644.828) on page 1
-[2025-05-31T13:30:07.403Z] 🎯 Extracting value from "Account number 1148337962" (type: account)
-[2025-05-31T13:30:07.404Z] 🔢 Extracted number: "1148337962"
-[2025-05-31T13:30:07.404Z] 🎯 Validating: found=1148337962, expected=1148337962, type=account
-[2025-05-31T13:30:07.404Z] 🏦 Account validation: diff=0, tolerance=1, valid=true, confidence=1.00
-[2025-05-31T13:30:07.404Z] 💡 ✅ EXACT MATCH in label: 1148337962 matches expected 1148337962
-[2025-05-31T13:30:07.404Z] ✅ Value found: "Account number 1148337962"
-[2025-05-31T13:30:07.404Z] 🎯 Extracting value from "Account number 1148337962" (type: account)
-[2025-05-31T13:30:07.404Z] 🔢 Extracted number: "1148337962"
-[2025-05-31T13:30:07.404Z] 🎯 Validating: found=1148337962, expected=1148337962, type=account
-[2025-05-31T13:30:07.404Z] 🏦 Account validation: diff=0, tolerance=1, valid=true, confidence=1.00
-[2025-05-31T13:30:07.404Z] ✅ VALID collectionAccountNo: Found=1148337962, Expected=1148337962, Confidence=100%
-[2025-05-31T13:30:07.405Z] 
+[2025-06-02T04:14:28.751Z] 📋 Search labels: [Annual interest rate - fixed]
+[2025-06-02T04:14:28.751Z] 📊 Multi-table check: interestRate, isFinancial: false, isStaff: false
+[2025-06-02T04:14:28.751Z] 🏷️  Searching for labels: [Annual interest rate - fixed]
+[2025-06-02T04:14:28.752Z] 🔍 Trying pattern: "Annual interest rate - fixed"
+[2025-06-02T04:14:28.752Z] ❌ No label matches found above threshold
+[2025-06-02T04:14:28.752Z] ❌ Label not found for interestRate
+[2025-06-02T04:14:28.753Z] ❌ Field processing failed for interestRate
+[2025-06-02T04:14:28.753Z] 
+🔍 Processing: insurancePremium (expected: 519.16)
+[2025-06-02T04:14:28.753Z] 📋 Search labels: [Credit life insurance (included in]
+[2025-06-02T04:14:28.754Z] 📊 Multi-table check: insurancePremium, isFinancial: true, isStaff: false
+[2025-06-02T04:14:28.754Z] 🏷️  Searching for labels: [Credit life insurance (included in]
+[2025-06-02T04:14:28.754Z] 🔍 Trying pattern: "Credit life insurance (included in"
+[2025-06-02T04:14:28.755Z] ❌ No label matches found above threshold
+[2025-06-02T04:14:28.755Z] ❌ Label not found for insurancePremium
+[2025-06-02T04:14:28.755Z] ❌ Field processing failed for insurancePremium
+[2025-06-02T04:14:28.755Z] 
+🔍 Processing: collectionAccountNo (expected: 1171851065)
+[2025-06-02T04:14:28.756Z] 📋 Search labels: [Account number]
+[2025-06-02T04:14:28.756Z] 📊 Multi-table check: collectionAccountNo, isFinancial: false, isStaff: false
+[2025-06-02T04:14:28.756Z] 🏷️  Searching for labels: [Account number]
+[2025-06-02T04:14:28.756Z] 🔍 Trying pattern: "Account number"
+[2025-06-02T04:14:28.757Z] ❌ No label matches found above threshold
+[2025-06-02T04:14:28.757Z] ❌ Label not found for collectionAccountNo
+[2025-06-02T04:14:28.757Z] ❌ Field processing failed for collectionAccountNo
+[2025-06-02T04:14:28.758Z] 
 📊 PROCESSING SUMMARY
-[2025-05-31T13:30:07.405Z] Bounding boxes: 649 → 444 (merged)
-[2025-05-31T13:30:07.406Z] Fields processed: 6
-[2025-05-31T13:30:07.406Z] Fields found: 6/6
-[2025-05-31T13:30:07.408Z] Fields valid: 6/6
-[2025-05-31T13:30:07.409Z] Success rate: 100%
+[2025-06-02T04:14:28.758Z] Bounding boxes: 497 → 168 (merged)
+[2025-06-02T04:14:28.758Z] Fields processed: 6
+[2025-06-02T04:14:28.759Z] Fields found: 2/6
+[2025-06-02T04:14:28.759Z] Fields valid: 2/2
+[2025-06-02T04:14:28.759Z] Success rate: 33%
 
 ============================================================
 DEBUG LOG SUMMARY
 ============================================================
-Total bounding boxes: 649
-Merged boxes: 444
+Total bounding boxes: 497
+Merged boxes: 168
 Fields processed: 6
-Fields found: 6
-Fields valid: 6
-Success rate: 100%
+Fields found: 2
+Fields valid: 2
+Success rate: 33%
 ============================================================

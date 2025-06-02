@@ -1,0 +1,77 @@
+{
+  "status": "INVALID",
+  "confidence": 0.3333333333333333,
+  "fields": {
+    "caseId": {
+      "found": "10017007279",
+      "expected": "10017007279",
+      "valid": true,
+      "confidence": 1,
+      "valueBox": {
+        "text": "10017007279",
+        "x": 1306,
+        "y": 345,
+        "width": 139,
+        "height": 19,
+        "pageIndex": 0,
+        "pageWidth": 1786,
+        "pageHeight": 2527,
+        "boxIndex": 26,
+        "confidence": 0.9643839001655579,
+        "source": "ocr",
+        "ocrQuality": "poor"
+      },
+      "method": "direct_match"
+    },
+    "loanAmount": {
+      "found": 147126.58,
+      "expected": 147126.55,
+      "valid": true,
+      "confidence": 0.9999997960939069,
+      "labelBox": {
+        "text": "Payout amount.",
+        "x": 148,
+        "y": 1514,
+        "width": 137,
+        "height": 17,
+        "pageIndex": 0,
+        "pageWidth": 1786,
+        "pageHeight": 2527,
+        "boxIndex": 344,
+        "confidence": 0.9617359042167664,
+        "source": "ocr",
+        "ocrQuality": "poor",
+        "matchScore": 0.95,
+        "matchedLabel": "Payout amount",
+        "matchType": "prefix"
+      },
+      "valueBox": {
+        "text": "R147 126,58",
+        "x": 525,
+        "y": 1514,
+        "width": 100,
+        "height": 15,
+        "pageIndex": 0,
+        "pageWidth": 1786,
+        "pageHeight": 2527,
+        "boxIndex": 346,
+        "confidence": 0.8301063776016235,
+        "source": "ocr",
+        "ocrQuality": "mixed_characters"
+      },
+      "method": "direct_value_match"
+    }
+  },
+  "issues": [
+    "Field not found: instalment",
+    "Field not found: interestRate",
+    "Field not found: insurancePremium",
+    "Field not found: collectionAccountNo"
+  ],
+  "summary": {
+    "total": 6,
+    "found": 2,
+    "valid": 2,
+    "confidence": "33%"
+  }
+}
