@@ -252,20 +252,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "Credit",
-    "x": 153,
-    "y": 391,
-    "width": 55,
-    "height": 15,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 27,
-    "confidence": 0.03549201786518097,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "provider",
     "x": 215,
     "y": 393,
@@ -304,20 +290,6 @@
     "pageHeight": 2527,
     "boxIndex": 30,
     "confidence": 0.9571384191513062,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "°",
-    "x": 736,
-    "y": 392,
-    "width": 6,
-    "height": 2,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 31,
-    "confidence": 0.332673579454422,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -388,20 +360,6 @@
     "pageHeight": 2527,
     "boxIndex": 36,
     "confidence": 0.897650957107544,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": ".",
-    "x": 1578,
-    "y": 408,
-    "width": 2,
-    "height": 4,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 37,
-    "confidence": 0.19402122497558594,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -570,20 +528,6 @@
     "pageHeight": 2527,
     "boxIndex": 49,
     "confidence": 0.9355514645576477,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "Se",
-    "x": 341,
-    "y": 460,
-    "width": 492,
-    "height": 8,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 50,
-    "confidence": 0.16624107956886292,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -2632,20 +2576,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "lean",
-    "x": 1120,
-    "y": 834,
-    "width": 38,
-    "height": 14,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 201,
-    "confidence": 0.1441650390625,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "is/are",
     "x": 1164,
     "y": 832,
@@ -2842,20 +2772,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "-",
-    "x": 939,
-    "y": 956,
-    "width": 5,
-    "height": 3,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 219,
-    "confidence": 0.9199846386909485,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "total",
     "x": 951,
     "y": 949,
@@ -2940,20 +2856,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "-",
-    "x": 219,
-    "y": 975,
-    "width": 6,
-    "height": 3,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 226,
-    "confidence": 0.6667442321777344,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "basic",
     "x": 232,
     "y": 969,
@@ -2992,20 +2894,6 @@
     "pageHeight": 2527,
     "boxIndex": 229,
     "confidence": 0.7236766219139099,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "|21000.00",
-    "x": 643,
-    "y": 970,
-    "width": 94,
-    "height": 15,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 230,
-    "confidence": 0.2541382610797882,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -3150,20 +3038,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "-",
-    "x": 220,
-    "y": 1044,
-    "width": 4,
-    "height": 4,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 242,
-    "confidence": 0.8489730358123779,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "permanant",
     "x": 232,
     "y": 1040,
@@ -3174,20 +3048,6 @@
     "pageHeight": 2527,
     "boxIndex": 243,
     "confidence": 0.8509659767150879,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "ailowances.",
-    "x": 337,
-    "y": 1039,
-    "width": 99,
-    "height": 14,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 244,
-    "confidence": 0.1699874848127365,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -3216,20 +3076,6 @@
     "pageHeight": 2527,
     "boxIndex": 246,
     "confidence": 0.6918962001800537,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "-",
-    "x": 939,
-    "y": 1047,
-    "width": 4,
-    "height": 3,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 247,
-    "confidence": 0.9253056049346924,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -3286,34 +3132,6 @@
     "pageHeight": 2527,
     "boxIndex": 251,
     "confidence": 0.9003018140792847,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "Payslip",
-    "x": 147,
-    "y": 1090,
-    "width": 60,
-    "height": 19,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 253,
-    "confidence": 0.19460594654083252,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "~",
-    "x": 217,
-    "y": 1098,
-    "width": 2,
-    "height": 4,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 254,
-    "confidence": 0.3242211937904358,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -3570,20 +3388,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "-",
-    "x": 220,
-    "y": 1182,
-    "width": 4,
-    "height": 3,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 274,
-    "confidence": 0.8679376244544983,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "net",
     "x": 231,
     "y": 1178,
@@ -3678,34 +3482,6 @@
     "pageHeight": 2527,
     "boxIndex": 281,
     "confidence": 0.4298952519893646,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "18",
-    "x": 642,
-    "y": 1175,
-    "width": 19,
-    "height": 15,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 282,
-    "confidence": 0.10896720737218857,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "379.80",
-    "x": 667,
-    "y": 1176,
-    "width": 60,
-    "height": 14,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 283,
-    "confidence": 0.10896720737218857,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -4004,34 +3780,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": ".",
-    "x": 1005,
-    "y": 1381,
-    "width": 3,
-    "height": 3,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 320,
-    "confidence": 0,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "pec}",
-    "x": 1619,
-    "y": 1369,
-    "width": 51,
-    "height": 18,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 321,
-    "confidence": 0.26667869091033936,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "Total",
     "x": 867,
     "y": 1379,
@@ -4116,20 +3864,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "rs",
-    "x": 1615,
-    "y": 1377,
-    "width": 54,
-    "height": 48,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 328,
-    "confidence": 0,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "=o",
     "x": 1619,
     "y": 1417,
@@ -4182,20 +3916,6 @@
     "pageHeight": 2527,
     "boxIndex": 332,
     "confidence": 0.9297938346862793,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "-",
-    "x": 311,
-    "y": 1455,
-    "width": 6,
-    "height": 2,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 333,
-    "confidence": 0.9078269004821777,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -4270,20 +3990,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "-",
-    "x": 896,
-    "y": 1456,
-    "width": 7,
-    "height": 2,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 339,
-    "confidence": 0.9272589087486267,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "MONTHLY",
     "x": 910,
     "y": 1448,
@@ -4308,20 +4014,6 @@
     "pageHeight": 2527,
     "boxIndex": 341,
     "confidence": 0.8852207660675049,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "Bs",
-    "x": 1619,
-    "y": 1451,
-    "width": 6,
-    "height": 11,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 342,
-    "confidence": 0.07496574521064758,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -4424,20 +4116,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "R42",
-    "x": 1303,
-    "y": 1516,
-    "width": 41,
-    "height": 14,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 350,
-    "confidence": 0.08351501822471619,
-    "source": "ocr",
-    "ocrQuality": "mixed_characters"
-  },
-  {
     "text": "§77,15",
     "x": 1351,
     "y": 1516,
@@ -4452,20 +4130,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "as",
-    "x": 532,
-    "y": 1561,
-    "width": 271,
-    "height": 34,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 352,
-    "confidence": 0.21514511108398438,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "|",
     "x": 805,
     "y": 1561,
@@ -4476,48 +4140,6 @@
     "pageHeight": 2527,
     "boxIndex": 353,
     "confidence": 0.8568688035011292,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "|",
-    "x": 1301,
-    "y": 1569,
-    "width": 286,
-    "height": 5,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 354,
-    "confidence": 0.45025044679641724,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "‘",
-    "x": 176,
-    "y": 1600,
-    "width": 2,
-    "height": 3,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 355,
-    "confidence": 0.199462428689003,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "[",
-    "x": 610,
-    "y": 1599,
-    "width": 5,
-    "height": 5,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 356,
-    "confidence": 0,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -4602,20 +4224,6 @@
     "pageHeight": 2527,
     "boxIndex": 362,
     "confidence": 0.9676491618156433,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "fe",
-    "x": 1395,
-    "y": 1585,
-    "width": 12,
-    "height": 28,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 363,
-    "confidence": 0,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -4788,20 +4396,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "cr)",
-    "x": 1616,
-    "y": 1631,
-    "width": 51,
-    "height": 13,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 376,
-    "confidence": 0.2801345884799957,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "st",
     "x": 1616,
     "y": 1646,
@@ -4816,20 +4410,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": ".",
-    "x": 1662,
-    "y": 1648,
-    "width": 5,
-    "height": 8,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 380,
-    "confidence": 0.02758697420358658,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "ae",
     "x": 1616,
     "y": 1661,
@@ -4840,20 +4420,6 @@
     "pageHeight": 2527,
     "boxIndex": 381,
     "confidence": 0.41882288455963135,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": ".",
-    "x": 371,
-    "y": 1690,
-    "width": 4,
-    "height": 3,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 382,
-    "confidence": 0,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -4910,20 +4476,6 @@
     "pageHeight": 2527,
     "boxIndex": 386,
     "confidence": 0.7076573371887207,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "a",
-    "x": 1623,
-    "y": 1689,
-    "width": 7,
-    "height": 3,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 387,
-    "confidence": 0.15053008496761322,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -5124,20 +4676,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "cee",
-    "x": 1612,
-    "y": 1685,
-    "width": 57,
-    "height": 34,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 402,
-    "confidence": 0.0404481515288353,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "|",
     "x": 1297,
     "y": 1721,
@@ -5152,34 +4690,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "=",
-    "x": 1641,
-    "y": 1722,
-    "width": 7,
-    "height": 4,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 404,
-    "confidence": 0.9366409182548523,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "™",
-    "x": 1654,
-    "y": 1733,
-    "width": 7,
-    "height": 6,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 405,
-    "confidence": 0.1498570293188095,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "rk:",
     "x": 1616,
     "y": 1733,
@@ -5190,20 +4700,6 @@
     "pageHeight": 2527,
     "boxIndex": 406,
     "confidence": 0.5136319994926453,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "ee",
-    "x": 428,
-    "y": 1767,
-    "width": 56,
-    "height": 2,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 407,
-    "confidence": 0.2109864056110382,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -5290,20 +4786,6 @@
     "confidence": 0.8623592853546143,
     "source": "ocr",
     "ocrQuality": "poor"
-  },
-  {
-    "text": "|ri4g",
-    "x": 524,
-    "y": 1776,
-    "width": 41,
-    "height": 16,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 414,
-    "confidence": 0.05224296450614929,
-    "source": "ocr",
-    "ocrQuality": "mixed_characters"
   },
   {
     "text": "334.05",
@@ -5404,48 +4886,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "[eed",
-    "x": 1298,
-    "y": 1814,
-    "width": 287,
-    "height": 10,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 422,
-    "confidence": 0.22223731875419617,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "iH",
-    "x": 1615,
-    "y": 1780,
-    "width": 39,
-    "height": 28,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 423,
-    "confidence": 0,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "Paid",
-    "x": 1615,
-    "y": 1828,
-    "width": 52,
-    "height": 16,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 429,
-    "confidence": 0.07388366758823395,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "Totat",
     "x": 917,
     "y": 1842,
@@ -5512,20 +4952,6 @@
     "pageHeight": 2527,
     "boxIndex": 434,
     "confidence": 0.9676058888435364,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "mae",
-    "x": 1615,
-    "y": 1839,
-    "width": 51,
-    "height": 23,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 435,
-    "confidence": 0,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -5726,34 +5152,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "—,",
-    "x": 1534,
-    "y": 1923,
-    "width": 52,
-    "height": 4,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 450,
-    "confidence": 0.5412817597389221,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "|e",
-    "x": 1615,
-    "y": 1909,
-    "width": 51,
-    "height": 23,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 451,
-    "confidence": 0.02997284010052681,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "yee",
     "x": 1640,
     "y": 1932,
@@ -5792,34 +5190,6 @@
     "pageHeight": 2527,
     "boxIndex": 454,
     "confidence": 0.4002079665660858,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "R1",
-    "x": 523,
-    "y": 1951,
-    "width": 17,
-    "height": 14,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 455,
-    "confidence": 0.2057497352361679,
-    "source": "ocr",
-    "ocrQuality": "mixed_characters"
-  },
-  {
-    "text": "207,50",
-    "x": 547,
-    "y": 1951,
-    "width": 62,
-    "height": 15,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 456,
-    "confidence": 0.2057497352361679,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -5978,20 +5348,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "(Oly",
-    "x": 553,
-    "y": 1962,
-    "width": 31,
-    "height": 5,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 468,
-    "confidence": 0.10468200594186783,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "of",
     "x": 916,
     "y": 1964,
@@ -6100,48 +5456,6 @@
     "pageHeight": 2527,
     "boxIndex": 476,
     "confidence": 0.9318041801452637,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "ammount)|\"\"",
-    "x": 1216,
-    "y": 1964,
-    "width": 109,
-    "height": 17,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 477,
-    "confidence": 0,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "ee",
-    "x": 1614,
-    "y": 1972,
-    "width": 52,
-    "height": 16,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 478,
-    "confidence": 0.19606918096542358,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "fo",
-    "x": 1297,
-    "y": 1992,
-    "width": 288,
-    "height": 5,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 479,
-    "confidence": 0.026973647996783257,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -6286,20 +5600,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "-",
-    "x": 1110,
-    "y": 2046,
-    "width": 6,
-    "height": 3,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 490,
-    "confidence": 0.8936892747879028,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "fixed",
     "x": 1124,
     "y": 2040,
@@ -6324,62 +5624,6 @@
     "pageHeight": 2527,
     "boxIndex": 492,
     "confidence": 0.7382202744483948,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "instalment)",
-    "x": 144,
-    "y": 2047,
-    "width": 100,
-    "height": 19,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 493,
-    "confidence": 0.06932762265205383,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "*",
-    "x": 253,
-    "y": 2050,
-    "width": 4,
-    "height": 4,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 494,
-    "confidence": 0.9138360023498535,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "AAR",
-    "x": 1614,
-    "y": 2007,
-    "width": 51,
-    "height": 89,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 497,
-    "confidence": 0.07711341977119446,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "P|",
-    "x": 1613,
-    "y": 2094,
-    "width": 52,
-    "height": 23,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 514,
-    "confidence": 0.11662139743566513,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -6468,20 +5712,6 @@
     "ocrQuality": "mixed_characters"
   },
   {
-    "text": "ae",
-    "x": 1613,
-    "y": 2138,
-    "width": 52,
-    "height": 17,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 521,
-    "confidence": 0.24884605407714844,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "Name",
     "x": 893,
     "y": 2186,
@@ -6552,20 +5782,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "Pau]",
-    "x": 1609,
-    "y": 2170,
-    "width": 60,
-    "height": 42,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 527,
-    "confidence": 0.28297317028045654,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "Ctient",
     "x": 138,
     "y": 2235,
@@ -6576,20 +5792,6 @@
     "pageHeight": 2527,
     "boxIndex": 528,
     "confidence": 0.521781325340271,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "initias",
-    "x": 204,
-    "y": 2238,
-    "width": 54,
-    "height": 15,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 529,
-    "confidence": 0.15906478464603424,
     "source": "ocr",
     "ocrQuality": "poor"
   },
@@ -6634,20 +5836,6 @@
     "confidence": 0.8575996160507202,
     "source": "ocr",
     "ocrQuality": "mixed_characters"
-  },
-  {
-    "text": "-",
-    "x": 1329,
-    "y": 2248,
-    "width": 6,
-    "height": 3,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 533,
-    "confidence": 0.8575996160507202,
-    "source": "ocr",
-    "ocrQuality": "poor"
   },
   {
     "text": "20/9/2023",
@@ -6874,20 +6062,6 @@
     "ocrQuality": "poor"
   },
   {
-    "text": "i",
-    "x": 180,
-    "y": 2317,
-    "width": 4,
-    "height": 11,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 550,
-    "confidence": 0.2335943579673767,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
     "text": "of",
     "x": 190,
     "y": 2316,
@@ -6926,20 +6100,6 @@
     "pageHeight": 2527,
     "boxIndex": 553,
     "confidence": 0.8881961703300476,
-    "source": "ocr",
-    "ocrQuality": "poor"
-  },
-  {
-    "text": "Stalt-asseted",
-    "x": 1454,
-    "y": 2342,
-    "width": 112,
-    "height": 13,
-    "pageIndex": 0,
-    "pageWidth": 1786,
-    "pageHeight": 2527,
-    "boxIndex": 554,
-    "confidence": 0.0524819940328598,
     "source": "ocr",
     "ocrQuality": "poor"
   },

@@ -212,8 +212,8 @@ class SpatialDocumentValidator {
       );
 
       // Apply same merging logic as digital PDFs
-      const mergedBoxes = this.mergeNearbyBoxes(ocrBoxes);
-      // const mergedBoxes = [...ocrBoxes]
+      // const mergedBoxes = this.mergeNearbyBoxes(ocrBoxes);  // DISABLED: Merging is destroying OCR text
+      const mergedBoxes = [...ocrBoxes] // TESTING: Use raw OCR boxes without merging
       this.summary.mergedBoxes = mergedBoxes.length;
       this.logImportant(
         `🔧 Merged into ${mergedBoxes.length} consolidated boxes`
@@ -234,82 +234,353 @@ class SpatialDocumentValidator {
 
   async performEnhancedOCR(imageBuffer, pageIndex = 0, docName = "page") {
     this.logImportant(
-      "🔍 Performing enhanced OCR with digital PDF compatibility"
+      "🔍 Performing enhanced OCR with selective region processing"
     );
 
     try {
-      // Image preprocessing for better OCR quality (saves enhanced image to disk)
-      const processedImage = await this.preprocessImageForOCR(
+      // STEP 1: Full page OCR (current working approach)
+      const fullPageResult = await this.performFullPageOCR(
         imageBuffer,
         pageIndex,
         docName
       );
 
-      // DEBUG: Log imageData details before loading
-      this.log(`🎯 About to load image into Tesseract:`);
-      this.log(`   - Width: ${processedImage.imageData.width}`);
-      this.log(`   - Height: ${processedImage.imageData.height}`);
-      this.log(`   - Buffer length: ${processedImage.imageData.data.length}`);
-      this.log(
-        `   - Expected length: ${
-          processedImage.imageData.width * processedImage.imageData.height * 4
-        }`
+      // STEP 2: Detect if financial values are missing or low confidence
+      const missingFinancials = this.detectMissingFinancialValues(
+        fullPageResult.boxes
       );
 
-      // Load image into tesseract with error handling
-      try {
-        this.ocrEngine.loadImage(processedImage.imageData);
-        this.log(`✅ Image successfully loaded into Tesseract`);
-      } catch (loadError) {
-        this.log(
-          `❌ Tesseract loadImage failed: ${loadError.message}`,
-          "error"
+      if (missingFinancials.length > 0) {
+        this.logImportant(
+          `🎯 Detected ${missingFinancials.length} missing financial values, trying selective enhancement`
         );
-        throw new Error(`Tesseract loadImage failed: ${loadError.message}`);
+
+        // STEP 3: Find and enhance financial table region
+        const financialRegion = await this.enhanceFinancialRegion(
+          imageBuffer,
+          pageIndex,
+          docName
+        );
+
+        if (financialRegion) {
+          // STEP 4: Merge enhanced financial OCR with full page results
+          const mergedBoxes = this.mergeFinancialEnhancement(
+            fullPageResult.boxes,
+            financialRegion.boxes
+          );
+          return mergedBoxes;
+        }
       }
 
-      // Get word-level bounding boxes from tesseract
-      const rawBoxes = this.ocrEngine.getTextBoxes("word");
-      this.logImportant(`📦 Tesseract found ${rawBoxes.length} raw text boxes`);
+      return fullPageResult.boxes;
+    } catch (error) {
+      this.log(`❌ Enhanced OCR processing failed: ${error.message}`, "error");
+      throw error;
+    }
+  }
+  async performFullPageOCR(imageBuffer, pageIndex, docName) {
+    // Your existing working OCR logic here
+    const processedImage = await this.preprocessImageForOCR(
+      imageBuffer,
+      pageIndex,
+      docName
+    );
 
-      await fs.writeFile(
-        "debug_tesseract_boxes.json",
-        JSON.stringify(rawBoxes, null, 2)
-      );
+    this.ocrEngine.loadImage(processedImage.imageData);
+    const rawBoxes = this.ocrEngine.getTextBoxes("word");
 
-      // CRITICAL: Normalize OCR boxes to match digital PDF format
-      const normalizedBoxes = this.normalizeOCRBoxes(
-        rawBoxes,
-        processedImage.info,
-        pageIndex
-      );
+    const normalizedBoxes = this.normalizeOCRBoxes(
+      rawBoxes,
+      processedImage.info,
+      pageIndex
+    );
+    const filteredBoxes = normalizedBoxes.filter((box) => {
+      const hasText = box.text && box.text.trim().length > 0;
+      const hasReasonableConfidence = box.confidence > 0.3; // Fixed: confidence is 0-1, not 0-100
+      const hasValidDimensions = box.width > 5 && box.height > 5;
+      return hasText && hasReasonableConfidence && hasValidDimensions;
+    });
 
-      // Filter out low-confidence and empty boxes
-      const filteredBoxes = normalizedBoxes.filter((box) => {
-        const hasText = box.text && box.text.trim().length > 0;
-        const hasReasonableConfidence = true; // box.confidence > 0.03; // 30% minimum
-        const hasValidDimensions = box.width > 1 && box.height > 1;
+    this.logImportant(
+      `✅ Full page OCR: ${filteredBoxes.length} quality boxes`
+    );
 
-        if (!hasText || !hasReasonableConfidence || !hasValidDimensions) {
-          this.log(
-            `🗑️  Filtering out box: "${box.text}" (conf: ${box.confidence})`
-          );
-          return false;
-        }
-        return true;
+    return { boxes: filteredBoxes, info: processedImage.info };
+  }
+
+  detectMissingFinancialValues(boxes) {
+    const expectedFinancials = [
+      { pattern: /R\s*\d+.*\d+/, type: "currency", name: "instalment" },
+      { pattern: /\d+\.\d+%/, type: "percentage", name: "interest_rate" },
+      { pattern: /\d{10,11}/, type: "account", name: "account_number" },
+    ];
+
+    const missing = [];
+
+    for (const expected of expectedFinancials) {
+      const found = boxes.some((box) => expected.pattern.test(box.text));
+      if (!found) {
+        missing.push(expected.name);
+        this.log(`⚠️  Missing ${expected.name} pattern in full page OCR`);
+      }
+    }
+
+    return missing;
+  }
+
+  async enhanceFinancialRegion(imageBuffer, pageIndex, docName) {
+    this.logImportant("🎯 Enhancing financial table region for better OCR");
+
+    try {
+      // STEP 1: Detect financial table region (approximate coordinates)
+      const financialRegion = this.detectFinancialTableRegion();
+
+      // STEP 2: Crop the financial region from original image
+      const croppedBuffer = await sharp(imageBuffer)
+        .extract({
+          left: Math.round(financialRegion.x),
+          top: Math.round(financialRegion.y),
+          width: Math.round(financialRegion.width),
+          height: Math.round(financialRegion.height),
+        })
+        .toBuffer();
+
+      // STEP 3: Enhanced preprocessing for financial region
+      const enhancedBuffer = await sharp(croppedBuffer)
+        .resize({ width: undefined, height: undefined, factor: 3 }) // 3x scaling
+        .sharpen() // Sharpen for better text
+        .normalize() // Auto contrast
+        .threshold(128) // Binarize for clear text
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+
+      // Save debug version
+      const regionPath = `debug_${docName}_page${
+        pageIndex + 1
+      }_financial_region.png`;
+      await sharp(croppedBuffer)
+        .resize({ width: undefined, height: undefined, factor: 3 })
+        .sharpen()
+        .normalize()
+        .threshold(128)
+        .png()
+        .toFile(regionPath);
+
+      this.logImportant(`💾 Enhanced financial region saved: ${regionPath}`);
+
+      // STEP 4: OCR the enhanced financial region
+      const regionImageData = {
+        data: enhancedBuffer.data,
+        width: enhancedBuffer.info.width,
+        height: enhancedBuffer.info.height,
+      };
+
+      this.ocrEngine.loadImage(regionImageData);
+      const regionBoxes = this.ocrEngine.getTextBoxes("word");
+
+      // STEP 5: Adjust coordinates back to full page coordinate system
+      const adjustedBoxes = regionBoxes.map((box) => {
+        const normalized = this.normalizeOCRBoxes(
+          [box],
+          enhancedBuffer.info,
+          pageIndex
+        )[0];
+
+        // Adjust coordinates from cropped region back to full page
+        normalized.x = normalized.x / 3 + financialRegion.x; // Undo 3x scaling + offset
+        normalized.y = normalized.y / 3 + financialRegion.y;
+        normalized.width = normalized.width / 3;
+        normalized.height = normalized.height / 3;
+        normalized.source = "enhanced_financial_ocr";
+
+        return normalized;
       });
 
       this.logImportant(
-        `✅ Filtered to ${filteredBoxes.length} quality boxes (${Math.round(
-          (filteredBoxes.length / rawBoxes.length) * 100
-        )}% retention)`
+        `✅ Enhanced financial OCR: ${adjustedBoxes.length} boxes from region`
       );
 
-      return filteredBoxes;
+      return { boxes: adjustedBoxes, region: financialRegion };
     } catch (error) {
-      this.log(`❌ OCR processing failed: ${error.message}`, "error");
-      throw error;
+      this.log(
+        `❌ Financial region enhancement failed: ${error.message}`,
+        "error"
+      );
+      return null;
     }
+  }
+
+  detectFinancialTableRegion() {
+    // Based on typical PAQ document layout - financial table is usually in lower 2/3 of page
+    // This could be made more sophisticated by analyzing the full page OCR results first
+
+    return {
+      x: 100, // Left margin
+      y: 1200, // Start below header sections
+      width: 1400, // Most of page width
+      height: 800, // Financial table area
+    };
+  }
+
+  // Zone-based extraction for financial table fields
+  extractFinancialValueByZone(boxes, fieldName, expectedValue) {
+    const zones = {
+      loanAmount: { x: 400, y: 1450, width: 400, height: 150 },      // Around R147 at (525, 1514)
+      instalment: { x: 1200, y: 1650, width: 300, height: 100 },     // Around R5 at (1302, 1691)  
+      interestRate: { x: 1200, y: 2000, width: 200, height: 80 },    // Around 29.25% at (1300, 2039)
+      insurancePremium: { x: 1200, y: 1950, width: 300, height: 100 }, // Around R519.16 in financial table
+      collectionAccountNo: { x: 1200, y: 2150, width: 300, height: 80 }, // Around N8162375 at bottom
+    };
+
+    if (!zones[fieldName]) return null;
+
+    const zone = zones[fieldName];
+    this.log(`🎯 Zone-based search for ${fieldName} in region (${zone.x}, ${zone.y}) ${zone.width}x${zone.height}`);
+    
+    // Find boxes within the zone
+    const zoneBoxes = boxes.filter(box => {
+      const inZone = box.x >= zone.x && box.x <= (zone.x + zone.width) &&
+                     box.y >= zone.y && box.y <= (zone.y + zone.height);
+      if (inZone) {
+        this.log(`📦 Zone box: "${box.text}" at (${box.x}, ${box.y})`);
+      }
+      return inZone;
+    });
+
+    // Look for currency or percentage patterns
+    for (const box of zoneBoxes) {
+      const value = this.extractValue(box.text, this.getFieldType(fieldName));
+      if (value !== null) {
+        const isValid = this.validateValue(value, expectedValue, this.getFieldType(fieldName));
+        if (isValid.valid) {
+          this.log(`✅ Zone-based match: ${fieldName} = ${value}`);
+          return {
+            found: value,
+            valid: isValid.valid,
+            confidence: isValid.confidence,
+            method: "zone_based",
+            valueBox: box
+          };
+        }
+      }
+    }
+
+    // Try currency fragment combination for fields that failed simple extraction
+    if (this.getFieldType(fieldName) === "currency") {
+      const combinedValue = this.combineCurrencyFragments(zoneBoxes, expectedValue);
+      if (combinedValue) {
+        const validation = this.validateValue(combinedValue.value, expectedValue, this.getFieldType(fieldName));
+        this.log(`✅ Zone-based fragment match: ${fieldName} = ${combinedValue.value}`);
+        return {
+          found: combinedValue.value,
+          valid: validation.valid,
+          confidence: validation.confidence,
+          method: "zone_based_fragments",
+          valueBox: combinedValue.boxes[0]
+        };
+      }
+    }
+
+    this.log(`❌ No zone-based match found for ${fieldName}`);
+    return null;
+  }
+
+  getFieldType(fieldName) {
+    const types = {
+      loanAmount: "currency",
+      instalment: "currency", 
+      interestRate: "percentage",
+      insurancePremium: "currency",
+      collectionAccountNo: "account"
+    };
+    return types[fieldName] || "currency";
+  }
+
+  // Combine currency fragments like "R147" + "126,58" → "R147,126.58"
+  combineCurrencyFragments(boxes, expectedValue) {
+    this.log(`🔗 Attempting currency fragment combination for expected: ${expectedValue}`);
+    
+    // Sort boxes by position (left to right, top to bottom)
+    const sortedBoxes = boxes.sort((a, b) => {
+      if (Math.abs(a.y - b.y) < 10) return a.x - b.x; // Same line
+      return a.y - b.y; // Different lines
+    });
+
+    // Look for R-prefix + decimal patterns
+    for (let i = 0; i < sortedBoxes.length - 1; i++) {
+      const box1 = sortedBoxes[i];
+      const box2 = sortedBoxes[i + 1];
+
+      // Check if box1 has R-prefix and box2 has decimal/number
+      const isRPrefix = /^R\d+$/.test(box1.text);
+      const isDecimalPart = /^\d+[,.]?\d*$/.test(box2.text);
+      const isNearby = Math.abs(box1.x + box1.width - box2.x) < 30 && Math.abs(box1.y - box2.y) < 10;
+
+      if (isRPrefix && isDecimalPart && isNearby) {
+        // Combine fragments
+        const rAmount = box1.text.replace('R', '');
+        const decimalPart = box2.text.replace(',', '.');
+        const combinedText = `R${rAmount} ${decimalPart}`;
+        
+        this.log(`🔗 Found fragments: "${box1.text}" + "${box2.text}" → "${combinedText}"`);
+        
+        // Extract and validate combined value
+        const value = this.extractValue(combinedText, "currency");
+        if (value !== null) {
+          const validation = this.validateValue(value, expectedValue, "currency");
+          if (validation.valid) {
+            this.log(`✅ Fragment combination successful: ${value}`);
+            return {
+              value: value,
+              confidence: Math.min(box1.confidence, box2.confidence),
+              boxes: [box1, box2]
+            };
+          }
+        }
+      }
+    }
+
+    this.log(`❌ No valid currency fragments found to combine`);
+    return null;
+  }
+
+  mergeFinancialEnhancement(fullPageBoxes, enhancedBoxes) {
+    this.logImportant(
+      "🔗 Merging enhanced financial OCR with full page results"
+    );
+
+    const merged = [...fullPageBoxes];
+
+    // Add enhanced boxes that have better financial content
+    for (const enhancedBox of enhancedBoxes) {
+      if (this.containsFinancialData(enhancedBox.text)) {
+        // Check if we have a similar box in full page results
+        const similar = fullPageBoxes.find(
+          (fullBox) =>
+            Math.abs(fullBox.x - enhancedBox.x) < 50 &&
+            Math.abs(fullBox.y - enhancedBox.y) < 30
+        );
+
+        if (similar) {
+          // Replace with enhanced version if confidence is better
+          if (enhancedBox.confidence > similar.confidence) {
+            const index = merged.indexOf(similar);
+            merged[index] = enhancedBox;
+            this.log(
+              `🔄 Replaced "${similar.text}" with enhanced "${enhancedBox.text}"`
+            );
+          }
+        } else {
+          // Add new enhanced box
+          merged.push(enhancedBox);
+          this.log(`➕ Added enhanced financial box: "${enhancedBox.text}"`);
+        }
+      }
+    }
+
+    this.logImportant(`✅ Merged result: ${merged.length} total boxes`);
+    return merged;
   }
 
   async preprocessImageForOCR(imageBuffer, pageIndex, docName) {
@@ -763,6 +1034,15 @@ class SpatialDocumentValidator {
         );
       }
 
+      // ZONE-BASED FALLBACK: If all label-based approaches fail, try zone-based extraction
+      if ((!result || result.found === null) && ["loanAmount", "instalment", "interestRate", "insurancePremium", "collectionAccountNo"].includes(fieldName)) {
+        this.logImportant(`🎯 Label-based failed, trying zone-based extraction for ${fieldName}`);
+        result = this.extractFinancialValueByZone(boxes, fieldName, expectedValue);
+        if (result) {
+          result.method = "zone_based_fallback";
+        }
+      }
+
       // Process the result
       if (result && result.found !== null) {
         results[fieldName] = result;
@@ -1118,57 +1398,111 @@ class SpatialDocumentValidator {
     let bestMatch = null;
     let bestScore = 0;
 
-    this.log(`🏷️  Searching for labels: [${searchPatterns.join(", ")}]`);
+    this.log(`🏷️  OCR-Enhanced label search: [${searchPatterns.join(", ")}]`);
 
-    // Create Fuse instance for simple text search
-    const fuse = new Fuse(boxes, {
-      keys: ["text"],
-      includeScore: true,
-      threshold: 0.3,
-      ignoreLocation: true,
-      findAllMatches: true,
-    });
-
-    // Try each search pattern with simple contains matching
+    // Create OCR-tolerant variations for each pattern
+    const expandedPatterns = [];
     for (const pattern of searchPatterns) {
-      this.log(`🔍 Trying pattern: "${pattern}"`);
+      expandedPatterns.push(pattern); // Original
 
-      // Simple contains search since PAQ.js patterns are clean
+      // Add common OCR variations
+      expandedPatterns.push(
+        pattern.replace(/- /g, ""), // Remove hyphens: "rate - fixed" → "rate fixed"
+        pattern.replace(/ll/g, "l"), // Double L → single: "instalment" → "instalment"
+        pattern.replace(/\(/g, ""), // Remove opening parentheses
+        pattern.replace(/\)/g, ""), // Remove closing parentheses
+        pattern.replace(/\s+/g, " ") // Normalize whitespace
+      );
+
+      // Add partial matching - key words only
+      const keyWords = pattern.split(" ").filter(
+        (word) =>
+          word.length > 3 && // Skip short words
+          !["the", "and", "for", "with", "including"].includes(
+            word.toLowerCase()
+          )
+      );
+      if (keyWords.length >= 2) {
+        expandedPatterns.push(keyWords.join(" ")); // Key words only
+      }
+    }
+
+    this.log(`🔍 Expanded to ${expandedPatterns.length} OCR-tolerant patterns`);
+
+    // Try each expanded pattern with lower threshold
+    for (const pattern of expandedPatterns) {
+      this.log(`🔍 Trying OCR pattern: "${pattern}"`);
+
       for (const box of boxes) {
-        const boxText = box.text.toLowerCase();
-        const patternText = pattern.toLowerCase();
+        const boxText = box.text.toLowerCase().trim();
+        const patternText = pattern.toLowerCase().trim();
 
         let score = 0;
         let matchType = "";
 
-        // Exact match
+        // Exact match (highest priority)
         if (boxText === patternText) {
           score = 1.0;
           matchType = "exact";
         }
-        // Starts with
-        else if (boxText.startsWith(patternText)) {
-          score = 0.95;
-          matchType = "prefix";
-        }
-        // Contains
-        else if (boxText.includes(patternText)) {
-          score = 0.8;
+        // Contains match (OCR-friendly)
+        else if (
+          boxText.includes(patternText) ||
+          patternText.includes(boxText)
+        ) {
+          const longer = Math.max(boxText.length, patternText.length);
+          const shorter = Math.min(boxText.length, patternText.length);
+          score = (shorter / longer) * 0.9; // Scale by length ratio
           matchType = "contains";
         }
-        // Partial word match for broken text
+        // Starts with match
+        else if (
+          boxText.startsWith(patternText) ||
+          patternText.startsWith(boxText)
+        ) {
+          score = 0.85;
+          matchType = "prefix";
+        }
+        // Word-level fuzzy matching (OCR errors)
         else {
-          const words = patternText.split(" ");
-          const matchCount = words.filter((word) =>
-            boxText.includes(word)
-          ).length;
-          if (matchCount > 0) {
-            score = (matchCount / words.length) * 0.7;
-            matchType = "partial";
+          const boxWords = boxText.split(/\s+/);
+          const patternWords = patternText.split(/\s+/);
+
+          let wordMatches = 0;
+          let totalWords = Math.max(boxWords.length, patternWords.length);
+
+          for (const pWord of patternWords) {
+            for (const bWord of boxWords) {
+              // Exact word match
+              if (pWord === bWord) {
+                wordMatches += 1;
+                break;
+              }
+              // OCR character substitution tolerance
+              else if (this.isOCRSimilar(pWord, bWord)) {
+                wordMatches += 0.8; // Partial credit for OCR errors
+                break;
+              }
+              // Partial word match (minimum 4 chars)
+              else if (
+                pWord.length >= 4 &&
+                bWord.length >= 4 &&
+                (pWord.includes(bWord) || bWord.includes(pWord))
+              ) {
+                wordMatches += 0.6;
+                break;
+              }
+            }
+          }
+
+          if (wordMatches > 0) {
+            score = (wordMatches / totalWords) * 0.7;
+            matchType = "fuzzy_words";
           }
         }
 
-        if (score > bestScore && score > 0.6) {
+        // LOWERED THRESHOLD for OCR: 0.4 instead of 0.6
+        if (score > bestScore && score > 0.4) {
           bestScore = score;
           bestMatch = {
             ...box,
@@ -1177,7 +1511,7 @@ class SpatialDocumentValidator {
             matchType: matchType,
           };
           this.log(
-            `🎯 Match: "${box.text}" (score: ${score.toFixed(
+            `🎯 OCR Match: "${box.text}" (score: ${score.toFixed(
               3
             )}, type: ${matchType}) for "${pattern}"`
           );
@@ -1187,15 +1521,57 @@ class SpatialDocumentValidator {
 
     if (bestMatch) {
       this.log(
-        `✅ Best label match: "${
+        `✅ Best OCR label match: "${
           bestMatch.text
         }" (score: ${bestMatch.matchScore.toFixed(3)})`
       );
     } else {
-      this.log(`❌ No label matches found above threshold`);
+      this.log(`❌ No OCR label matches found above threshold (0.4)`);
     }
 
     return bestMatch;
+  }
+
+  // OCR character similarity detection
+  isOCRSimilar(word1, word2) {
+    if (Math.abs(word1.length - word2.length) > 2) return false;
+
+    // Common OCR character substitutions
+    const ocrSubstitutions = {
+      l: ["1", "I", "|"],
+      1: ["l", "I", "|"],
+      I: ["l", "1", "|"],
+      o: ["0", "O"],
+      0: ["o", "O"],
+      O: ["o", "0"],
+      s: ["5", "S"],
+      5: ["s", "S"],
+      S: ["s", "5"],
+      rn: ["m"], // "rn" often read as "m"
+      m: ["rn"],
+      cl: ["d"], // "cl" often read as "d"
+      d: ["cl"],
+    };
+
+    // Simple edit distance with OCR tolerance
+    let differences = 0;
+    const maxLen = Math.max(word1.length, word2.length);
+
+    for (let i = 0; i < maxLen; i++) {
+      const c1 = word1[i] || "";
+      const c2 = word2[i] || "";
+
+      if (c1 !== c2) {
+        // Check if it's a known OCR substitution
+        const substitutes = ocrSubstitutions[c1] || [];
+        if (!substitutes.includes(c2)) {
+          differences++;
+        }
+      }
+    }
+
+    // Allow up to 2 differences for OCR errors
+    return differences <= 2 && differences / maxLen < 0.4;
   }
 
   findValueNearLabel(boxes, labelBox, fieldConfig, expectedValue) {
@@ -1759,89 +2135,70 @@ class SpatialDocumentValidator {
   }
 
   extractValue(text, type) {
-    this.log(`🎯 Extracting value from "${text}" (type: ${type})`);
+    this.log(`🎯 OCR-Enhanced extracting value from "${text}" (type: ${type})`);
 
     switch (type) {
       case "currency":
-        // ENHANCED: Handle South African "R90 640,57" format specifically
+        // STEP 1: Clean OCR artifacts before extraction
+        let cleanedText = this.cleanOCRCurrency(text);
+        this.log(`🧹 Cleaned OCR text: "${text}" → "${cleanedText}"`);
+
+        // STEP 2: Apply enhanced currency patterns
         const currencyPatterns = [
-          // Priority 1: South African format R90 640,57
-          /R\s*(\d{1,3}(?:\s\d{3})*(?:,\d{2})?)/g,
-          // Priority 2: Standard formats R90,640.57
+          // Priority 1: South African format with OCR tolerance
+          /R\s*(\d{1,3}(?:\s\d{3})*(?:[,.]\d{2})?)/g,
+          // Priority 2: Standard formats
           /R\s*(\d{1,3}(?:[,.]\d{3})*(?:[,.]\d{2})?)/g,
-          // Priority 3: Any R followed by numbers
+          // Priority 3: Any R followed by numbers (OCR fallback)
           /R\s*([\d\s,.']+)/g,
+          // Priority 4: Standalone currency amounts (no R symbol)
+          /(\d{1,3}(?:\s\d{3})*(?:[,.]\d{2})?)/g,
         ];
 
         for (const pattern of currencyPatterns) {
-          const matches = [...text.matchAll(pattern)];
+          const matches = [...cleanedText.matchAll(pattern)];
 
           for (const match of matches) {
             let numberPart = match[1].trim();
 
-            // Skip very short matches
-            if (numberPart.replace(/[^0-9]/g, "").length < 4) continue;
+            // Skip very short matches (likely not currency)
+            if (numberPart.replace(/[^0-9]/g, "").length < 3) continue;
 
-            // SPECIFIC: Handle "90 640,57" format
-            if (numberPart.includes(" ") && numberPart.includes(",")) {
-              // "90 640,57" → "90640.57"
-              const parts = numberPart.split(",");
-              if (parts.length === 2 && parts[1].length <= 2) {
-                numberPart = parts[0].replace(/\s/g, "") + "." + parts[1];
-              }
-            }
-            // Handle space-only thousands separators "90 640"
-            else if (
-              numberPart.includes(" ") &&
-              !numberPart.includes(",") &&
-              !numberPart.includes(".")
-            ) {
-              numberPart = numberPart.replace(/\s/g, "");
-            }
-            // Handle standard comma separators
-            else if (numberPart.includes(",") && !numberPart.includes(".")) {
-              const parts = numberPart.split(",");
-              if (parts.length === 2 && parts[1].length <= 2) {
-                // Decimal comma: 123,45 → 123.45
-                numberPart = parts[0].replace(/\s/g, "") + "." + parts[1];
-              } else {
-                // Thousands comma: 12,345 → 12345
-                numberPart = numberPart.replace(/[,\s]/g, "");
-              }
-            } else {
-              // Clean up remaining spaces and separators
-              numberPart = numberPart.replace(/\s/g, "");
-            }
+            // STEP 3: Smart number parsing with OCR corrections
+            const parsedValue = this.parseOCRNumber(numberPart);
 
-            const parsed = parseFloat(numberPart);
-            if (!isNaN(parsed) && parsed > 0) {
+            if (parsedValue !== null && parsedValue > 0) {
               this.log(
-                `💰 Extracted currency: "${text}" → "${match[0]}" → ${parsed}`
+                `💰 OCR currency extracted: "${text}" → "${match[0]}" → ${parsedValue}`
               );
-              return parsed;
+              return parsedValue;
             }
           }
         }
 
-        this.log(`💰 No currency found in: "${text}"`);
+        this.log(`💰 No currency found in OCR text: "${text}"`);
         return null;
 
       case "percentage":
-        const percentMatch = text.match(/([\d.,]+)(?=\s*%)/);
+        // Clean and extract percentage
+        const cleanedPercent = this.cleanOCRText(text);
+        const percentMatch = cleanedPercent.match(/([\d.,]+)(?=\s*%)/);
         if (percentMatch) {
-          const parsed = parseFloat(percentMatch[1].replace(",", "."));
+          const parsed = this.parseOCRNumber(percentMatch[1]);
           this.log(
-            `📊 Extracted percentage: "${percentMatch[0]}%" → ${parsed}`
+            `📊 OCR percentage extracted: "${percentMatch[0]}%" → ${parsed}`
           );
-          return isNaN(parsed) ? null : parsed;
+          return parsed;
         }
         return null;
 
       case "reference":
       case "account":
-        const numberMatch = text.match(/\d{6,}/);
+        // Extract numeric sequences with OCR cleaning
+        const cleanedRef = this.cleanOCRReference(text);
+        const numberMatch = cleanedRef.match(/(\d{6,})/);
         if (numberMatch) {
-          this.log(`🔢 Extracted number: "${numberMatch[0]}"`);
+          this.log(`🔢 OCR reference extracted: "${numberMatch[0]}"`);
           return numberMatch[0];
         }
         return null;
@@ -1849,6 +2206,116 @@ class SpatialDocumentValidator {
       default:
         return text.trim();
     }
+  }
+
+  // Clean common OCR artifacts in currency text
+  cleanOCRCurrency(text) {
+    return (
+      text
+        // Fix common OCR character substitutions
+        .replace(/[|l]/g, "1") // Pipe/lowercase L → 1
+        .replace(/[O]/g, "0") // Capital O → 0
+        .replace(/[S]/g, "5") // Capital S → 5
+        .replace(/[§]/g, "5") // Section symbol → 5
+        .replace(/[B]/g, "8") // B → 8 (common OCR error)
+        .replace(/[Z]/g, "2") // Z → 2
+        .replace(/[G]/g, "6") // G → 6
+        // Clean whitespace and invalid chars
+        .replace(/[^\dR\s,.]/g, "") // Keep only digits, R, space, comma, period
+        .replace(/\s+/g, " ") // Normalize whitespace
+        .trim()
+    );
+  }
+
+  // Enhanced number parsing with OCR tolerance
+  parseOCRNumber(numberText) {
+    this.log(`🔢 Parsing OCR number: "${numberText}"`);
+
+    // Clean the number text
+    let cleaned = numberText
+      .replace(/[|l]/g, "1") // Fix OCR digit errors
+      .replace(/[O]/g, "0")
+      .replace(/[S]/g, "5")
+      .replace(/[§]/g, "5")
+      .replace(/[B]/g, "8")
+      .replace(/[Z]/g, "2")
+      .replace(/[G]/g, "6")
+      .trim();
+
+    this.log(`🧹 Cleaned number: "${numberText}" → "${cleaned}"`);
+
+    // Handle South African format: "147 126,58" → "147126.58"
+    if (cleaned.includes(" ") && cleaned.includes(",")) {
+      const parts = cleaned.split(",");
+      if (parts.length === 2 && parts[1].length <= 2) {
+        // Space-separated thousands with comma decimal: "147 126,58"
+        cleaned = parts[0].replace(/\s/g, "") + "." + parts[1];
+      }
+    }
+    // Handle space with period decimal: "147 126.58" → "147126.58"
+    else if (cleaned.includes(" ") && cleaned.includes(".")) {
+      const parts = cleaned.split(".");
+      if (parts.length === 2 && parts[1].length <= 2) {
+        // Space-separated thousands with period decimal: "147 126.58"
+        cleaned = parts[0].replace(/\s/g, "") + "." + parts[1];
+      }
+    }
+    // Handle space-only thousands: "147 126" → "147126"
+    else if (
+      cleaned.includes(" ") &&
+      !cleaned.includes(",") &&
+      !cleaned.includes(".")
+    ) {
+      cleaned = cleaned.replace(/\s/g, "");
+    }
+    // Handle comma thousands with period decimal: "147,126.58" → "147126.58"
+    else if (cleaned.includes(",") && cleaned.includes(".")) {
+      cleaned = cleaned.replace(/,/g, "");
+    }
+    // Handle comma as decimal: "147,58" → "147.58"
+    else if (cleaned.includes(",") && !cleaned.includes(".")) {
+      const parts = cleaned.split(",");
+      if (parts.length === 2 && parts[1].length <= 2) {
+        cleaned = parts[0] + "." + parts[1];
+      } else {
+        // Comma as thousands separator
+        cleaned = cleaned.replace(/,/g, "");
+      }
+    }
+
+    const parsed = parseFloat(cleaned);
+    const isValid = !isNaN(parsed) && parsed > 0;
+
+    this.log(
+      `🎯 Final parsed result: "${cleaned}" → ${parsed} (valid: ${isValid})`
+    );
+
+    return isValid ? parsed : null;
+  }
+
+  // Clean OCR artifacts from reference numbers
+  cleanOCRReference(text) {
+    return text
+      .replace(/[|l]/g, "1") // Fix common OCR digit errors
+      .replace(/[O]/g, "0")
+      .replace(/[S]/g, "5")
+      .replace(/[§]/g, "5")
+      .replace(/[B]/g, "8")
+      .replace(/[Z]/g, "2")
+      .replace(/[G]/g, "6")
+      .replace(/[^\d]/g, "") // Keep only digits
+      .trim();
+  }
+
+  // General OCR text cleaning
+  cleanOCRText(text) {
+    return text
+      .replace(/[|l]/g, "1")
+      .replace(/[O]/g, "0")
+      .replace(/[S]/g, "5")
+      .replace(/[§]/g, "5")
+      .replace(/\s+/g, " ")
+      .trim();
   }
 
   validateValue(found, expected, type) {

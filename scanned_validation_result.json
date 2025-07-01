@@ -1,6 +1,6 @@
 {
   "status": "INVALID",
-  "confidence": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
   "fields": {
     "caseId": {
       "found": "10017007279",
@@ -25,32 +25,15 @@
     },
     "loanAmount": {
       "found": 147126.58,
-      "expected": 147126.55,
       "valid": true,
       "confidence": 0.9999997960939069,
-      "labelBox": {
-        "text": "Payout amount.",
-        "x": 148,
-        "y": 1514,
-        "width": 137,
-        "height": 17,
-        "pageIndex": 0,
-        "pageWidth": 1786,
-        "pageHeight": 2527,
-        "boxIndex": 344,
-        "confidence": 0.9617359042167664,
-        "source": "ocr",
-        "ocrQuality": "poor",
-        "matchScore": 0.95,
-        "matchedLabel": "Payout amount",
-        "matchType": "prefix"
-      },
+      "method": "zone_based_fallback",
       "valueBox": {
-        "text": "R147 126,58",
+        "text": "R147",
         "x": 525,
         "y": 1514,
-        "width": 100,
-        "height": 15,
+        "width": 40,
+        "height": 14,
         "pageIndex": 0,
         "pageWidth": 1786,
         "pageHeight": 2527,
@@ -58,20 +41,57 @@
         "confidence": 0.8301063776016235,
         "source": "ocr",
         "ocrQuality": "mixed_characters"
-      },
-      "method": "direct_value_match"
+      }
+    },
+    "instalment": {
+      "found": 5436.68,
+      "valid": true,
+      "confidence": 1,
+      "method": "zone_based_fallback",
+      "valueBox": {
+        "text": "R5",
+        "x": 1302,
+        "y": 1691,
+        "width": 22,
+        "height": 14,
+        "pageIndex": 0,
+        "pageWidth": 1786,
+        "pageHeight": 2527,
+        "boxIndex": 400,
+        "confidence": 0.5982699394226074,
+        "source": "ocr",
+        "ocrQuality": "mixed_characters"
+      }
+    },
+    "interestRate": {
+      "found": 29.25,
+      "valid": true,
+      "confidence": 1,
+      "method": "zone_based_fallback",
+      "valueBox": {
+        "text": "29.25%",
+        "x": 1300,
+        "y": 2039,
+        "width": 65,
+        "height": 14,
+        "pageIndex": 0,
+        "pageWidth": 1786,
+        "pageHeight": 2527,
+        "boxIndex": 492,
+        "confidence": 0.7382202744483948,
+        "source": "ocr",
+        "ocrQuality": "poor"
+      }
     }
   },
   "issues": [
-    "Field not found: instalment",
-    "Field not found: interestRate",
     "Field not found: insurancePremium",
     "Field not found: collectionAccountNo"
   ],
   "summary": {
     "total": 6,
-    "found": 2,
-    "valid": 2,
-    "confidence": "33%"
+    "found": 4,
+    "valid": 4,
+    "confidence": "67%"
   }
 }

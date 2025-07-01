@@ -1,208 +1,442 @@
-[2025-06-02T04:14:21.745Z] 📄 Document type: Scanned PDF
-[2025-06-02T04:14:21.745Z] 📊 Pages found: 5
-[2025-06-02T04:14:21.746Z] 🖼️  Processing scanned PDF with enhanced OCR pipeline
-[2025-06-02T04:14:24.390Z] 📄 Extracted 5 pages from PDF
-[2025-06-02T04:14:24.391Z] 💾 Saving 5 original page images to disk
-[2025-06-02T04:14:24.394Z] 💾 Original page 1 saved: debug_scanned-application_page1_original.png
-[2025-06-02T04:14:24.406Z] 💾 Original page 2 saved: debug_scanned-application_page2_original.png
-[2025-06-02T04:14:24.408Z] 💾 Original page 3 saved: debug_scanned-application_page3_original.png
-[2025-06-02T04:14:24.414Z] 💾 Original page 4 saved: debug_scanned-application_page4_original.png
-[2025-06-02T04:14:24.417Z] 💾 Original page 5 saved: debug_scanned-application_page5_original.png
-[2025-06-02T04:14:24.417Z] ✅ All 5 original pages saved successfully
-[2025-06-02T04:14:24.418Z] 🔍 Performing enhanced OCR with digital PDF compatibility
-[2025-06-02T04:14:24.419Z] 🎨 Preprocessing image for optimal OCR quality (Simplified approach)
-[2025-06-02T04:14:24.499Z] 💾 Enhanced image saved: debug_scanned-application_page1_enhanced.png
-[2025-06-02T04:14:24.536Z] 📐 Enhanced image: 1786x2527 (2x scale)
-[2025-06-02T04:14:24.536Z] 🎯 ImageData for Tesseract: 1786x2527, buffer=18052888 bytes
-[2025-06-02T04:14:24.536Z] 🔍 Expected buffer size: 18052888 bytes (RGBA)
-[2025-06-02T04:14:24.536Z] 🎯 About to load image into Tesseract:
-[2025-06-02T04:14:24.536Z]    - Width: 1786
-[2025-06-02T04:14:24.536Z]    - Height: 2527
-[2025-06-02T04:14:24.536Z]    - Buffer length: 18052888
-[2025-06-02T04:14:24.536Z]    - Expected length: 18052888
-[2025-06-02T04:14:24.562Z] ✅ Image successfully loaded into Tesseract
-[2025-06-02T04:14:28.713Z] 📦 Tesseract found 559 raw text boxes
-[2025-06-02T04:14:28.718Z] 🔄 Normalizing 559 OCR boxes to digital PDF format
-[2025-06-02T04:14:28.719Z] 💰 Financial box found: "10017007279" at (1306.0, 345.0) conf: 0.9643839001655579%
-[2025-06-02T04:14:28.719Z] 💰 Financial box found: "0768323073" at (1049.0, 536.0) conf: 0.9613984823226929%
-[2025-06-02T04:14:28.720Z] 💰 Financial box found: "R147" at (525.0, 1514.0) conf: 0.8301063776016235%
-[2025-06-02T04:14:28.720Z] 💰 Financial box found: "R42" at (1303.0, 1516.0) conf: 0.08351501822471619%
-[2025-06-02T04:14:28.720Z] 💰 Financial box found: "R5" at (1302.0, 1691.0) conf: 0.5982699394226074%
-[2025-06-02T04:14:28.720Z] 💰 Financial box found: "{R326" at (1301.0, 1865.0) conf: 0.6415623426437378%
-[2025-06-02T04:14:28.720Z] 💰 Financial box found: "R1" at (523.0, 1951.0) conf: 0.2057497352361679%
-[2025-06-02T04:14:28.720Z] 💰 Financial box found: "29.25%" at (1300.0, 2039.0) conf: 0.7382202744483948%
-[2025-06-02T04:14:28.720Z] ✅ Normalized 559 boxes to digital PDF format
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] 🗑️  Filtering out box: "" (conf: 0.949999988079071)
-[2025-06-02T04:14:28.720Z] ✅ Filtered to 497 quality boxes (89% retention)
-[2025-06-02T04:14:28.721Z] 📦 OCR extracted 497 bounding boxes
-[2025-06-02T04:14:28.734Z] 🔧 Merged into 168 consolidated boxes
-[2025-06-02T04:14:28.737Z] 🎯 Starting spatial field search with PAQ.js mapping
-[2025-06-02T04:14:28.737Z] 🔍 Found 1 boxes containing case ID "10017007279"
-[2025-06-02T04:14:28.738Z] 
+[2025-07-01T10:20:35.834Z] 📄 Document type: Scanned PDF
+[2025-07-01T10:20:35.834Z] 📊 Pages found: 5
+[2025-07-01T10:20:35.835Z] 🖼️  Processing scanned PDF with enhanced OCR pipeline
+[2025-07-01T10:20:37.898Z] 📄 Extracted 5 pages from PDF
+[2025-07-01T10:20:37.898Z] 💾 Saving 5 original page images to disk
+[2025-07-01T10:20:37.910Z] 💾 Original page 1 saved: debug_scanned-application_page1_original.png
+[2025-07-01T10:20:37.919Z] 💾 Original page 2 saved: debug_scanned-application_page2_original.png
+[2025-07-01T10:20:37.930Z] 💾 Original page 3 saved: debug_scanned-application_page3_original.png
+[2025-07-01T10:20:37.943Z] 💾 Original page 4 saved: debug_scanned-application_page4_original.png
+[2025-07-01T10:20:37.954Z] 💾 Original page 5 saved: debug_scanned-application_page5_original.png
+[2025-07-01T10:20:37.955Z] ✅ All 5 original pages saved successfully
+[2025-07-01T10:20:37.955Z] 🔍 Performing enhanced OCR with selective region processing
+[2025-07-01T10:20:37.955Z] 🎨 Preprocessing image for optimal OCR quality (Simplified approach)
+[2025-07-01T10:20:38.060Z] 💾 Enhanced image saved: debug_scanned-application_page1_enhanced.png
+[2025-07-01T10:20:38.114Z] 📐 Enhanced image: 1786x2527 (2x scale)
+[2025-07-01T10:20:38.114Z] 🎯 ImageData for Tesseract: 1786x2527, buffer=18052888 bytes
+[2025-07-01T10:20:38.114Z] 🔍 Expected buffer size: 18052888 bytes (RGBA)
+[2025-07-01T10:20:42.376Z] 🔄 Normalizing 559 OCR boxes to digital PDF format
+[2025-07-01T10:20:42.377Z] 💰 Financial box found: "10017007279" at (1306.0, 345.0) conf: 0.9643839001655579%
+[2025-07-01T10:20:42.377Z] 💰 Financial box found: "0768323073" at (1049.0, 536.0) conf: 0.9613984823226929%
+[2025-07-01T10:20:42.377Z] 💰 Financial box found: "R147" at (525.0, 1514.0) conf: 0.8301063776016235%
+[2025-07-01T10:20:42.377Z] 💰 Financial box found: "R42" at (1303.0, 1516.0) conf: 0.08351501822471619%
+[2025-07-01T10:20:42.377Z] 💰 Financial box found: "R5" at (1302.0, 1691.0) conf: 0.5982699394226074%
+[2025-07-01T10:20:42.377Z] 💰 Financial box found: "{R326" at (1301.0, 1865.0) conf: 0.6415623426437378%
+[2025-07-01T10:20:42.378Z] 💰 Financial box found: "R1" at (523.0, 1951.0) conf: 0.2057497352361679%
+[2025-07-01T10:20:42.378Z] 💰 Financial box found: "29.25%" at (1300.0, 2039.0) conf: 0.7382202744483948%
+[2025-07-01T10:20:42.378Z] ✅ Normalized 559 boxes to digital PDF format
+[2025-07-01T10:20:42.378Z] ✅ Full page OCR: 437 quality boxes
+[2025-07-01T10:20:42.379Z] 📦 OCR extracted 437 bounding boxes
+[2025-07-01T10:20:42.386Z] 🔧 Merged into 437 consolidated boxes
+[2025-07-01T10:20:42.393Z] 🎯 Starting spatial field search with PAQ.js mapping
+[2025-07-01T10:20:42.393Z] 🔍 Found 1 boxes containing case ID "10017007279"
+[2025-07-01T10:20:42.393Z] 
 🔍 Processing: caseId (expected: 10017007279)
-[2025-06-02T04:14:28.738Z] 📋 Search labels: [Case reference no]
-[2025-06-02T04:14:28.739Z] 🎯 Extracting value from "10017007279" (type: reference)
-[2025-06-02T04:14:28.739Z] 🔢 Extracted number: "10017007279"
-[2025-06-02T04:14:28.739Z] ✅ Direct case ID match: "10017007279"
-[2025-06-02T04:14:28.739Z] 🎯 Validating: found=10017007279, expected=10017007279, type=reference
-[2025-06-02T04:14:28.739Z] 🔢 Reference validation: "10017007279" === "10017007279" → true
-[2025-06-02T04:14:28.739Z] ✅ VALID caseId: Found=10017007279, Expected=10017007279, Confidence=100%
-[2025-06-02T04:14:28.740Z] 
+[2025-07-01T10:20:42.393Z] 📋 Search labels: [Case reference no]
+[2025-07-01T10:20:42.393Z] 🎯 OCR-Enhanced extracting value from "10017007279" (type: reference)
+[2025-07-01T10:20:42.393Z] 🔢 OCR reference extracted: "10017007279"
+[2025-07-01T10:20:42.393Z] ✅ Direct case ID match: "10017007279"
+[2025-07-01T10:20:42.394Z] 🎯 Validating: found=10017007279, expected=10017007279, type=reference
+[2025-07-01T10:20:42.394Z] 🔢 Reference validation: "10017007279" === "10017007279" → true
+[2025-07-01T10:20:42.394Z] ✅ VALID caseId: Found=10017007279, Expected=10017007279, Confidence=100%
+[2025-07-01T10:20:42.394Z] 
 🔍 Processing: loanAmount (expected: 147126.55)
-[2025-06-02T04:14:28.740Z] 📋 Search labels: [Payout amount]
-[2025-06-02T04:14:28.740Z] 📊 Multi-table check: loanAmount, isFinancial: false, isStaff: false
-[2025-06-02T04:14:28.741Z] 🏷️  Searching for labels: [Payout amount]
-[2025-06-02T04:14:28.744Z] 🔍 Trying pattern: "Payout amount"
-[2025-06-02T04:14:28.745Z] 🎯 Match: "Payout amount." (score: 0.950, type: prefix) for "Payout amount"
-[2025-06-02T04:14:28.745Z] ✅ Best label match: "Payout amount." (score: 0.950)
-[2025-06-02T04:14:28.745Z] ✅ Label found: "Payout amount." (confidence: 95.0%)
-[2025-06-02T04:14:28.746Z] 🎯 Using DIRECT VALUE MATCHING for: 147126.55
-[2025-06-02T04:14:28.746Z] 🏷️  Label: "Payout amount." at (148, 1514) on page 0
-[2025-06-02T04:14:28.746Z] 🎯 Extracting value from "Payout amount." (type: currency)
-[2025-06-02T04:14:28.746Z] 💰 No currency found in: "Payout amount."
-[2025-06-02T04:14:28.746Z] 📏 Line spacing calculation: 155 Y positions, 94 valid gaps, median: 16
-[2025-06-02T04:14:28.746Z] 📦 Focused area: 8 boxes to check
-[2025-06-02T04:14:28.746Z] 🎯 Extracting value from "PERSONAL LOAN PRE-AGREEMENT STATEMENT AND QUOTATION SUMMARY MONTHLY RESPONSIBILITIES." (type: currency)
-[2025-06-02T04:14:28.747Z] 💰 No currency found in: "PERSONAL LOAN PRE-AGREEMENT STATEMENT AND QUOTATION SUMMARY MONTHLY RESPONSIBILITIES."
-[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "-" (type: currency)
-[2025-06-02T04:14:28.747Z] 💰 No currency found in: "-"
-[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "Payout amount." (type: currency)
-[2025-06-02T04:14:28.747Z] 💰 No currency found in: "Payout amount."
-[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "R147 126,58" (type: currency)
-[2025-06-02T04:14:28.747Z] 💰 Extracted currency: "R147 126,58" → "R147 126,58" → 147126.58
-[2025-06-02T04:14:28.747Z] 🎯 Validating: found=147126.58, expected=147126.55, type=currency
-[2025-06-02T04:14:28.747Z] 💰 Currency/Percentage validation: diff=0.03, tolerance=0.05, valid=true, confidence=1.00
-[2025-06-02T04:14:28.747Z] 💰 Extracted from "R147 126,58": 147126.58 → Match: true (confidence: 100.0%)
-[2025-06-02T04:14:28.747Z] 🎉 ✅ EXACT MATCH FOUND: 147126.58 at (525.0, 1514.0)
-[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "as |" (type: currency)
-[2025-06-02T04:14:28.747Z] 💰 No currency found in: "as |"
-[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "Split ‘ payout: To merchant" (type: currency)
-[2025-06-02T04:14:28.747Z] 💰 No currency found in: "Split ‘ payout: To merchant"
-[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "Refer to SPOA" (type: currency)
-[2025-06-02T04:14:28.747Z] 💰 No currency found in: "Refer to SPOA"
-[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "[" (type: currency)
-[2025-06-02T04:14:28.747Z] 💰 No currency found in: "["
-[2025-06-02T04:14:28.747Z] 🏆 Found 1 exact matches, selecting best positioned:
-[2025-06-02T04:14:28.747Z] 🏆 WINNER: "R147 126,58" → 147126.58 at (525.0, 1514.0)
-[2025-06-02T04:14:28.747Z]    📊 sameLine:true, toRight:true, confidence:100.0%
-[2025-06-02T04:14:28.747Z] ✅ Value found: "R147 126,58"
-[2025-06-02T04:14:28.747Z] 🎯 Extracting value from "R147 126,58" (type: currency)
-[2025-06-02T04:14:28.747Z] 💰 Extracted currency: "R147 126,58" → "R147 126,58" → 147126.58
-[2025-06-02T04:14:28.747Z] 🎯 Validating: found=147126.58, expected=147126.55, type=currency
-[2025-06-02T04:14:28.747Z] 💰 Currency/Percentage validation: diff=0.03, tolerance=0.05, valid=true, confidence=1.00
-[2025-06-02T04:14:28.747Z] ✅ VALID loanAmount: Found=147126.58, Expected=147126.55, Confidence=100%
-[2025-06-02T04:14:28.748Z] 
+[2025-07-01T10:20:42.394Z] 📋 Search labels: [Payout amount]
+[2025-07-01T10:20:42.394Z] 📊 Multi-table check: loanAmount, isFinancial: false, isStaff: false
+[2025-07-01T10:20:42.394Z] 🏷️  OCR-Enhanced label search: [Payout amount]
+[2025-07-01T10:20:42.394Z] 🔍 Expanded to 7 OCR-tolerant patterns
+[2025-07-01T10:20:42.394Z] 🔍 Trying OCR pattern: "Payout amount"
+[2025-07-01T10:20:42.396Z] 🎯 OCR Match: "amount" (score: 0.415, type: contains) for "Payout amount"
+[2025-07-01T10:20:42.397Z] 🔍 Trying OCR pattern: "Payout amount"
+[2025-07-01T10:20:42.399Z] 🔍 Trying OCR pattern: "Payout amount"
+[2025-07-01T10:20:42.401Z] 🔍 Trying OCR pattern: "Payout amount"
+[2025-07-01T10:20:42.403Z] 🔍 Trying OCR pattern: "Payout amount"
+[2025-07-01T10:20:42.405Z] 🔍 Trying OCR pattern: "Payout amount"
+[2025-07-01T10:20:42.406Z] 🔍 Trying OCR pattern: "Payout amount"
+[2025-07-01T10:20:42.408Z] ✅ Best OCR label match: "amount" (score: 0.415)
+[2025-07-01T10:20:42.408Z] ✅ Label found: "amount" (confidence: 41.5%)
+[2025-07-01T10:20:42.408Z] 🎯 Using DIRECT VALUE MATCHING for: 147126.55
+[2025-07-01T10:20:42.408Z] 🏷️  Label: "amount" at (294, 807) on page 0
+[2025-07-01T10:20:42.408Z] 🎯 OCR-Enhanced extracting value from "amount" (type: currency)
+[2025-07-01T10:20:42.408Z] 🧹 Cleaned OCR text: "amount" → ""
+[2025-07-01T10:20:42.408Z] 💰 No currency found in OCR text: "amount"
+[2025-07-01T10:20:42.409Z] 📏 Line spacing calculation: 265 Y positions, 73 valid gaps, median: 18
+[2025-07-01T10:20:42.409Z] 📦 Focused area: 50 boxes to check
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "Credit" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "Credit" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "Credit"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "Act" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "Act" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "Act"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "(NCA)," (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "(NCA)," → ","
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "(NCA),"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "34" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "34" → "34"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "34"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "of" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "of" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "of"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "2008," (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "2008," → "2008,"
+[2025-07-01T10:20:42.409Z] 🔢 Parsing OCR number: "200"
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned number: "200" → "200"
+[2025-07-01T10:20:42.409Z] 🎯 Final parsed result: "200" → 200 (valid: true)
+[2025-07-01T10:20:42.409Z] 💰 OCR currency extracted: "2008," → "200" → 200
+[2025-07-01T10:20:42.409Z] 🎯 Validating: found=200, expected=147126.55, type=currency
+[2025-07-01T10:20:42.409Z] 💰 Currency/Percentage validation: diff=146926.55, tolerance=0.05, valid=false, confidence=0.00
+[2025-07-01T10:20:42.409Z] 💰 Extracted from "2008,": 200 → Match: false (confidence: 0.0%)
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "The" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "The" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "The"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "quotations" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "quotations" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "quotations"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "replace" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "replace" → "1"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "replace"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "EXPENDITURE" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "EXPENDITURE" → "R"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "EXPENDITURE"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "below" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "below" → "1"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "below"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "is" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "is" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "is"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "mot" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "mot" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "mot"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "the" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "the" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "the"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "only" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "only" → "1"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "only"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "information" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "information" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "information"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "we" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "we" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "we"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "use" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "use" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "use"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "in" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "in" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "in"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "aur" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "aur" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "aur"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "affordability" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "affordability" → "1"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "affordability"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "expense" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "expense" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "expense"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "estimates," (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "estimates," → ","
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "estimates,"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "You" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "You" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "You"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "must" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "must" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "must"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "declare" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "declare" → "1"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "declare"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "all" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "all" → "11"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "all"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "current" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "current" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "current"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "and" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "and" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "and"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "future" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "future" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "future"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "amount" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "amount" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "amount"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "is" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "is" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "is"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "less" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "less" → "1"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "less"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "than" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "than" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "than"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "the" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "the" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "the"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "monthly" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "monthly" → "1"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "monthly"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "home" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "home" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "home"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "loan" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "loan" → "1"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "loan"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "instalment" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "instalment" → "1"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "instalment"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "to" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "to" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "to"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "the" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "the" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "the"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "monthly" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "monthly" → "1"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "monthly"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "instalment" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "instalment" → "1"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "instalment"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "and" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "and" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "and"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "that." (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "that." → "."
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "that."
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "your" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "your" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "your"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "spause/the" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "spause/the" → ""
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "spause/the"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "instalment." (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "instalment." → "1."
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "instalment."
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "INCOME" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "INCOME" → "0"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "INCOME"
+[2025-07-01T10:20:42.409Z] 🎯 OCR-Enhanced extracting value from "DETAILS" (type: currency)
+[2025-07-01T10:20:42.409Z] 🧹 Cleaned OCR text: "DETAILS" → "5"
+[2025-07-01T10:20:42.409Z] 💰 No currency found in OCR text: "DETAILS"
+[2025-07-01T10:20:42.409Z] ❌ No exact matches found for 147126.55 in focused area
+[2025-07-01T10:20:42.409Z] 💡 Consider checking tolerance settings or value format variations
+[2025-07-01T10:20:42.410Z] ❌ Value not found near label for loanAmount
+[2025-07-01T10:20:42.410Z] 🎯 Label-based failed, trying zone-based extraction for loanAmount
+[2025-07-01T10:20:42.410Z] 🎯 Zone-based search for loanAmount in region (400, 1450) 400x150
+[2025-07-01T10:20:42.410Z] 📦 Zone box: "R147" at (525, 1514)
+[2025-07-01T10:20:42.410Z] 📦 Zone box: "126,58" at (572, 1514)
+[2025-07-01T10:20:42.410Z] 📦 Zone box: "Refer" at (525, 1599)
+[2025-07-01T10:20:42.410Z] 📦 Zone box: "SPOA" at (604, 1599)
+[2025-07-01T10:20:42.410Z] 🎯 OCR-Enhanced extracting value from "R147" (type: currency)
+[2025-07-01T10:20:42.410Z] 🧹 Cleaned OCR text: "R147" → "R147"
+[2025-07-01T10:20:42.410Z] 🔢 Parsing OCR number: "147"
+[2025-07-01T10:20:42.410Z] 🧹 Cleaned number: "147" → "147"
+[2025-07-01T10:20:42.410Z] 🎯 Final parsed result: "147" → 147 (valid: true)
+[2025-07-01T10:20:42.410Z] 💰 OCR currency extracted: "R147" → "R147" → 147
+[2025-07-01T10:20:42.410Z] 🎯 Validating: found=147, expected=147126.55, type=currency
+[2025-07-01T10:20:42.410Z] 💰 Currency/Percentage validation: diff=146979.55, tolerance=0.05, valid=false, confidence=0.00
+[2025-07-01T10:20:42.410Z] 🎯 OCR-Enhanced extracting value from "126,58" (type: currency)
+[2025-07-01T10:20:42.410Z] 🧹 Cleaned OCR text: "126,58" → "126,58"
+[2025-07-01T10:20:42.410Z] 🔢 Parsing OCR number: "126,58"
+[2025-07-01T10:20:42.410Z] 🧹 Cleaned number: "126,58" → "126,58"
+[2025-07-01T10:20:42.410Z] 🎯 Final parsed result: "126.58" → 126.58 (valid: true)
+[2025-07-01T10:20:42.410Z] 💰 OCR currency extracted: "126,58" → "126,58" → 126.58
+[2025-07-01T10:20:42.410Z] 🎯 Validating: found=126.58, expected=147126.55, type=currency
+[2025-07-01T10:20:42.410Z] 💰 Currency/Percentage validation: diff=146999.97, tolerance=0.05, valid=false, confidence=0.00
+[2025-07-01T10:20:42.410Z] 🎯 OCR-Enhanced extracting value from "Refer" (type: currency)
+[2025-07-01T10:20:42.410Z] 🧹 Cleaned OCR text: "Refer" → "R"
+[2025-07-01T10:20:42.410Z] 💰 No currency found in OCR text: "Refer"
+[2025-07-01T10:20:42.410Z] 🎯 OCR-Enhanced extracting value from "SPOA" (type: currency)
+[2025-07-01T10:20:42.410Z] 🧹 Cleaned OCR text: "SPOA" → "50"
+[2025-07-01T10:20:42.410Z] 💰 No currency found in OCR text: "SPOA"
+[2025-07-01T10:20:42.411Z] 🔗 Attempting currency fragment combination for expected: 147126.55
+[2025-07-01T10:20:42.411Z] 🔗 Found fragments: "R147" + "126,58" → "R147 126.58"
+[2025-07-01T10:20:42.411Z] 🎯 OCR-Enhanced extracting value from "R147 126.58" (type: currency)
+[2025-07-01T10:20:42.411Z] 🧹 Cleaned OCR text: "R147 126.58" → "R147 126.58"
+[2025-07-01T10:20:42.411Z] 🔢 Parsing OCR number: "147 126.58"
+[2025-07-01T10:20:42.411Z] 🧹 Cleaned number: "147 126.58" → "147 126.58"
+[2025-07-01T10:20:42.411Z] 🎯 Final parsed result: "147126.58" → 147126.58 (valid: true)
+[2025-07-01T10:20:42.411Z] 💰 OCR currency extracted: "R147 126.58" → "R147 126.58" → 147126.58
+[2025-07-01T10:20:42.411Z] 🎯 Validating: found=147126.58, expected=147126.55, type=currency
+[2025-07-01T10:20:42.411Z] 💰 Currency/Percentage validation: diff=0.03, tolerance=0.05, valid=true, confidence=1.00
+[2025-07-01T10:20:42.411Z] ✅ Fragment combination successful: 147126.58
+[2025-07-01T10:20:42.411Z] 🎯 Validating: found=147126.58, expected=147126.55, type=currency
+[2025-07-01T10:20:42.411Z] 💰 Currency/Percentage validation: diff=0.03, tolerance=0.05, valid=true, confidence=1.00
+[2025-07-01T10:20:42.411Z] ✅ Zone-based fragment match: loanAmount = 147126.58
+[2025-07-01T10:20:42.411Z] ✅ VALID loanAmount: Found=147126.58, Expected=147126.55, Confidence=100%
+[2025-07-01T10:20:42.411Z] 
 🔍 Processing: instalment (expected: 5436.68)
-[2025-06-02T04:14:28.748Z] 📋 Search labels: [Monthly instalment (including interest]
-[2025-06-02T04:14:28.748Z] 📊 Multi-table check: instalment, isFinancial: true, isStaff: false
-[2025-06-02T04:14:28.749Z] 🏷️  Searching for labels: [Monthly instalment (including interest]
-[2025-06-02T04:14:28.749Z] 🔍 Trying pattern: "Monthly instalment (including interest"
-[2025-06-02T04:14:28.749Z] ❌ No label matches found above threshold
-[2025-06-02T04:14:28.749Z] ❌ Label not found for instalment
-[2025-06-02T04:14:28.750Z] ❌ Field processing failed for instalment
-[2025-06-02T04:14:28.750Z] 
+[2025-07-01T10:20:42.411Z] 📋 Search labels: [Monthly instalment (including interest]
+[2025-07-01T10:20:42.411Z] 📊 Multi-table check: instalment, isFinancial: true, isStaff: false
+[2025-07-01T10:20:42.411Z] 🏷️  OCR-Enhanced label search: [Monthly instalment (including interest]
+[2025-07-01T10:20:42.411Z] 🔍 Expanded to 7 OCR-tolerant patterns
+[2025-07-01T10:20:42.411Z] 🔍 Trying OCR pattern: "Monthly instalment (including interest"
+[2025-07-01T10:20:42.414Z] 🔍 Trying OCR pattern: "Monthly instalment (including interest"
+[2025-07-01T10:20:42.416Z] 🔍 Trying OCR pattern: "Monthly instalment (including interest"
+[2025-07-01T10:20:42.417Z] 🔍 Trying OCR pattern: "Monthly instalment including interest"
+[2025-07-01T10:20:42.420Z] 🔍 Trying OCR pattern: "Monthly instalment (including interest"
+[2025-07-01T10:20:42.421Z] 🔍 Trying OCR pattern: "Monthly instalment (including interest"
+[2025-07-01T10:20:42.422Z] 🔍 Trying OCR pattern: "Monthly instalment (including interest"
+[2025-07-01T10:20:42.423Z] ❌ No OCR label matches found above threshold (0.4)
+[2025-07-01T10:20:42.423Z] ❌ Label not found for instalment
+[2025-07-01T10:20:42.423Z] 🎯 Label-based failed, trying zone-based extraction for instalment
+[2025-07-01T10:20:42.423Z] 🎯 Zone-based search for instalment in region (1200, 1650) 300x100
+[2025-07-01T10:20:42.423Z] 📦 Zone box: "R5" at (1302, 1691)
+[2025-07-01T10:20:42.423Z] 📦 Zone box: "436,68" at (1331, 1691)
+[2025-07-01T10:20:42.423Z] 📦 Zone box: "|" at (1297, 1721)
+[2025-07-01T10:20:42.423Z] 🎯 OCR-Enhanced extracting value from "R5" (type: currency)
+[2025-07-01T10:20:42.423Z] 🧹 Cleaned OCR text: "R5" → "R5"
+[2025-07-01T10:20:42.423Z] 💰 No currency found in OCR text: "R5"
+[2025-07-01T10:20:42.423Z] 🎯 OCR-Enhanced extracting value from "436,68" (type: currency)
+[2025-07-01T10:20:42.423Z] 🧹 Cleaned OCR text: "436,68" → "436,68"
+[2025-07-01T10:20:42.423Z] 🔢 Parsing OCR number: "436,68"
+[2025-07-01T10:20:42.423Z] 🧹 Cleaned number: "436,68" → "436,68"
+[2025-07-01T10:20:42.423Z] 🎯 Final parsed result: "436.68" → 436.68 (valid: true)
+[2025-07-01T10:20:42.423Z] 💰 OCR currency extracted: "436,68" → "436,68" → 436.68
+[2025-07-01T10:20:42.423Z] 🎯 Validating: found=436.68, expected=5436.68, type=currency
+[2025-07-01T10:20:42.423Z] 💰 Currency/Percentage validation: diff=5000.00, tolerance=0.05, valid=false, confidence=0.00
+[2025-07-01T10:20:42.423Z] 🎯 OCR-Enhanced extracting value from "|" (type: currency)
+[2025-07-01T10:20:42.423Z] 🧹 Cleaned OCR text: "|" → "1"
+[2025-07-01T10:20:42.423Z] 💰 No currency found in OCR text: "|"
+[2025-07-01T10:20:42.423Z] 🔗 Attempting currency fragment combination for expected: 5436.68
+[2025-07-01T10:20:42.424Z] 🔗 Found fragments: "R5" + "436,68" → "R5 436.68"
+[2025-07-01T10:20:42.424Z] 🎯 OCR-Enhanced extracting value from "R5 436.68" (type: currency)
+[2025-07-01T10:20:42.424Z] 🧹 Cleaned OCR text: "R5 436.68" → "R5 436.68"
+[2025-07-01T10:20:42.424Z] 🔢 Parsing OCR number: "5 436.68"
+[2025-07-01T10:20:42.424Z] 🧹 Cleaned number: "5 436.68" → "5 436.68"
+[2025-07-01T10:20:42.424Z] 🎯 Final parsed result: "5436.68" → 5436.68 (valid: true)
+[2025-07-01T10:20:42.424Z] 💰 OCR currency extracted: "R5 436.68" → "R5 436.68" → 5436.68
+[2025-07-01T10:20:42.424Z] 🎯 Validating: found=5436.68, expected=5436.68, type=currency
+[2025-07-01T10:20:42.424Z] 💰 Currency/Percentage validation: diff=0.00, tolerance=0.05, valid=true, confidence=1.00
+[2025-07-01T10:20:42.424Z] ✅ Fragment combination successful: 5436.68
+[2025-07-01T10:20:42.424Z] 🎯 Validating: found=5436.68, expected=5436.68, type=currency
+[2025-07-01T10:20:42.424Z] 💰 Currency/Percentage validation: diff=0.00, tolerance=0.05, valid=true, confidence=1.00
+[2025-07-01T10:20:42.424Z] ✅ Zone-based fragment match: instalment = 5436.68
+[2025-07-01T10:20:42.424Z] ✅ VALID instalment: Found=5436.68, Expected=5436.68, Confidence=100%
+[2025-07-01T10:20:42.424Z] 
 🔍 Processing: interestRate (expected: 29.25)
-[2025-06-02T04:14:28.751Z] 📋 Search labels: [Annual interest rate - fixed]
-[2025-06-02T04:14:28.751Z] 📊 Multi-table check: interestRate, isFinancial: false, isStaff: false
-[2025-06-02T04:14:28.751Z] 🏷️  Searching for labels: [Annual interest rate - fixed]
-[2025-06-02T04:14:28.752Z] 🔍 Trying pattern: "Annual interest rate - fixed"
-[2025-06-02T04:14:28.752Z] ❌ No label matches found above threshold
-[2025-06-02T04:14:28.752Z] ❌ Label not found for interestRate
-[2025-06-02T04:14:28.753Z] ❌ Field processing failed for interestRate
-[2025-06-02T04:14:28.753Z] 
+[2025-07-01T10:20:42.424Z] 📋 Search labels: [Annual interest rate - fixed]
+[2025-07-01T10:20:42.424Z] 📊 Multi-table check: interestRate, isFinancial: false, isStaff: false
+[2025-07-01T10:20:42.424Z] 🏷️  OCR-Enhanced label search: [Annual interest rate - fixed]
+[2025-07-01T10:20:42.424Z] 🔍 Expanded to 7 OCR-tolerant patterns
+[2025-07-01T10:20:42.424Z] 🔍 Trying OCR pattern: "Annual interest rate - fixed"
+[2025-07-01T10:20:42.427Z] 🔍 Trying OCR pattern: "Annual interest rate fixed"
+[2025-07-01T10:20:42.428Z] 🔍 Trying OCR pattern: "Annual interest rate - fixed"
+[2025-07-01T10:20:42.429Z] 🔍 Trying OCR pattern: "Annual interest rate - fixed"
+[2025-07-01T10:20:42.431Z] 🔍 Trying OCR pattern: "Annual interest rate - fixed"
+[2025-07-01T10:20:42.432Z] 🔍 Trying OCR pattern: "Annual interest rate - fixed"
+[2025-07-01T10:20:42.434Z] 🔍 Trying OCR pattern: "Annual interest rate fixed"
+[2025-07-01T10:20:42.436Z] ❌ No OCR label matches found above threshold (0.4)
+[2025-07-01T10:20:42.436Z] ❌ Label not found for interestRate
+[2025-07-01T10:20:42.436Z] 🎯 Label-based failed, trying zone-based extraction for interestRate
+[2025-07-01T10:20:42.437Z] 🎯 Zone-based search for interestRate in region (1200, 2000) 200x80
+[2025-07-01T10:20:42.437Z] 📦 Zone box: "29.25%" at (1300, 2039)
+[2025-07-01T10:20:42.437Z] 🎯 OCR-Enhanced extracting value from "29.25%" (type: percentage)
+[2025-07-01T10:20:42.437Z] 🔢 Parsing OCR number: "29.25"
+[2025-07-01T10:20:42.437Z] 🧹 Cleaned number: "29.25" → "29.25"
+[2025-07-01T10:20:42.437Z] 🎯 Final parsed result: "29.25" → 29.25 (valid: true)
+[2025-07-01T10:20:42.437Z] 📊 OCR percentage extracted: "29.25%" → 29.25
+[2025-07-01T10:20:42.437Z] 🎯 Validating: found=29.25, expected=29.25, type=percentage
+[2025-07-01T10:20:42.437Z] 💰 Currency/Percentage validation: diff=0.00, tolerance=0.01, valid=true, confidence=1.00
+[2025-07-01T10:20:42.437Z] ✅ Zone-based match: interestRate = 29.25
+[2025-07-01T10:20:42.437Z] ✅ VALID interestRate: Found=29.25, Expected=29.25, Confidence=100%
+[2025-07-01T10:20:42.437Z] 
 🔍 Processing: insurancePremium (expected: 519.16)
-[2025-06-02T04:14:28.753Z] 📋 Search labels: [Credit life insurance (included in]
-[2025-06-02T04:14:28.754Z] 📊 Multi-table check: insurancePremium, isFinancial: true, isStaff: false
-[2025-06-02T04:14:28.754Z] 🏷️  Searching for labels: [Credit life insurance (included in]
-[2025-06-02T04:14:28.754Z] 🔍 Trying pattern: "Credit life insurance (included in"
-[2025-06-02T04:14:28.755Z] ❌ No label matches found above threshold
-[2025-06-02T04:14:28.755Z] ❌ Label not found for insurancePremium
-[2025-06-02T04:14:28.755Z] ❌ Field processing failed for insurancePremium
-[2025-06-02T04:14:28.755Z] 
+[2025-07-01T10:20:42.437Z] 📋 Search labels: [Credit life insurance (included in]
+[2025-07-01T10:20:42.437Z] 📊 Multi-table check: insurancePremium, isFinancial: true, isStaff: false
+[2025-07-01T10:20:42.437Z] 🏷️  OCR-Enhanced label search: [Credit life insurance (included in]
+[2025-07-01T10:20:42.437Z] 🔍 Expanded to 7 OCR-tolerant patterns
+[2025-07-01T10:20:42.437Z] 🔍 Trying OCR pattern: "Credit life insurance (included in"
+[2025-07-01T10:20:42.440Z] 🔍 Trying OCR pattern: "Credit life insurance (included in"
+[2025-07-01T10:20:42.442Z] 🔍 Trying OCR pattern: "Credit life insurance (included in"
+[2025-07-01T10:20:42.443Z] 🔍 Trying OCR pattern: "Credit life insurance included in"
+[2025-07-01T10:20:42.444Z] 🔍 Trying OCR pattern: "Credit life insurance (included in"
+[2025-07-01T10:20:42.445Z] 🔍 Trying OCR pattern: "Credit life insurance (included in"
+[2025-07-01T10:20:42.445Z] 🔍 Trying OCR pattern: "Credit life insurance (included"
+[2025-07-01T10:20:42.446Z] ❌ No OCR label matches found above threshold (0.4)
+[2025-07-01T10:20:42.446Z] ❌ Label not found for insurancePremium
+[2025-07-01T10:20:42.446Z] 🎯 Label-based failed, trying zone-based extraction for insurancePremium
+[2025-07-01T10:20:42.446Z] 🎯 Zone-based search for insurancePremium in region (1200, 1950) 300x100
+[2025-07-01T10:20:42.446Z] 📦 Zone box: "2.22" at (1301, 1953)
+[2025-07-01T10:20:42.446Z] 📦 Zone box: "29.25%" at (1300, 2039)
+[2025-07-01T10:20:42.446Z] 🎯 OCR-Enhanced extracting value from "2.22" (type: currency)
+[2025-07-01T10:20:42.446Z] 🧹 Cleaned OCR text: "2.22" → "2.22"
+[2025-07-01T10:20:42.446Z] 🔢 Parsing OCR number: "2.22"
+[2025-07-01T10:20:42.446Z] 🧹 Cleaned number: "2.22" → "2.22"
+[2025-07-01T10:20:42.446Z] 🎯 Final parsed result: "2.22" → 2.22 (valid: true)
+[2025-07-01T10:20:42.446Z] 💰 OCR currency extracted: "2.22" → "2.22" → 2.22
+[2025-07-01T10:20:42.446Z] 🎯 Validating: found=2.22, expected=519.16, type=currency
+[2025-07-01T10:20:42.446Z] 💰 Currency/Percentage validation: diff=516.94, tolerance=0.05, valid=false, confidence=0.00
+[2025-07-01T10:20:42.446Z] 🎯 OCR-Enhanced extracting value from "29.25%" (type: currency)
+[2025-07-01T10:20:42.446Z] 🧹 Cleaned OCR text: "29.25%" → "29.25"
+[2025-07-01T10:20:42.446Z] 🔢 Parsing OCR number: "29.25"
+[2025-07-01T10:20:42.446Z] 🧹 Cleaned number: "29.25" → "29.25"
+[2025-07-01T10:20:42.446Z] 🎯 Final parsed result: "29.25" → 29.25 (valid: true)
+[2025-07-01T10:20:42.446Z] 💰 OCR currency extracted: "29.25%" → "29.25" → 29.25
+[2025-07-01T10:20:42.446Z] 🎯 Validating: found=29.25, expected=519.16, type=currency
+[2025-07-01T10:20:42.446Z] 💰 Currency/Percentage validation: diff=489.91, tolerance=0.05, valid=false, confidence=0.00
+[2025-07-01T10:20:42.446Z] 🔗 Attempting currency fragment combination for expected: 519.16
+[2025-07-01T10:20:42.446Z] ❌ No valid currency fragments found to combine
+[2025-07-01T10:20:42.446Z] ❌ No zone-based match found for insurancePremium
+[2025-07-01T10:20:42.446Z] ❌ Field processing failed for insurancePremium
+[2025-07-01T10:20:42.446Z] 
 🔍 Processing: collectionAccountNo (expected: 1171851065)
-[2025-06-02T04:14:28.756Z] 📋 Search labels: [Account number]
-[2025-06-02T04:14:28.756Z] 📊 Multi-table check: collectionAccountNo, isFinancial: false, isStaff: false
-[2025-06-02T04:14:28.756Z] 🏷️  Searching for labels: [Account number]
-[2025-06-02T04:14:28.756Z] 🔍 Trying pattern: "Account number"
-[2025-06-02T04:14:28.757Z] ❌ No label matches found above threshold
-[2025-06-02T04:14:28.757Z] ❌ Label not found for collectionAccountNo
-[2025-06-02T04:14:28.757Z] ❌ Field processing failed for collectionAccountNo
-[2025-06-02T04:14:28.758Z] 
+[2025-07-01T10:20:42.446Z] 📋 Search labels: [Account number]
+[2025-07-01T10:20:42.446Z] 📊 Multi-table check: collectionAccountNo, isFinancial: false, isStaff: false
+[2025-07-01T10:20:42.446Z] 🏷️  OCR-Enhanced label search: [Account number]
+[2025-07-01T10:20:42.446Z] 🔍 Expanded to 7 OCR-tolerant patterns
+[2025-07-01T10:20:42.446Z] 🔍 Trying OCR pattern: "Account number"
+[2025-07-01T10:20:42.447Z] 🎯 OCR Match: "account" (score: 0.450, type: contains) for "Account number"
+[2025-07-01T10:20:42.447Z] 🔍 Trying OCR pattern: "Account number"
+[2025-07-01T10:20:42.448Z] 🔍 Trying OCR pattern: "Account number"
+[2025-07-01T10:20:42.448Z] 🔍 Trying OCR pattern: "Account number"
+[2025-07-01T10:20:42.448Z] 🔍 Trying OCR pattern: "Account number"
+[2025-07-01T10:20:42.449Z] 🔍 Trying OCR pattern: "Account number"
+[2025-07-01T10:20:42.450Z] 🔍 Trying OCR pattern: "Account number"
+[2025-07-01T10:20:42.451Z] ✅ Best OCR label match: "account" (score: 0.450)
+[2025-07-01T10:20:42.451Z] ✅ Label found: "account" (confidence: 45.0%)
+[2025-07-01T10:20:42.451Z] 🎯 Using DIRECT VALUE MATCHING for: 1171851065
+[2025-07-01T10:20:42.451Z] 🏷️  Label: "account" at (435, 1692) on page 0
+[2025-07-01T10:20:42.451Z] 🎯 OCR-Enhanced extracting value from "account" (type: account)
+[2025-07-01T10:20:42.452Z] 📏 Line spacing calculation: 265 Y positions, 73 valid gaps, median: 18
+[2025-07-01T10:20:42.452Z] 📦 Focused area: 11 boxes to check
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "|" (type: account)
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "Refer" (type: account)
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "to" (type: account)
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "SPOA" (type: account)
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "account" (type: account)
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "|Refer" (type: account)
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "to" (type: account)
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "SPOA" (type: account)
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "the" (type: account)
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "initiation" (type: account)
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "334.05" (type: account)
+[2025-07-01T10:20:42.452Z] ❌ No exact matches found for 1171851065 in focused area
+[2025-07-01T10:20:42.452Z] 💡 Consider checking tolerance settings or value format variations
+[2025-07-01T10:20:42.452Z] ❌ Value not found near label for collectionAccountNo
+[2025-07-01T10:20:42.452Z] 🎯 Label-based failed, trying zone-based extraction for collectionAccountNo
+[2025-07-01T10:20:42.452Z] 🎯 Zone-based search for collectionAccountNo in region (1200, 2150) 300x80
+[2025-07-01T10:20:42.452Z] 📦 Zone box: "Licky" at (1294, 2187)
+[2025-07-01T10:20:42.452Z] 📦 Zone box: "Mogadima" at (1351, 2187)
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "Licky" (type: account)
+[2025-07-01T10:20:42.452Z] 🎯 OCR-Enhanced extracting value from "Mogadima" (type: account)
+[2025-07-01T10:20:42.452Z] ❌ No zone-based match found for collectionAccountNo
+[2025-07-01T10:20:42.452Z] ❌ Field processing failed for collectionAccountNo
+[2025-07-01T10:20:42.452Z] 
 📊 PROCESSING SUMMARY
-[2025-06-02T04:14:28.758Z] Bounding boxes: 497 → 168 (merged)
-[2025-06-02T04:14:28.758Z] Fields processed: 6
-[2025-06-02T04:14:28.759Z] Fields found: 2/6
-[2025-06-02T04:14:28.759Z] Fields valid: 2/2
-[2025-06-02T04:14:28.759Z] Success rate: 33%
+[2025-07-01T10:20:42.452Z] Bounding boxes: 437 → 437 (merged)
+[2025-07-01T10:20:42.452Z] Fields processed: 6
+[2025-07-01T10:20:42.452Z] Fields found: 4/6
+[2025-07-01T10:20:42.452Z] Fields valid: 4/4
+[2025-07-01T10:20:42.453Z] Success rate: 67%
 
 ============================================================
 DEBUG LOG SUMMARY
 ============================================================
-Total bounding boxes: 497
-Merged boxes: 168
+Total bounding boxes: 437
+Merged boxes: 437
 Fields processed: 6
-Fields found: 2
-Fields valid: 2
-Success rate: 33%
+Fields found: 4
+Fields valid: 4
+Success rate: 67%
 ============================================================

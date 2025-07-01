@@ -48,4 +48,31 @@ I've attached the spacial_validation_log.txt from the last test, the scanned_val
 - broader and more forgiving fuzzy search for label names
 - handle financial values that have non numeric values in them - this is sometimes unavoidable
 
-What do you think?
+What do you think?  
+
+---
+
+
+For a first pass the isolation of the financials block is not bad but it needs work: the isolated table needs to be cropped more dynamically and the combined bounding boxes with the original full page extraction needs to be fixed - currently only the isolated boxes are present.
+
+- For the dynamic isolation, lets use a fuzzy search to 
+
+PERSONAL LOAN - PRE-AGREEMENT STATEMENT AND QUOTATION SUMMARY - MONTHLY RESPONSIBILITIES 
+
+Payout amount  
+
+Annual interest rate  - fixed  
+
+Merchant/Consultant no
+
+
+---
+
+ODD:
+
+
+CBO Quality Verificaiton (PAQ):
+
+
+DEP:
+
