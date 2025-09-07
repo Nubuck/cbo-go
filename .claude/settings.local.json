@@ -5,7 +5,10 @@
       "Bash(npm rebuild:*)",
       "Bash(npm install:*)",
       "Bash(rg:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(node:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

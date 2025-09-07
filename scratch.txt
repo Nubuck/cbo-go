@@ -1,0 +1,24 @@
+It's been a long time since we worked on this project. I am returning to this project because it has become critical to make meaningful progress on the OCR aspect due to the fact the production project and other factors of my position have lead me to burn out and my health is a very serious condition, so we need to urgently get to a point where the CBO Confirm Verification Quality automation project can run without as much manual intervention in the event I have to take urgent leave for health reasons.
+
+I need you ultrathink to review where we started and where we are now, reviewing the following historical documents from: docs/brief.md -> project-context.md -> project-status.md to SIGNATURE_INSTRUCTION.md
+
+We have recently deployed another automation project called the Deceased Estate automation that verifies ID and court documents for deceased customers of the bank. We called it DEA.
+The DEA project used the work we have done in this project as a launch pad from it's own features, and introduced a new OCR package called scribe.js-ocr and important features we will need in this project such as multi document in pages detection.
+
+Please review the work in the DEA project derived from the work here for additional context of what is possible, I have included the DEA project files for reference here:
+- dea/index.js
+- dea/id-document-detector.js
+- dea/package.json
+
+I have also included the scribe.js-ocr docs in the project here:
+- docs/scribe/README.md
+- docs/scribe/API.md
+
+When we last left off we were struggling to get the page areas of the extracted and scaled images from the document PDFs where client initials and signatures go for us to evaluated the texture of the area for signs of any markings, hand scribbles, stamps, inserted digital characters etc - anything to indicate an acknowledgment as an initial or signature - where a blank space would be invalid.
+
+For this feature I think it best we extract the scaled PDF pages as images (pdf-to-img extracts images and scales them as we are doing in src/cli/spatial-document-validator.js on lines 2438 to 2444) into a folder called _extract with a subfolder for the document caseId from the caseModel in src/simple-main.js, for use to evaluate, then a json file with all the images extracted actual dimensions after being extracted and scaled with the area dimensions and co-ordinates of where we are going to look for signatures, as the initial box on the documents are in the bottom left corner of every page except the signature box that is on the last page in varying locations depending on the variant of contract.
+
+You're life saving assistance here is most appreciated. Please advise on your latest evaluation of where we currently are, the advances in Claude Code abilities and knowledge of OCR and document processing since we last worked on this project and as always, any questions for clarity.
+
+
+

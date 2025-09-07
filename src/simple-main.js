@@ -5,8 +5,8 @@ import { promises as fs } from "node:fs";
 import SpatialDocumentValidator from "./cli/spatial-document-validator.js";
 
 async function main() {
-  // 🎯 Switch to OCR testing mode
-  const testMode = "scanned"; // Testing the OCR pipeline
+  // 🎯 Switch to OCR testing mode  
+  const testMode = "digital"; // Testing the digital PDF pipeline
   
   let caseModel, docPath;
 
