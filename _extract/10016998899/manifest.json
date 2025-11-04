@@ -1,0 +1,159 @@
+{
+  "extractedAt": "2025-09-07T19:17:58.492Z",
+  "scaleFactor": 3,
+  "totalPages": 6,
+  "images": [
+    {
+      "pageIndex": 0,
+      "fileName": "page0_scale3.png",
+      "width": 1785,
+      "height": 2525
+    },
+    {
+      "pageIndex": 1,
+      "fileName": "page1_scale3.png",
+      "width": 1785,
+      "height": 2525
+    },
+    {
+      "pageIndex": 2,
+      "fileName": "page2_scale3.png",
+      "width": 1785,
+      "height": 2525
+    },
+    {
+      "pageIndex": 3,
+      "fileName": "page3_scale3.png",
+      "width": 1785,
+      "height": 2525
+    },
+    {
+      "pageIndex": 4,
+      "fileName": "page4_scale3.png",
+      "width": 1785,
+      "height": 2525
+    },
+    {
+      "pageIndex": 5,
+      "fileName": "page5_scale3.png",
+      "width": 1785,
+      "height": 2525
+    }
+  ],
+  "signatureZones": [
+    {
+      "name": "clientInitial_page0",
+      "type": "initial",
+      "pageIndex": 0,
+      "bounds": {
+        "x": 53.760000000000005,
+        "y": 2283.999,
+        "width": 843.132,
+        "height": 137.34900000000005
+      },
+      "required": true,
+      "roiFile": "clientInitial_page0_roi.png",
+      "roiDimensions": {
+        "left": 44,
+        "top": 2274,
+        "width": 863,
+        "height": 157
+      }
+    },
+    {
+      "name": "clientInitial_page1",
+      "type": "initial",
+      "pageIndex": 1,
+      "bounds": {
+        "x": 53.760000000000005,
+        "y": 2283.999,
+        "width": 843.132,
+        "height": 137.34900000000005
+      },
+      "required": true,
+      "roiFile": "clientInitial_page1_roi.png",
+      "roiDimensions": {
+        "left": 44,
+        "top": 2274,
+        "width": 863,
+        "height": 157
+      }
+    },
+    {
+      "name": "clientInitial_page2",
+      "type": "initial",
+      "pageIndex": 2,
+      "bounds": {
+        "x": 53.760000000000005,
+        "y": 2283.999,
+        "width": 843.132,
+        "height": 137.34900000000005
+      },
+      "required": true,
+      "roiFile": "clientInitial_page2_roi.png",
+      "roiDimensions": {
+        "left": 44,
+        "top": 2274,
+        "width": 863,
+        "height": 157
+      }
+    },
+    {
+      "name": "clientInitial_page3",
+      "type": "initial",
+      "pageIndex": 3,
+      "bounds": {
+        "x": 53.760000000000005,
+        "y": 2283.999,
+        "width": 843.132,
+        "height": 137.34900000000005
+      },
+      "required": true,
+      "roiFile": "clientInitial_page3_roi.png",
+      "roiDimensions": {
+        "left": 44,
+        "top": 2274,
+        "width": 863,
+        "height": 157
+      }
+    },
+    {
+      "name": "clientInitial_page4",
+      "type": "initial",
+      "pageIndex": 4,
+      "bounds": {
+        "x": 53.760000000000005,
+        "y": 2283.999,
+        "width": 843.132,
+        "height": 137.34900000000005
+      },
+      "required": true,
+      "roiFile": "clientInitial_page4_roi.png",
+      "roiDimensions": {
+        "left": 44,
+        "top": 2274,
+        "width": 863,
+        "height": 157
+      }
+    },
+    {
+      "name": "clientSignature_page5",
+      "type": "signature",
+      "pageIndex": 5,
+      "bounds": {
+        "x": 58.007999999999996,
+        "y": 522.201,
+        "width": 834.492,
+        "height": 303
+      },
+      "required": true,
+      "roiFile": "clientSignature_page5_roi.png",
+      "roiDimensions": {
+        "left": 48,
+        "top": 512,
+        "width": 854,
+        "height": 323
+      }
+    }
+  ]
+}

@@ -140,7 +140,7 @@ class SpatialDocumentValidator {
       this.logImportant(`📊 Pages found: ${pdfData.pages.length}`);
 
       if (isDigital) {
-        return await this.validateDigitalPDF(pdfData, caseModel);
+        return await this.validateDigitalPDF(filePath, pdfData, caseModel);
       } else {
         return await this.validateScannedPDF(filePath, caseModel);
       }
@@ -151,7 +151,7 @@ class SpatialDocumentValidator {
     }
   }
 
-  async validateDigitalPDF(pdfData, caseModel) {
+  async validateDigitalPDF(filePath, pdfData, caseModel) {
     this.logImportant("🔤 Processing digital PDF with PAQ.js field mapping");
 
     const boundingBoxes = this.extractBoundingBoxes(pdfData);
@@ -174,7 +174,36 @@ class SpatialDocumentValidator {
       JSON.stringify(mergedBoxes, null, 2)
     );
 
-    return await this.spatialFieldSearch(mergedBoxes, caseModel);
+    // Perform main field validation
+    const validationResults = await this.spatialFieldSearch(mergedBoxes, caseModel);
+    
+    // Enhanced image extraction pipeline for signature detection
+    try {
+      this.logImportant("🖼️ Starting enhanced image extraction pipeline");
+      const imageExtractionResults = await this.processDocumentImages(filePath, caseModel, pdfData);
+      
+      // Add image extraction info to validation results
+      validationResults.imageExtraction = {
+        status: "SUCCESS",
+        extractPath: imageExtractionResults.extractPath,
+        totalPages: imageExtractionResults.extractedImages.length,
+        signatureZones: imageExtractionResults.signatureZones.length,
+        manifestPath: path.join(imageExtractionResults.extractPath, 'manifest.json')
+      };
+      
+      this.logImportant(`✅ Image extraction complete: ${imageExtractionResults.extractedImages.length} pages, ${imageExtractionResults.signatureZones.length} signature zones`);
+      
+    } catch (imageError) {
+      this.log(`⚠️ Image extraction failed (continuing with validation): ${imageError.message}`);
+      this.log(`🔍 Image extraction error stack: ${imageError.stack}`);
+      validationResults.imageExtraction = {
+        status: "FAILED", 
+        error: imageError.message,
+        stack: imageError.stack
+      };
+    }
+
+    return validationResults;
   }
 
   // Enhanced OCR processing methods for SpatialDocumentValidator class
@@ -225,7 +254,38 @@ class SpatialDocumentValidator {
       );
 
       // Apply the SAME spatial field search as digital PDFs!
-      return await this.spatialFieldSearch(mergedBoxes, caseModel);
+      const validationResults = await this.spatialFieldSearch(mergedBoxes, caseModel);
+      
+      // Enhanced image extraction pipeline for signature detection
+      try {
+        this.logImportant("🖼️ Starting enhanced image extraction pipeline for scanned PDF");
+        
+        // Create mock pdfData structure for signature zone calculation from OCR boxes
+        const mockPdfData = this.createMockPdfDataFromOCR(mergedBoxes, pages.length);
+        const imageExtractionResults = await this.processDocumentImages(filePath, caseModel, mockPdfData);
+        
+        // Add image extraction info to validation results
+        validationResults.imageExtraction = {
+          status: "SUCCESS",
+          extractPath: imageExtractionResults.extractPath,
+          totalPages: imageExtractionResults.extractedImages.length,
+          signatureZones: imageExtractionResults.signatureZones.length,
+          manifestPath: path.join(imageExtractionResults.extractPath, 'manifest.json')
+        };
+        
+        this.logImportant(`✅ Image extraction complete: ${imageExtractionResults.extractedImages.length} pages, ${imageExtractionResults.signatureZones.length} signature zones`);
+        
+      } catch (imageError) {
+        this.log(`⚠️ Image extraction failed (continuing with validation): ${imageError.message}`);
+        this.log(`🔍 Image extraction error stack: ${imageError.stack}`);
+        validationResults.imageExtraction = {
+          status: "FAILED", 
+          error: imageError.message,
+          stack: imageError.stack
+        };
+      }
+      
+      return validationResults;
     } catch (error) {
       this.log(`❌ OCR validation failed: ${error.message}`, "error");
       throw error;
@@ -2492,6 +2552,643 @@ class SpatialDocumentValidator {
         confidence: "0%",
       },
     };
+  }
+
+  /**
+   * Enhanced image extraction pipeline with _extract folder structure
+   * Extracts PDF pages to organized folder structure with signature zones
+   */
+  async extractPDFPagesToImages(filePath, caseModel, scaleFactor = 3) {
+    const caseId = caseModel.caseId;
+    const extractPath = path.join(process.cwd(), '_extract', caseId);
+    
+    this.log(`🚀 Starting enhanced image extraction for case ${caseId}`);
+    this.log(`📂 Extract path: ${extractPath}`);
+    this.log(`📏 Scale factor: ${scaleFactor}x`);
+    
+    // Create extraction directory structure
+    await fs.mkdir(extractPath, { recursive: true });
+    await fs.mkdir(path.join(extractPath, 'signatures'), { recursive: true });
+    
+    // Extract pages using enhanced pdf-to-img
+    this.log(`📄 Extracting PDF pages from ${path.basename(filePath)}`);
+    const pdfDocument = await pdfImageExtract(filePath, {
+      scale: scaleFactor,
+      format: 'png',
+      docInitParams: {
+        useSystemFonts: true,
+        disableFontFace: true,
+      },
+    });
+
+    const extractedImages = [];
+    let pageIndex = 0;
+    
+    // Process each page
+    for await (const pageBuffer of pdfDocument) {
+      const pageFileName = `page${pageIndex}_scale${scaleFactor}.png`;
+      const pageFilePath = path.join(extractPath, pageFileName);
+      
+      // Save page image
+      await fs.writeFile(pageFilePath, pageBuffer);
+      
+      // Get image dimensions using Sharp
+      const { width, height } = await sharp(pageBuffer).metadata();
+      
+      this.log(`💾 Saved page ${pageIndex}: ${pageFileName} (${width}x${height})`);
+      
+      extractedImages.push({
+        pageIndex,
+        fileName: pageFileName,
+        filePath: pageFilePath,
+        width,
+        height,
+        scaleFactor,
+        buffer: pageBuffer // Keep buffer for signature extraction
+      });
+      
+      pageIndex++;
+    }
+    
+    this.log(`✅ Extracted ${extractedImages.length} pages to ${extractPath}`);
+    return extractedImages;
+  }
+
+  /**
+   * Calculate signature zones using SIGNATURE_INSTRUCTION.md methodology
+   * Dynamically finds signature areas from PDF bounding boxes
+   */
+  async calculateSignatureZones(pdfData, extractedImages) {
+    this.log(`🎯 Calculating dynamic signature zones from PDF bounding boxes`);
+    
+    const signatureZones = [];
+    
+    // Process each page for initial zones (all pages except last)
+    for (let pageIndex = 0; pageIndex < extractedImages.length - 1; pageIndex++) {
+      const image = extractedImages[pageIndex];
+      const pageBoxes = this.getPageBoxes(pdfData, pageIndex);
+      
+      if (pageBoxes.length === 0) continue;
+      
+      try {
+        // Find signature zone using SIGNATURE_INSTRUCTION.md methodology
+        const initialZone = this.calculateClientInitialZone(pageBoxes, image);
+        if (initialZone) {
+          signatureZones.push({
+            name: `clientInitial_page${pageIndex}`,
+            type: 'initial',
+            pageIndex,
+            bounds: initialZone,
+            required: true
+          });
+          
+          this.log(`📍 Client initial zone page ${pageIndex}: (${initialZone.x}, ${initialZone.y}) ${initialZone.width}x${initialZone.height}`);
+        }
+      } catch (error) {
+        this.log(`⚠️  Could not calculate initial zone for page ${pageIndex}: ${error.message}`);
+      }
+    }
+    
+    // Process last page for signature zone
+    if (extractedImages.length > 0) {
+      const lastPageIndex = extractedImages.length - 1;
+      const lastImage = extractedImages[lastPageIndex];
+      const lastPageBoxes = this.getPageBoxes(pdfData, lastPageIndex);
+      
+      try {
+        const signatureZone = this.calculateClientSignatureZone(lastPageBoxes, lastImage);
+        if (signatureZone) {
+          signatureZones.push({
+            name: `clientSignature_page${lastPageIndex}`,
+            type: 'signature', 
+            pageIndex: lastPageIndex,
+            bounds: signatureZone,
+            required: true
+          });
+          
+          this.log(`📍 Client signature zone page ${lastPageIndex}: (${signatureZone.x}, ${signatureZone.y}) ${signatureZone.width}x${signatureZone.height}`);
+        }
+      } catch (error) {
+        this.log(`⚠️  Could not calculate signature zone for page ${lastPageIndex}: ${error.message}`);
+      }
+    }
+    
+    this.log(`✅ Generated ${signatureZones.length} dynamic signature zones`);
+    return signatureZones;
+  }
+
+  /**
+   * Calculate client initial zone using SIGNATURE_INSTRUCTION.md methodology
+   * Finds "Case reference no", "Client initial", and "Merchant/Consultant no" boxes
+   */
+  calculateClientInitialZone(pageBoxes, image) {
+    this.log(`🎯 Calculating client initial zone for page with ${pageBoxes.length} boxes`);
+    
+    // Find "Case reference no" box
+    const caseRefBox = this.findBoxByText(pageBoxes, ["Case reference no"], { threshold: 0.8 });
+    if (!caseRefBox) {
+      throw new Error("Could not find 'Case reference no' box for initial zone calculation");
+    }
+    this.log(`📍 Found case reference box at (${caseRefBox.x}, ${caseRefBox.y})`);
+    
+    // Find "Client initial" box  
+    const clientInitialBox = this.findBoxByText(pageBoxes, ["Client initial"], { threshold: 0.8 });
+    if (!clientInitialBox) {
+      throw new Error("Could not find 'Client initial' box for initial zone calculation");
+    }
+    this.log(`📍 Found client initial box at (${clientInitialBox.x}, ${clientInitialBox.y})`);
+    
+    // Find "Merchant/Consultant no" box for right bounds
+    const merchantBox = this.findBoxByText(pageBoxes, ["Merchant/Consultant no", "Consultant no"], { threshold: 0.7 });
+    if (!merchantBox) {
+      throw new Error("Could not find 'Merchant/Consultant no' box for initial zone calculation");
+    }
+    this.log(`📍 Found merchant box at (${merchantBox.x}, ${merchantBox.y})`);
+    
+    // Determine if coordinates are already in image space (OCR) or PDF space (PDF)
+    // OCR coordinates are in image pixel space and should not be scaled
+    // PDF coordinates are in PDF point space and need to be scaled to image pixels
+    const isOCRData = this.isOCRCoordinateSpace(pageBoxes, image);
+    const coordinateScale = isOCRData ? 1 : image.scaleFactor;
+    
+    this.log(`🔧 Using coordinate scale: ${coordinateScale} (${isOCRData ? 'OCR' : 'PDF'} coordinates)`);
+    
+    // Calculate zone bounds using SIGNATURE_INSTRUCTION.md formula
+    const bounds = {
+      x: caseRefBox.x * coordinateScale,
+      y: caseRefBox.y * coordinateScale,
+      width: (merchantBox.x - caseRefBox.x) * coordinateScale,
+      height: ((clientInitialBox.y + clientInitialBox.height) - caseRefBox.y) * coordinateScale
+    };
+    
+    // Validate bounds against image dimensions
+    if (bounds.width <= 0 || bounds.height <= 0) {
+      throw new Error(`Invalid initial zone bounds: ${JSON.stringify(bounds)}`);
+    }
+    
+    if (bounds.x < 0 || bounds.y < 0 || 
+        bounds.x + bounds.width > image.width || 
+        bounds.y + bounds.height > image.height) {
+      this.log(`⚠️  Zone bounds exceed image dimensions: ${JSON.stringify(bounds)} vs ${image.width}x${image.height}`);
+      
+      // Constrain bounds to image dimensions
+      bounds.x = Math.max(0, bounds.x);
+      bounds.y = Math.max(0, bounds.y);
+      bounds.width = Math.min(bounds.width, image.width - bounds.x);
+      bounds.height = Math.min(bounds.height, image.height - bounds.y);
+      
+      this.log(`🔧 Constrained bounds: ${JSON.stringify(bounds)}`);
+    }
+    
+    this.log(`✅ Calculated initial zone: (${bounds.x}, ${bounds.y}) ${bounds.width}x${bounds.height}`);
+    return bounds;
+  }
+
+  /**
+   * Calculate client signature zone using SIGNATURE_INSTRUCTION.md methodology  
+   * Finds "Client Signature" text and creates approximate zone
+   */
+  calculateClientSignatureZone(pageBoxes, image) {
+    this.log(`🎯 Calculating client signature zone for page with ${pageBoxes.length} boxes`);
+    
+    // Find "Client Signature" box with proximity to "Place" 
+    const signatureBox = this.findBoxByText(pageBoxes, [
+      "Client Signature",
+      "Client signature", 
+      "signature"
+    ], { 
+      threshold: 0.6,
+      proximityText: ["Place", "place"]
+    });
+    
+    if (!signatureBox) {
+      throw new Error("Could not find 'Client Signature' box for signature zone calculation");
+    }
+    
+    this.log(`📍 Found signature box at (${signatureBox.x}, ${signatureBox.y})`);
+    
+    // Determine if coordinates are already in image space (OCR) or PDF space (PDF)
+    // OCR coordinates are in image pixel space and should not be scaled
+    // PDF coordinates are in PDF point space and need to be scaled to image pixels
+    const isOCRData = this.isOCRCoordinateSpace(pageBoxes, image);
+    const coordinateScale = isOCRData ? 1 : image.scaleFactor;
+    
+    this.log(`🔧 Using coordinate scale: ${coordinateScale} (${isOCRData ? 'OCR' : 'PDF'} coordinates)`);
+    
+    // Use SIGNATURE_INSTRUCTION.md methodology:
+    // - Take page width, divide in half for right bounds
+    // - Give 10-12% of overall page height as area box
+    const pageHeightPercent = 0.12; // 12% of page height
+    
+    const bounds = {
+      x: signatureBox.x * coordinateScale,
+      y: (signatureBox.y + signatureBox.height + 40) * coordinateScale, // Start below signature text
+      width: (image.width / 2) - (signatureBox.x * coordinateScale), // Half page width from signature start
+      height: image.height * pageHeightPercent // 12% of page height
+    };
+    
+    // Validate bounds against image dimensions
+    if (bounds.x < 0 || bounds.y < 0 || 
+        bounds.x + bounds.width > image.width || 
+        bounds.y + bounds.height > image.height) {
+      this.log(`⚠️  Zone bounds exceed image dimensions: ${JSON.stringify(bounds)} vs ${image.width}x${image.height}`);
+      
+      // Constrain bounds to image dimensions
+      bounds.x = Math.max(0, bounds.x);
+      bounds.y = Math.max(0, bounds.y);
+      bounds.width = Math.min(bounds.width, image.width - bounds.x);
+      bounds.height = Math.min(bounds.height, image.height - bounds.y);
+      
+      this.log(`🔧 Constrained bounds: ${JSON.stringify(bounds)}`);
+    }
+    
+    if (bounds.width <= 0 || bounds.height <= 0) {
+      throw new Error(`Invalid signature zone bounds: ${JSON.stringify(bounds)}`);
+    }
+    
+    this.log(`✅ Calculated signature zone: (${bounds.x}, ${bounds.y}) ${bounds.width}x${bounds.height}`);
+    return bounds;
+  }
+
+  /**
+   * Extract signature regions of interest (ROIs) as separate images
+   */
+  async extractSignatureROIs(extractedImages, signatureZones, extractPath) {
+    this.log(`✂️  Extracting ${signatureZones.length} signature ROIs`);
+    
+    for (const zone of signatureZones) {
+      const image = extractedImages[zone.pageIndex];
+      if (!image) {
+        this.log(`⚠️  No image found for page ${zone.pageIndex}, skipping ROI ${zone.name}`);
+        continue;
+      }
+      
+      try {
+        // Extract ROI with padding for positioning tolerance
+        const padding = 10;
+        const roiParams = {
+          left: Math.max(0, Math.round(zone.bounds.x - padding)),
+          top: Math.max(0, Math.round(zone.bounds.y - padding)),
+          width: Math.min(image.width - Math.max(0, Math.round(zone.bounds.x - padding)), 
+                         Math.round(zone.bounds.width + (padding * 2))),
+          height: Math.min(image.height - Math.max(0, Math.round(zone.bounds.y - padding)),
+                          Math.round(zone.bounds.height + (padding * 2)))
+        };
+        
+        const roiBuffer = await sharp(image.buffer)
+          .extract(roiParams)
+          .toBuffer();
+        
+        const roiFileName = `${zone.name}_roi.png`;
+        const roiFilePath = path.join(extractPath, 'signatures', roiFileName);
+        
+        await fs.writeFile(roiFilePath, roiBuffer);
+        
+        this.log(`💾 Saved ROI: ${roiFileName} (${roiParams.width}x${roiParams.height})`);
+        
+        // Add ROI info to zone
+        zone.roiFile = roiFileName;
+        zone.roiPath = roiFilePath;
+        zone.roiDimensions = roiParams;
+        
+      } catch (error) {
+        this.log(`❌ Failed to extract ROI for ${zone.name}: ${error.message}`);
+      }
+    }
+    
+    this.log(`✅ Extracted ${signatureZones.filter(z => z.roiFile).length} signature ROIs`);
+  }
+
+  /**
+   * Generate image manifest with dimensions and signature coordinates
+   */
+  async generateImageManifest(extractPath, extractedImages, signatureZones) {
+    const manifest = {
+      extractedAt: new Date().toISOString(),
+      scaleFactor: extractedImages[0]?.scaleFactor || 3,
+      totalPages: extractedImages.length,
+      images: extractedImages.map(img => ({
+        pageIndex: img.pageIndex,
+        fileName: img.fileName,
+        width: img.width,
+        height: img.height
+      })),
+      signatureZones: signatureZones.map(zone => ({
+        name: zone.name,
+        type: zone.type,
+        pageIndex: zone.pageIndex,
+        bounds: zone.bounds,
+        required: zone.required,
+        roiFile: zone.roiFile || null,
+        roiDimensions: zone.roiDimensions || null
+      }))
+    };
+    
+    const manifestPath = path.join(extractPath, 'manifest.json');
+    await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+    
+    this.log(`📋 Generated manifest: ${manifestPath}`);
+    this.log(`📊 Manifest summary: ${manifest.totalPages} pages, ${manifest.signatureZones.length} signature zones`);
+    
+    return manifest;
+  }
+
+  /**
+   * Get bounding boxes for a specific page from pdfData
+   * Used by signature zone calculation methods
+   */
+  getPageBoxes(pdfData, pageIndex) {
+    if (!pdfData || !pdfData.pages || pageIndex >= pdfData.pages.length) {
+      this.log(`⚠️  Invalid page data or page index ${pageIndex}`);
+      return [];
+    }
+    
+    const page = pdfData.pages[pageIndex];
+    if (!page.content || !Array.isArray(page.content)) {
+      this.log(`⚠️  No content found on page ${pageIndex}`);
+      return [];
+    }
+    
+    // Convert PDF content items to the expected box format
+    const boxes = page.content
+      .filter(item => item.str && item.str.trim().length > 0)
+      .map((item, itemIndex) => ({
+        text: item.str,
+        x: item.x,
+        y: item.y,
+        width: item.width,
+        height: item.height,
+        pageIndex: pageIndex,
+        boxIndex: itemIndex
+      }));
+    
+    this.log(`📦 Retrieved ${boxes.length} boxes for page ${pageIndex}`);
+    return boxes;
+  }
+
+  /**
+   * Find box by text patterns with OCR fragmentation support
+   * Used by signature zone calculation methods for both PDF and OCR text
+   */
+  findBoxByText(boxes, textPatterns, options = {}) {
+    const { threshold = 0.7, proximityText = null } = options;
+    
+    // First try the standard approach (works for PDF text)
+    const foundBox = this.findLabelBox(boxes, textPatterns);
+    
+    if (foundBox) {
+      return this.validateProximityText(foundBox, boxes, proximityText);
+    }
+    
+    // If standard approach fails, try OCR fragmentation handling
+    this.log(`🔍 Standard text search failed, trying OCR fragmentation approach for: ${textPatterns[0]}`);
+    return this.findFragmentedText(boxes, textPatterns, options);
+  }
+
+  /**
+   * Find fragmented text patterns common in OCR results
+   * Handles cases where "Case reference no" becomes ["Case", "reference", "no"]
+   */
+  findFragmentedText(boxes, textPatterns, options = {}) {
+    const { threshold = 0.7, proximityText = null } = options;
+    
+    for (const pattern of textPatterns) {
+      // Split pattern into key words for fragmented search
+      const keywords = pattern.toLowerCase().split(/\s+/).filter(word => word.length > 2);
+      
+      if (keywords.length < 2) continue; // Need at least 2 keywords for fragmentation
+      
+      this.log(`🧩 Searching for fragmented pattern: "${pattern}" -> [${keywords.join(', ')}]`);
+      
+      // Find boxes containing each keyword
+      const keywordBoxes = keywords.map(keyword => {
+        return boxes.filter(box => 
+          box.text && box.text.toLowerCase().includes(keyword)
+        );
+      });
+      
+      // Check if we found boxes for all keywords
+      const foundAllKeywords = keywordBoxes.every(boxArray => boxArray.length > 0);
+      
+      if (foundAllKeywords) {
+        this.log(`✅ Found all keywords for "${pattern}"`);
+        
+        // Find the best cluster of boxes that contain all keywords
+        const cluster = this.findBestKeywordCluster(keywordBoxes, keywords);
+        
+        if (cluster) {
+          // Create a representative box from the cluster
+          const representativeBox = this.createClusterRepresentativeBox(cluster, pattern);
+          this.log(`🎯 Created representative box for "${pattern}" at (${representativeBox.x}, ${representativeBox.y})`);
+          
+          return this.validateProximityText(representativeBox, boxes, proximityText);
+        }
+      }
+    }
+    
+    this.log(`❌ No fragmented text match found for patterns: [${textPatterns.join(', ')}]`);
+    return null;
+  }
+
+  /**
+   * Find the best cluster of boxes that represent fragmented keywords
+   */
+  findBestKeywordCluster(keywordBoxes, keywords) {
+    const maxDistance = 300; // Maximum distance between related boxes
+    
+    // For each combination of boxes (one from each keyword), check if they form a valid cluster
+    const firstKeywordBoxes = keywordBoxes[0];
+    
+    for (const firstBox of firstKeywordBoxes) {
+      const cluster = [firstBox];
+      let validCluster = true;
+      
+      // Try to find nearby boxes for remaining keywords
+      for (let i = 1; i < keywordBoxes.length; i++) {
+        const nearbyBox = keywordBoxes[i].find(box => {
+          const distance = Math.sqrt(
+            Math.pow(box.x - firstBox.x, 2) + Math.pow(box.y - firstBox.y, 2)
+          );
+          return distance <= maxDistance;
+        });
+        
+        if (nearbyBox) {
+          cluster.push(nearbyBox);
+        } else {
+          validCluster = false;
+          break;
+        }
+      }
+      
+      if (validCluster && cluster.length === keywords.length) {
+        this.log(`✅ Found valid cluster of ${cluster.length} boxes`);
+        return cluster;
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Create a representative bounding box from a cluster of fragmented text boxes
+   */
+  createClusterRepresentativeBox(cluster, originalPattern) {
+    // Calculate bounding box that encompasses all boxes in cluster
+    const minX = Math.min(...cluster.map(box => box.x));
+    const minY = Math.min(...cluster.map(box => box.y));
+    const maxX = Math.max(...cluster.map(box => box.x + box.width));
+    const maxY = Math.max(...cluster.map(box => box.y + box.height));
+    
+    return {
+      text: originalPattern, // Use original pattern as text
+      x: minX,
+      y: minY,
+      width: maxX - minX,
+      height: maxY - minY,
+      pageIndex: cluster[0].pageIndex, // Use page index from first box
+      isFragmentedMatch: true // Flag to identify this as a fragmented match
+    };
+  }
+
+  /**
+   * Determine if coordinate data is in OCR image space or PDF coordinate space
+   * OCR coordinates are typically larger and closer to image dimensions
+   * PDF coordinates are smaller and in PDF point space
+   */
+  isOCRCoordinateSpace(pageBoxes, image) {
+    if (!pageBoxes || pageBoxes.length === 0) return false;
+    
+    // Check for explicit OCR indicators
+    const hasOCRFlags = pageBoxes.some(box => 
+      box.isFragmentedMatch || 
+      box.confidence !== undefined || 
+      box.source === 'ocr'
+    );
+    
+    if (hasOCRFlags) {
+      this.log(`🔍 OCR detected: explicit OCR flags found`);
+      return true;
+    }
+    
+    // Heuristic: OCR coordinates tend to be larger and closer to image dimensions
+    const avgX = pageBoxes.reduce((sum, box) => sum + (box.x || 0), 0) / pageBoxes.length;
+    const avgY = pageBoxes.reduce((sum, box) => sum + (box.y || 0), 0) / pageBoxes.length;
+    const maxX = Math.max(...pageBoxes.map(box => box.x + (box.width || 0)));
+    const maxY = Math.max(...pageBoxes.map(box => box.y + (box.height || 0)));
+    
+    // OCR coordinates should be within reasonable bounds of image dimensions
+    // PDF coordinates are typically much smaller (< 1000) while OCR coordinates approach image size
+    const likelyOCR = 
+      avgX > 100 &&  // OCR coordinates are typically larger than 100
+      avgY > 100 &&
+      maxX > image.width * 0.3 &&  // Coordinates use significant portion of image width
+      maxY > image.height * 0.3;   // Coordinates use significant portion of image height
+      
+    this.log(`🔍 Coordinate analysis: avgX=${Math.round(avgX)}, avgY=${Math.round(avgY)}, maxX=${maxX}, maxY=${maxY}`);
+    this.log(`🔍 Image dimensions: ${image.width}x${image.height}`);
+    this.log(`🔍 OCR heuristic result: ${likelyOCR}`);
+    
+    return likelyOCR;
+  }
+
+  /**
+   * Validate proximity text if specified
+   */
+  validateProximityText(foundBox, boxes, proximityText) {
+    if (proximityText && proximityText.length > 0) {
+      const proximityFound = boxes.some(box => {
+        const distance = Math.sqrt(
+          Math.pow(box.x - foundBox.x, 2) + Math.pow(box.y - foundBox.y, 2)
+        );
+        
+        // Check if proximity text exists within reasonable distance
+        return distance < 200 && proximityText.some(pText => 
+          box.text && box.text.toLowerCase().includes(pText.toLowerCase())
+        );
+      });
+      
+      if (!proximityFound) {
+        this.log(`⚠️ Text '${foundBox.text}' found but proximity text [${proximityText.join(', ')}] not nearby`);
+        return null;
+      }
+    }
+    
+    return foundBox;
+  }
+
+  /**
+   * Create mock pdfData structure from OCR boxes for scanned PDFs
+   * This allows signature zone calculation to work with OCR results
+   */
+  createMockPdfDataFromOCR(ocrBoxes, totalPages) {
+    this.log(`🔧 Creating mock PDF data from ${ocrBoxes.length} OCR boxes for ${totalPages} pages`);
+    
+    // Group OCR boxes by page (assuming they have pageIndex property)
+    const pageGroups = {};
+    ocrBoxes.forEach(box => {
+      const pageIndex = box.pageIndex || 0;
+      if (!pageGroups[pageIndex]) {
+        pageGroups[pageIndex] = [];
+      }
+      pageGroups[pageIndex].push({
+        str: box.text,
+        x: box.x,
+        y: box.y, 
+        width: box.width,
+        height: box.height
+      });
+    });
+    
+    // Create mock pdfData structure
+    const mockPdfData = {
+      pages: []
+    };
+    
+    // Create page entries for all pages
+    for (let i = 0; i < totalPages; i++) {
+      mockPdfData.pages.push({
+        content: pageGroups[i] || []
+      });
+    }
+    
+    this.log(`📄 Created mock PDF data: ${mockPdfData.pages.length} pages`);
+    return mockPdfData;
+  }
+
+  /**
+   * Master function to orchestrate enhanced image extraction pipeline
+   */
+  async processDocumentImages(filePath, caseModel, pdfData) {
+    try {
+      this.log(`🎬 Starting enhanced image extraction pipeline for ${caseModel.caseId}`);
+      
+      // Step 1: Extract PDF pages to images
+      const extractedImages = await this.extractPDFPagesToImages(filePath, caseModel, 3);
+      
+      // Step 2: Calculate dynamic signature zones
+      const signatureZones = await this.calculateSignatureZones(pdfData, extractedImages);
+      
+      // Step 3: Extract signature ROIs
+      const extractPath = path.join(process.cwd(), '_extract', caseModel.caseId);
+      await this.extractSignatureROIs(extractedImages, signatureZones, extractPath);
+      
+      // Step 4: Generate manifest 
+      const manifest = await this.generateImageManifest(extractPath, extractedImages, signatureZones);
+      
+      this.log(`🎉 Enhanced image extraction complete!`);
+      this.log(`📂 All files saved to: ${extractPath}`);
+      
+      return {
+        extractPath,
+        extractedImages,
+        signatureZones,
+        manifest
+      };
+      
+    } catch (error) {
+      this.log(`❌ Enhanced image extraction failed: ${error.message}`);
+      throw error;
+    }
   }
 
   destroy() {

@@ -22,3 +22,33 @@ You're life saving assistance here is most appreciated. Please advise on your la
 
 
 
+---
+
+
+Business has scheduled a demo of the current CBO Quality verification automation process today and I'm struggling to think of way to demo a process that runs mostly in the background from the terminal - the only visible automation actions is when the bot opens the BPM web UI to approve a case or flag it for issues - I have a few ideas: ask you to help me generate a visually impressive diagram of the process - something richer than a normal mermaid process diagram - the other idea is to develop a quick prototype dashboard based off of a react dashboard project built for other automation projects that have all the elements required, we just need to add a PDF viewer with the ability to draw bounding boxes around fields which would be green when valid or red when invalid - do you have any ideas further?
+
+---
+
+lets start with an interactive or at least rich diagram - if we need to build out a web app or something for it Im happy since react has many great packages for diagrams and icons.
+The CBO Confirm verification quality flow I will try best represent below:
+- The process starts with the orchestrator agent that:
+  - queries the IBM BPM API to retrieve loan cases in the CBO Quality Verification team queue (these loans are Personal Loans, New Credit Cards, Credit Card limit increases, New Overdrafts and Overdraft limit increases)
+  - when there are cases in the CBO Quality Verification team queue the orchestrator agent will claim the cases under a commonly used non warm body domain account that all agents use and then assign the verification process of each case to 1 of the agents (bots) in the Roboteur RPA platform swarm (bot group) usually about 5 agensts / bots
+  - then the orchestrator agent will collect the details of each case that were claimed and assigned from the IBM BPM API and save those details to the Roboteur RPA platform realtime database for the assigned bots to collect and process
+  - for each bot in the Roboteur swarm they check their assigned cases after completion of a case, they will then:
+    - retrieve the case data and then query the ECM document server for the case PAQ (Pre-Agreement Quote), Application Document and bank statement
+    - then extract the PDF data as digital or perform advanced OCR to extract the document fields to validate
+    - then compare the extracted PAQ and Application document field data to the IBM BPM data model to verify that the loan details are correct and eligible to disburse. 
+    - the bot then checks the bank statements to ensure the debit order and disbursement accounts belong the client
+    - for personal loan cases if the client decides to arrange their own insurance the bot will then query the ECM document server again for a 3rd party insurance document or waiver
+    - if the documents collected are incomplete or missing the bot will assign the case to the 2nd queue agents to query the ECM document server further and setting a timeout to allow for delayed document linking or further image processing to enhance the OCR output
+    - when all the validation checks pass the bot uses web automation to login to the IBM BPM web ui, search for and enter the case task and approve the case for disbursement with a comment of all the checks that passed
+    - when there are issues with the case documents, either the extracted fields do not match BPM or are missing the bot uses web automation to login to the IBM BPM web ui, search for and enter the case task and flags the case to the liaison queue requesting corrected or updated documents
+    - when edge cases are found they are assigned to the review queue for manual disbursement which are about 1% of cases per month
+    - this process then repeats
+
+  flow.PNG
+
+  cbo-demo-dashboard/brand/index.css and incorporate the Nedbank logo in the header from the source file cbo-demo-dashboard/brand/Logo.tsx - also the system metrics and processing statitics of the dashboard are really not a focus for this presentation, please can we rather emphasize the current step of the simulated process currently in the side bar and increase the side bar width a little to eliminate the scrollbars
+
+  Please review cbo-demo-dashboard/web.log I am getting errors that crash the demo when running the success simulation

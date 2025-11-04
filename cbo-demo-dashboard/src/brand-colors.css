@@ -1,0 +1,96 @@
+/* Nedbank Brand Colors - Pure CSS Variables */
+:root {
+  /* Primary Nedbank Green */
+  --color-primary: #009639;
+  --color-primary-foreground: #f8f9fa;
+
+  /* Secondary Nedbank Dark Green */
+  --color-secondary: #006341;
+  --color-secondary-foreground: #f8f9fa;
+
+  /* Background and surface colors */
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f172a;
+
+  /* Muted colors for secondary text and backgrounds */
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+
+  /* Accent color - Nedbank Light Green */
+  --color-accent: #78be20;
+  --color-accent-foreground: #0f172a;
+
+  /* Status colors */
+  --color-destructive: #f56565;
+  --color-destructive-foreground: #f8f9fa;
+  --color-success: #009639;
+  --color-warning: #ed8936;
+
+  /* Border and input colors */
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #009639;
+
+  /* Border radius */
+  --radius: 0.5rem;
+}
+
+/* Nedbank Brand Gradients */
+.nedbank-gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+}
+
+.nedbank-gradient-accent {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-primary) 100%);
+}
+
+/* Nedbank Typography */
+.nedbank-heading {
+  color: var(--color-secondary);
+  font-weight: 600;
+}
+
+.nedbank-text {
+  color: var(--color-foreground);
+  line-height: 1.6;
+}
+
+/* Nedbank Components */
+.nedbank-button-primary {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nedbank-button-primary:hover {
+  background: var(--color-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 150, 57, 0.3);
+}
+
+.nedbank-button-outline {
+  background: white;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nedbank-button-outline:hover {
+  background: var(--color-primary);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 150, 57, 0.3);
+}

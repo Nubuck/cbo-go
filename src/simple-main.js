@@ -6,7 +6,7 @@ import SpatialDocumentValidator from "./cli/spatial-document-validator.js";
 
 async function main() {
   // 🎯 Switch to OCR testing mode  
-  const testMode = "digital"; // Testing the digital PDF pipeline
+  const testMode = "scanned"; // Testing the scanned PDF pipeline
   
   let caseModel, docPath;
 

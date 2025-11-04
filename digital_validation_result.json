@@ -1,0 +1,188 @@
+{
+  "status": "INVALID",
+  "confidence": 0.8333333333333334,
+  "fields": {
+    "caseId": {
+      "found": "10016998899",
+      "expected": "10016998899",
+      "valid": true,
+      "confidence": 1,
+      "valueBox": {
+        "text": "10016998899",
+        "x": 446.367,
+        "y": 82.86900000000003,
+        "width": 51.296,
+        "height": 8,
+        "pageIndex": 0,
+        "pageWidth": 595.276,
+        "pageHeight": 841.89,
+        "boxIndex": 28,
+        "source": "pdf"
+      },
+      "method": "direct_match"
+    },
+    "loanAmount": {
+      "found": 90640.57,
+      "expected": 90640.57,
+      "valid": true,
+      "confidence": 1,
+      "labelBox": {
+        "text": "Payout amount",
+        "x": 19.336,
+        "y": 183.39499999999998,
+        "width": 52.898999999999994,
+        "height": 7,
+        "pageIndex": 1,
+        "pageWidth": 595.276,
+        "pageHeight": 841.89,
+        "boxIndex": 49,
+        "source": "pdf",
+        "matchScore": 1,
+        "matchedLabel": "Payout amount",
+        "matchType": "exact"
+      },
+      "valueBox": {
+        "text": "R90 640,57",
+        "x": 160.988,
+        "y": 183.39499999999998,
+        "width": 38.254999999999995,
+        "height": 7,
+        "pageIndex": 1,
+        "pageWidth": 595.276,
+        "pageHeight": 841.89,
+        "boxIndex": 51,
+        "source": "pdf"
+      },
+      "method": "direct_value_match"
+    },
+    "instalment": {
+      "found": 3393.49,
+      "expected": 3393.49,
+      "valid": true,
+      "confidence": 1,
+      "labelBox": {
+        "text": "Monthly instalment (including interest, R3 393,49",
+        "x": 307.418,
+        "y": 587.2429999999999,
+        "width": 173.7820000000001,
+        "height": 7,
+        "pageIndex": 0,
+        "pageWidth": 595.276,
+        "pageHeight": 841.89,
+        "boxIndex": 159,
+        "source": "pdf",
+        "matchScore": 0.95,
+        "matchedLabel": "Monthly instalment (including interest",
+        "matchType": "prefix"
+      },
+      "valueBox": {
+        "text": "Monthly instalment (including interest, R3 393,49",
+        "x": 307.418,
+        "y": 587.2429999999999,
+        "width": 173.7820000000001,
+        "height": 7,
+        "pageIndex": 0,
+        "pageWidth": 595.276,
+        "pageHeight": 841.89,
+        "boxIndex": 159,
+        "source": "pdf"
+      },
+      "method": "multi_table_exact_match",
+      "tableIndex": 1
+    },
+    "interestRate": {
+      "found": 29.25,
+      "expected": 29.25,
+      "valid": true,
+      "confidence": 1,
+      "labelBox": {
+        "text": "Annual interest rate - fixed",
+        "x": 307.418,
+        "y": 723.75,
+        "width": 93.38700000000011,
+        "height": 7,
+        "pageIndex": 0,
+        "pageWidth": 595.276,
+        "pageHeight": 841.89,
+        "boxIndex": 172,
+        "source": "pdf",
+        "matchScore": 1,
+        "matchedLabel": "Annual interest rate - fixed",
+        "matchType": "exact"
+      },
+      "valueBox": {
+        "text": "29.25%",
+        "x": 449.07,
+        "y": 723.75,
+        "width": 24.387999999999998,
+        "height": 7,
+        "pageIndex": 0,
+        "pageWidth": 595.276,
+        "pageHeight": 841.89,
+        "boxIndex": 174,
+        "source": "pdf"
+      },
+      "method": "direct_value_match"
+    },
+    "insurancePremium": {
+      "found": 211.25,
+      "expected": 321.46,
+      "valid": true,
+      "confidence": 0.85,
+      "labelBox": {
+        "text": "Credit life insurance (included in the R211,25",
+        "x": 307.214,
+        "y": 411.80899999999997,
+        "width": 165.753,
+        "height": 7,
+        "pageIndex": 1,
+        "pageWidth": 595.276,
+        "pageHeight": 841.89,
+        "boxIndex": 96,
+        "source": "pdf",
+        "matchScore": 0.95,
+        "matchedLabel": "Credit life insurance (included in",
+        "matchType": "prefix"
+      },
+      "valueBox": {
+        "text": "Credit life insurance (included in the R211,25",
+        "x": 307.214,
+        "y": 411.80899999999997,
+        "width": 165.753,
+        "height": 7,
+        "pageIndex": 1,
+        "pageWidth": 595.276,
+        "pageHeight": 841.89,
+        "boxIndex": 96,
+        "source": "pdf"
+      },
+      "method": "multi_table_staff_accepted",
+      "tableIndex": 1,
+      "allValues": [
+        211.25,
+        11.75,
+        1.54,
+        61.2,
+        139992,
+        196.47
+      ],
+      "note": "Staff application - accepted alternative rate"
+    }
+  },
+  "issues": [
+    "Field not found: collectionAccountNo"
+  ],
+  "summary": {
+    "total": 6,
+    "found": 5,
+    "valid": 5,
+    "confidence": "83%"
+  },
+  "imageExtraction": {
+    "status": "SUCCESS",
+    "extractPath": "/mnt/d/code/CBO-GO/cbo-go-bot/_extract/10016998899",
+    "totalPages": 6,
+    "signatureZones": 6,
+    "manifestPath": "/mnt/d/code/CBO-GO/cbo-go-bot/_extract/10016998899/manifest.json"
+  }
+}

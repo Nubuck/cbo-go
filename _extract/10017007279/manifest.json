@@ -1,0 +1,58 @@
+{
+  "extractedAt": "2025-09-07T19:39:27.406Z",
+  "scaleFactor": 3,
+  "totalPages": 5,
+  "images": [
+    {
+      "pageIndex": 0,
+      "fileName": "page0_scale3.png",
+      "width": 1786,
+      "height": 2527
+    },
+    {
+      "pageIndex": 1,
+      "fileName": "page1_scale3.png",
+      "width": 1786,
+      "height": 2527
+    },
+    {
+      "pageIndex": 2,
+      "fileName": "page2_scale3.png",
+      "width": 1786,
+      "height": 2527
+    },
+    {
+      "pageIndex": 3,
+      "fileName": "page3_scale3.png",
+      "width": 1786,
+      "height": 2527
+    },
+    {
+      "pageIndex": 4,
+      "fileName": "page4_scale3.png",
+      "width": 1786,
+      "height": 2527
+    }
+  ],
+  "signatureZones": [
+    {
+      "name": "clientInitial_page0",
+      "type": "initial",
+      "pageIndex": 0,
+      "bounds": {
+        "x": 195,
+        "y": 2137,
+        "width": 698,
+        "height": 118
+      },
+      "required": true,
+      "roiFile": "clientInitial_page0_roi.png",
+      "roiDimensions": {
+        "left": 185,
+        "top": 2127,
+        "width": 718,
+        "height": 138
+      }
+    }
+  ]
+}
