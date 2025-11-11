@@ -1,5 +1,5 @@
 /* Import Nedbank Brand Colors */
-@import './brand-colors.css';
+@import "./brand-colors.css";
 
 /* Global Styles */
 * {
@@ -9,7 +9,7 @@
 }
 
 body {
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
   background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 50%, #f1f8e9 100%);
   color: var(--color-foreground);
   overflow: hidden;
@@ -25,7 +25,11 @@ body {
 
 /* Header */
 .header {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-secondary) 100%
+  );
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(0, 150, 57, 0.2);
   padding: 1rem 2rem;
@@ -201,7 +205,11 @@ body {
 }
 
 .animate-button.success {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-secondary)
+  );
   color: white;
   box-shadow: 0 4px 15px rgba(0, 150, 57, 0.4);
 }
@@ -320,18 +328,28 @@ body {
 
 /* Custom Node Styles */
 .custom-node {
-  background: linear-gradient(135deg, rgba(30, 30, 45, 0.95), rgba(40, 40, 60, 0.95));
+  background: linear-gradient(
+    135deg,
+    rgba(30, 30, 45, 0.95),
+    rgba(40, 40, 60, 0.95)
+  );
   border-radius: 12px;
   padding: 1rem;
   min-width: 200px;
   max-width: 280px;
   backdrop-filter: blur(10px);
   transition: all 0.3s;
+  color: #fff;
 }
 
 .custom-node.success {
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 136, 0.1),
+    rgba(0, 255, 136, 0.05)
+  );
   border-color: #00ff88 !important;
+  color: #00ff88;
 }
 
 /* Dark text for light green background */
@@ -355,8 +373,13 @@ body {
 }
 
 .custom-node.warning {
-  background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 107, 107, 0.1),
+    rgba(255, 107, 107, 0.05)
+  );
   border-color: #ff6b6b !important;
+  color: #ff6b6b;
 }
 
 /* Dark text for light red background */
@@ -380,8 +403,13 @@ body {
 }
 
 .custom-node.rare {
-  background: linear-gradient(135deg, rgba(229, 153, 247, 0.1), rgba(229, 153, 247, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(229, 153, 247, 0.1),
+    rgba(229, 153, 247, 0.05)
+  );
   border-color: #e599f7 !important;
+  color: #e599f7;
 }
 
 /* Dark text for light purple background */
@@ -424,7 +452,7 @@ body {
 /* Default: Light text for dark background nodes */
 .node-description {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.85) !important;
+  /* color: rgba(255, 255, 255, 0.85) !important; */
   margin-bottom: 0.75rem;
   line-height: 1.4;
 }
@@ -444,7 +472,7 @@ body {
 }
 
 .node-details li:before {
-  content: '▸';
+  content: "▸";
   position: absolute;
   left: 0;
   color: #4a90e2;
@@ -488,11 +516,16 @@ body {
 
 /* System Node Styles */
 .system-node {
-  background: linear-gradient(135deg, rgba(74, 144, 226, 0.15), rgba(74, 144, 226, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(74, 144, 226, 0.15),
+    rgba(74, 144, 226, 0.05)
+  );
   border-radius: 16px;
   padding: 1.25rem;
   min-width: 220px;
   backdrop-filter: blur(10px);
+  color: #4a90e2;
 }
 
 .system-header {
@@ -581,7 +614,8 @@ body {
   color: #1e293b;
 }
 
-.efficiency, .active-count {
+.efficiency,
+.active-count {
   font-size: 0.85rem;
   color: #006341;
   font-weight: 500;
@@ -590,12 +624,17 @@ body {
 
 /* Decision Node Styles */
 .decision-node {
-  background: linear-gradient(135deg, rgba(245, 166, 35, 0.15), rgba(245, 166, 35, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(245, 166, 35, 0.15),
+    rgba(245, 166, 35, 0.05)
+  );
   border-radius: 12px;
   padding: 1rem;
   min-width: 200px;
   max-width: 280px;
   backdrop-filter: blur(10px);
+  color: #f5a623;
 }
 
 .decision-header {
@@ -692,7 +731,11 @@ body {
 
 .current-step-section {
   padding: 1.5rem;
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-primary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-accent) 0%,
+    var(--color-primary) 100%
+  );
   color: white;
   border-bottom: 1px solid var(--color-border);
 }
@@ -724,15 +767,27 @@ body {
 }
 
 .node-details-section.achievement {
-  background: linear-gradient(135deg, rgba(120, 190, 32, 0.05) 0%, rgba(0, 150, 57, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(120, 190, 32, 0.05) 0%,
+    rgba(0, 150, 57, 0.05) 100%
+  );
 }
 
 .node-details-section.success {
-  background: linear-gradient(135deg, rgba(0, 150, 57, 0.05) 0%, rgba(0, 99, 65, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 150, 57, 0.05) 0%,
+    rgba(0, 99, 65, 0.05) 100%
+  );
 }
 
 .node-details-section.warning {
-  background: linear-gradient(135deg, rgba(237, 137, 54, 0.05) 0%, rgba(245, 101, 101, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(237, 137, 54, 0.05) 0%,
+    rgba(245, 101, 101, 0.05) 100%
+  );
 }
 
 .node-title {
@@ -743,9 +798,10 @@ body {
 }
 
 .step-details-panel .node-description {
-  color: var(--color-foreground);
+  color: #1a202c;
   line-height: 1.6;
   margin-bottom: 1.5rem;
+  font-size: 0.95rem;
 }
 
 .key-points h4 {
@@ -766,13 +822,13 @@ body {
   padding: 0.5rem 0;
   padding-left: 1.5rem;
   position: relative;
-  color: var(--color-foreground);
+  color: #2d3748;
   font-size: 0.925rem;
   line-height: 1.5;
 }
 
 .key-points li:before {
-  content: '✓';
+  content: "✓";
   position: absolute;
   left: 0;
   color: var(--color-primary);
@@ -857,7 +913,11 @@ body {
 .achievement {
   text-align: center;
   padding: 1rem;
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 136, 0.1),
+    rgba(0, 255, 136, 0.05)
+  );
   border-radius: 12px;
   border: 1px solid rgba(0, 255, 136, 0.3);
 }
@@ -957,7 +1017,7 @@ body {
 }
 
 .node-info ul li:before {
-  content: '•';
+  content: "•";
   position: absolute;
   left: -1rem;
   color: #4a90e2;

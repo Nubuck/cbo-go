@@ -1,8 +1,11 @@
 import React from 'react';
 import { Handle, Position } from 'reactflow';
 import { motion } from 'framer-motion';
+import * as Icons from 'lucide-react';
 
 const DecisionNode = ({ data, selected }) => {
+  const IconComponent = Icons[data.icon];
+
   return (
     <motion.div
       className="decision-node"
@@ -18,7 +21,9 @@ const DecisionNode = ({ data, selected }) => {
       <Handle type="target" position={Position.Top} />
 
       <div className="decision-header">
-        <span className="decision-icon">{data.icon}</span>
+        <span className="decision-icon">
+          {IconComponent ? <IconComponent size={26} /> : data.icon}
+        </span>
         <h3>{data.label}</h3>
       </div>
 
@@ -46,8 +51,10 @@ const DecisionNode = ({ data, selected }) => {
             backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
           }}
           transition={{ repeat: Infinity, duration: 3 }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
         >
-          🎯 {data.breakthrough}
+          <Icons.Target size={16} />
+          {data.breakthrough}
         </motion.div>
       )}
 

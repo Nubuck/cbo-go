@@ -57,43 +57,43 @@ function FlowDiagram() {
   // Define multiple process flow sequences for different scenarios
   const processSequences = {
     success: [
-      { nodeId: 'orchestrator', duration: 10000, message: 'Orchestrator initiates process' },
-      { nodeId: 'bpm-query', duration: 12000, message: 'Querying IBM BPM for cases' },
-      { nodeId: 'claim-cases', duration: 10000, message: 'Claiming and assigning cases' },
-      { nodeId: 'save-database', duration: 10000, message: 'Saving to RPA database' },
-      { nodeId: 'bot-swarm', duration: 12000, message: 'Bot swarm activates' },
-      { nodeId: 'retrieve-docs', duration: 15000, message: 'Retrieving documents from ECM' },
-      { nodeId: 'extract-data', duration: 15000, message: 'Extracting PDF data with 100% accuracy' },
+      { nodeId: 'orchestrator', duration: 5000, message: 'Orchestrator initiates process' },
+      { nodeId: 'bpm-query', duration: 6000, message: 'Querying IBM BPM for cases' },
+      { nodeId: 'claim-cases', duration: 5000, message: 'Claiming and assigning cases' },
+      { nodeId: 'save-database', duration: 5000, message: 'Saving to RPA database' },
+      { nodeId: 'bot-swarm', duration: 6000, message: 'Bot swarm activates' },
+      { nodeId: 'retrieve-docs', duration: 7000, message: 'Retrieving documents from ECM' },
+      { nodeId: 'extract-data', duration: 7000, message: 'Extracting PDF data with 100% accuracy' },
       { nodeId: 'validate-fields', duration: 20000, message: 'All 6 fields validated successfully!' },
-      { nodeId: 'check-statements', duration: 10000, message: 'Bank accounts verified' },
-      { nodeId: 'check-insurance', duration: 10000, message: 'Insurance requirements met' },
-      { nodeId: 'validation-result', duration: 12000, message: 'All validations passed ✅' },
-      { nodeId: 'approve-case', duration: 15000, message: 'Case approved for disbursement!' },
-      { nodeId: 'repeat-process', duration: 10000, message: 'Process complete, returning to queue' }
+      { nodeId: 'check-statements', duration: 5000, message: 'Bank accounts verified' },
+      { nodeId: 'check-insurance', duration: 5000, message: 'Insurance requirements met' },
+      { nodeId: 'validation-result', duration: 6000, message: 'All validations passed ✅' },
+      { nodeId: 'approve-case', duration: 7000, message: 'Case approved for disbursement!' },
+      { nodeId: 'repeat-process', duration: 5000, message: 'Process complete, returning to queue' }
     ],
     issues: [
-      { nodeId: 'orchestrator', duration: 10000, message: 'Orchestrator initiates process' },
-      { nodeId: 'bpm-query', duration: 12000, message: 'Querying IBM BPM for cases' },
-      { nodeId: 'claim-cases', duration: 10000, message: 'Claiming and assigning cases' },
-      { nodeId: 'save-database', duration: 10000, message: 'Saving to RPA database' },
-      { nodeId: 'bot-swarm', duration: 12000, message: 'Bot swarm activates' },
-      { nodeId: 'retrieve-docs', duration: 15000, message: 'Retrieving documents from ECM' },
-      { nodeId: 'extract-data', duration: 15000, message: 'Extracting PDF data' },
+      { nodeId: 'orchestrator', duration: 5000, message: 'Orchestrator initiates process' },
+      { nodeId: 'bpm-query', duration: 6000, message: 'Querying IBM BPM for cases' },
+      { nodeId: 'claim-cases', duration: 5000, message: 'Claiming and assigning cases' },
+      { nodeId: 'save-database', duration: 5000, message: 'Saving to RPA database' },
+      { nodeId: 'bot-swarm', duration: 6000, message: 'Bot swarm activates' },
+      { nodeId: 'retrieve-docs', duration: 7000, message: 'Retrieving documents from ECM' },
+      { nodeId: 'extract-data', duration: 7000, message: 'Extracting PDF data' },
       { nodeId: 'validate-fields', duration: 20000, message: 'Field mismatch detected ⚠️' },
-      { nodeId: 'validation-result', duration: 12000, message: 'Validation issues found' },
-      { nodeId: 'flag-issues', duration: 15000, message: 'Flagging to liaison queue for correction' },
-      { nodeId: 'repeat-process', duration: 10000, message: 'Process complete, case flagged' }
+      { nodeId: 'validation-result', duration: 6000, message: 'Validation issues found' },
+      { nodeId: 'flag-issues', duration: 7000, message: 'Flagging to liaison queue for correction' },
+      { nodeId: 'repeat-process', duration: 5000, message: 'Process complete, case flagged' }
     ],
     missing: [
-      { nodeId: 'orchestrator', duration: 10000, message: 'Orchestrator initiates process' },
-      { nodeId: 'bpm-query', duration: 12000, message: 'Querying IBM BPM for cases' },
-      { nodeId: 'claim-cases', duration: 10000, message: 'Claiming and assigning cases' },
-      { nodeId: 'save-database', duration: 10000, message: 'Saving to RPA database' },
-      { nodeId: 'bot-swarm', duration: 12000, message: 'Bot swarm activates' },
-      { nodeId: 'retrieve-docs', duration: 15000, message: 'Documents missing from ECM' },
-      { nodeId: 'validation-result', duration: 12000, message: 'Missing required documents' },
-      { nodeId: 'second-queue', duration: 15000, message: 'Routing to 2nd queue for deep search' },
-      { nodeId: 'repeat-process', duration: 10000, message: 'Extended processing initiated' }
+      { nodeId: 'orchestrator', duration: 5000, message: 'Orchestrator initiates process' },
+      { nodeId: 'bpm-query', duration: 6000, message: 'Querying IBM BPM for cases' },
+      { nodeId: 'claim-cases', duration: 5000, message: 'Claiming and assigning cases' },
+      { nodeId: 'save-database', duration: 5000, message: 'Saving to RPA database' },
+      { nodeId: 'bot-swarm', duration: 6000, message: 'Bot swarm activates' },
+      { nodeId: 'retrieve-docs', duration: 7000, message: 'Documents missing from ECM' },
+      { nodeId: 'validation-result', duration: 6000, message: 'Missing required documents' },
+      { nodeId: 'second-queue', duration: 7000, message: 'Routing to 2nd queue for deep search' },
+      { nodeId: 'repeat-process', duration: 5000, message: 'Extended processing initiated' }
     ]
   };
 

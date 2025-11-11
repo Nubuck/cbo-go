@@ -8,7 +8,7 @@ export const initialNodes = [
     position: { x: 650, y: 50 },
     data: {
       label: 'Orchestrator Agent',
-      icon: '🎯',
+      icon: 'Target',
       description: 'Central control system',
       stats: { active: true, load: '78%' },
       systems: ['IBM BPM API', 'Roboteur RPA']
@@ -22,7 +22,7 @@ export const initialNodes = [
     position: { x: 150, y: 200 },
     data: {
       label: 'Query BPM API',
-      icon: '📊',
+      icon: 'BarChart3',
       description: 'Retrieve loan cases from CBO Quality Verification queue',
       details: ['Personal Loans', 'Credit Cards', 'Overdrafts'],
       metrics: { avgTime: '1.2s', volume: '400-800/day' }
@@ -34,7 +34,7 @@ export const initialNodes = [
     position: { x: 500, y: 200 },
     data: {
       label: 'Claim & Assign Cases',
-      icon: '🔄',
+      icon: 'RefreshCw',
       description: 'Claim under domain account & distribute to bot swarm',
       details: ['5 Active Bots', 'Load Balanced', 'Real-time Assignment']
     }
@@ -45,7 +45,7 @@ export const initialNodes = [
     position: { x: 850, y: 200 },
     data: {
       label: 'Roboteur RPA Database',
-      icon: '💾',
+      icon: 'Database',
       description: 'Real-time case storage',
       systems: ['SQLite', 'Case Models', 'Assignment Queue']
     }
@@ -58,7 +58,7 @@ export const initialNodes = [
     position: { x: 650, y: 350 },
     data: {
       label: 'Bot Swarm (5 Agents)',
-      icon: '🤖',
+      icon: 'Bot',
       description: 'Parallel processing units',
       stats: { active: 5, efficiency: '98%' }
     }
@@ -71,7 +71,7 @@ export const initialNodes = [
     position: { x: 250, y: 500 },
     data: {
       label: 'Retrieve Documents',
-      icon: '📁',
+      icon: 'FolderOpen',
       description: 'Query ECM document server',
       details: ['PAQ Document', 'Application', 'Bank Statements'],
       metrics: { avgTime: '2.1s' }
@@ -83,7 +83,7 @@ export const initialNodes = [
     position: { x: 650, y: 500 },
     data: {
       label: 'Extract PDF Data',
-      icon: '🔍',
+      icon: 'Search',
       description: 'Digital extraction or OCR processing',
       options: ['Digital PDF (100% accuracy)', 'OCR Processing (80%+ target)'],
       breakthrough: '100% accuracy on digital PDFs!'
@@ -95,7 +95,7 @@ export const initialNodes = [
     position: { x: 1050, y: 500 },
     data: {
       label: 'Validate Fields',
-      icon: '✅',
+      icon: 'CheckCircle',
       description: 'Spatial validation & comparison',
       details: ['6 Critical Fields', 'Staff Discount Logic', 'Focused Spatial Search'],
       metrics: { accuracy: '100%', time: '0.3s' }
@@ -109,7 +109,7 @@ export const initialNodes = [
     position: { x: 450, y: 650 },
     data: {
       label: 'Verify Bank Accounts',
-      icon: '🏦',
+      icon: 'Building2',
       description: 'Validate debit order & disbursement accounts',
       details: ['Account ownership', 'Active status']
     }
@@ -120,7 +120,7 @@ export const initialNodes = [
     position: { x: 850, y: 650 },
     data: {
       label: 'Insurance Check',
-      icon: '🛡️',
+      icon: 'Shield',
       description: 'Personal loans insurance verification',
       options: ['3rd Party Insurance', 'Waiver Document', 'Bank Insurance']
     }
@@ -133,9 +133,9 @@ export const initialNodes = [
     position: { x: 650, y: 800 },
     data: {
       label: 'Validation Result',
-      icon: '⚡',
+      icon: 'Zap',
       description: 'Route based on validation outcome',
-      options: ['✅ All Passed', '❌ Issues Found', '🔍 Missing Docs', '⚠️ Edge Case']
+      options: ['All Passed', 'Issues Found', 'Missing Docs', 'Edge Case']
     }
   },
 
@@ -146,7 +146,7 @@ export const initialNodes = [
     position: { x: 150, y: 950 },
     data: {
       label: 'Approve Case',
-      icon: '✅',
+      icon: 'CheckCircle',
       description: 'Web automation approval',
       details: ['Login BPM UI', 'Search case', 'Approve with comments'],
       success: true
@@ -158,7 +158,7 @@ export const initialNodes = [
     position: { x: 450, y: 950 },
     data: {
       label: 'Flag for Liaison',
-      icon: '🚩',
+      icon: 'Flag',
       description: 'Request document corrections',
       details: ['Mark issues', 'Request updates', 'Route to liaison queue'],
       warning: true
@@ -170,7 +170,7 @@ export const initialNodes = [
     position: { x: 750, y: 950 },
     data: {
       label: '2nd Queue Processing',
-      icon: '⏳',
+      icon: 'Clock',
       description: 'Deep document search',
       details: ['Extended ECM query', 'Image enhancement', 'OCR retry']
     }
@@ -181,7 +181,7 @@ export const initialNodes = [
     position: { x: 1050, y: 950 },
     data: {
       label: 'Manual Review',
-      icon: '👤',
+      icon: 'User',
       description: 'Edge case handling',
       details: ['~1% of cases', 'Complex scenarios'],
       rare: true
@@ -195,7 +195,7 @@ export const initialNodes = [
     position: { x: 650, y: 1100 },
     data: {
       label: 'Process Complete',
-      icon: '♻️',
+      icon: 'Repeat',
       description: 'Return to case queue',
       stats: { completed: true }
     }

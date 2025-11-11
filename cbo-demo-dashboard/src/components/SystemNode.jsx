@@ -1,8 +1,11 @@
 import React from 'react';
 import { Handle, Position } from 'reactflow';
 import { motion } from 'framer-motion';
+import * as Icons from 'lucide-react';
 
 const SystemNode = ({ data, selected }) => {
+  const IconComponent = Icons[data.icon];
+
   return (
     <motion.div
       className="system-node"
@@ -18,7 +21,9 @@ const SystemNode = ({ data, selected }) => {
       <Handle type="target" position={Position.Top} />
 
       <div className="system-header">
-        <span className="system-icon">{data.icon}</span>
+        <span className="system-icon">
+          {IconComponent ? <IconComponent size={28} /> : data.icon}
+        </span>
         <h3>{data.label}</h3>
         {data.stats?.active && (
           <motion.div

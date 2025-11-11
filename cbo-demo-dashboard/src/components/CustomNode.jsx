@@ -1,8 +1,12 @@
 import React from 'react';
 import { Handle, Position } from 'reactflow';
 import { motion } from 'framer-motion';
+import * as Icons from 'lucide-react';
 
 const CustomNode = ({ data, selected }) => {
+  // Render icon from lucide-react if data.icon is a string, otherwise render as-is
+  const IconComponent = Icons[data.icon];
+
   return (
     <motion.div
       className={`custom-node ${data.success ? 'success' : ''} ${data.warning ? 'warning' : ''} ${data.rare ? 'rare' : ''}`}
@@ -19,7 +23,9 @@ const CustomNode = ({ data, selected }) => {
       <Handle type="target" position={Position.Top} />
 
       <div className="node-header">
-        <span className="node-icon">{data.icon}</span>
+        <span className="node-icon">
+          {IconComponent ? <IconComponent size={24} /> : data.icon}
+        </span>
         <h3>{data.label}</h3>
       </div>
 

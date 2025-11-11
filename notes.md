@@ -1,0 +1,18 @@
+Title: The AI Revolution Nobody Asked For (But We're Getting Anyway)
+Let me start with the most predictable sentence I'll write today: I asked Claude to help me write this article about AI. The irony writes itself.
+
+Here's what I'm seeing from the trenches as a CTO of the RPA platform Roboteur: most business users are barely scratching the surface of AI capabilities. They're summarizing emails, condensing meeting minutes, and churning out documentation—which, by the way, I can always spot now because bullet points suddenly have emojis. AI loves emojis. Corporate IT policies aren't helping either, blocking everything except Microsoft Copilot baked into Office and Teams. Between policy restrictions and genuine lack of technical curiosity, we're leaving massive value on the table.
+
+Where I am seeing real business value is unglamorous but critical: enhanced OCR, document understanding, and human-like natural language processing that transforms messy inputs into clean, structured data. It's not sexy, but it's what actually moves the needle in enterprise.
+
+The creative industry tells a different story—and not a great one. My fiancée works at a leading ad agency where executives, dazzled by sales pitches promising creative wonder machines, have already actioned retrenchments betting big on AI. Reality check: the tools are nowhere near as magical as promised. Key creatives are drowning trying to meet demand with half-baked AI assistance, though storyboarding and retail work have genuinely improved. My film industry friends are keen early adopters, but the outputs just aren't there yet.
+
+Meanwhile, developers? We're all in. I started out worried about a "pay to win" development industry—and I was right to worry—but the pace of progress in AI coding tools has turned concern into acceptance. I've gone from a $20 Claude Pro account to a $100 Max subscription just for more Opus access. I'm so dependent on Claude Code that I now benchmark sprint planning and project costs by how many AI agents I can spawn per requirements document. My team gets Cursor and Claude Code subscriptions without question because the ROI is undeniable.
+
+But here's my lingering concern: when we're all revenue-dependent on AI code tools, what happens when prices surge? I've tried running models at home—it's expensive, and the results don't come close to Claude Code's quality. We're building business-critical dependency on tools whose pricing we don't control.
+
+The next wave terrifies and amuses me in equal measure: non-developer "vibe coders" are about to create a generation of catastrophically bad software that "works, so don't fix it." Expect security breaches, rebuild-everything-every-version culture, and systems nobody understands. But here's the silver lining for veteran developers: reviewing AI-generated code, proper context engineering, and prompt crafting to produce production-worthy projects requires real expertise. We're entering a golden era of cleaning up after the vibe coders.
+
+Where's this all heading? Chat-style generative UI will become the norm. AI will build software for both AI and human consumption simultaneously. There's no stopping this train—AI is our co-worker now. And that old chestnut "learn to code"? It's becoming "learn to wire or plumb." As BlackRock predicts white-collar decline (thanks to boomer execs cutting human resources to capitalize on AI), electricians and plumbers might be the real winners.
+
+Can't fight it. Might as well spawn another agent.
